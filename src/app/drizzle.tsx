@@ -1,4 +1,4 @@
-import { drizzle } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client
