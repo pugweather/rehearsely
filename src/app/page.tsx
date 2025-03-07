@@ -1,41 +1,22 @@
-"use client"
+import db from "./database";
+import { User } from "@/database/drizzle/schema";
 
-import { useEffect, useState } from "react";
-import supabase from "@/app/config/supabaseClient";
+export default async function Home() {
 
-export default function Home() {
-
-  interface User {
-    id: number,
-    email: string,
-    name: string,
+  async function getUserById() {
+    const user = await db.query.User.findFirst({
+      where: (user, { eq }) => eq(user.id, 1)
+    })
+    return user
   }
 
-  const [users, setUsers] = useState<User[]>([])
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const {error, data} = await supabase.from("User").select()
-      if (error) {
-        console.error("Error fetching users:", error.message)
-      }
-      if (data) {
-        setUsers(data)
-      }
-    }
-    fetchUsers()
-  }, []);
+  const theUser = await getUserById()
 
   return (
     <div>
       <main>
-        <ul>
-          {users.map(user => {
-            return (
-              <li>{user.name} {user.email}</li>
-            )
-          })}
-        </ul>
+        {theUser ? <div>{theUser.name}</div> : <div>no user found</div>
+      }
       </main>
       <footer></footer>
     </div>
