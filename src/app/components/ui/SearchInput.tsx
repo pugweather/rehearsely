@@ -10,7 +10,7 @@ const SearchInput = () => {
         <input 
             type="text" 
             placeholder="Search scenes"
-            className="relative w-60 h-10 pl-7.5 border border-gray-300 rounded-md outline-none placeholder-gray-400"
+            className="relative w-75 h-10 pl-7.5 border border-gray-300 rounded-3xl outline-none placeholder-gray-400"
             onChange={() => console.log("clicked")}
         />
     </div>

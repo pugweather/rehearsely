@@ -1,5 +1,5 @@
 import React from "react"
-import ButtonLink from "../ui/Button"
+import ButtonLink from "../ui/ButtonLink"
 import Link from "next/link"
 
 export default function Hero() {

@@ -1,7 +1,7 @@
 import React from "react";
-import ButtonLink from "../ui/Button";
+import ButtonLink from "../ui/ButtonLink";
 import SearchInput from "../ui/SearchInput";
-import { faPlus} from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 export default function ScenesDashboardHeader() {
     return (
