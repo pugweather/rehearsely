@@ -1,8 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Yeseva_One, Quicksand } from "next/font/google";
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import "./globals.css";
+
+const yeseva = Yeseva_One({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-yeseva",
+});
+
+const quicksand = Quicksand({
+  subsets: ["latin"],
+  weight: ["300", "400", "700"], // Load multiple weights
+  variable: "--font-quicksand",
+});
 
 config.autoAddCss = false
 
@@ -28,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${yeseva.variable} ${quicksand.variable} antialiased`}>
         {children}
       </body>
     </html>
