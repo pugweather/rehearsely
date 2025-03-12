@@ -34,3 +34,8 @@ body {
 *::after {
   box-sizing: border-box;
 }
+
+input,
+textarea {
+  font-family: Inter, sans-serif;
+}
