@@ -7,9 +7,9 @@ import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
 
 interface SceneCardProps {
     id: number;
-    name: string;
+    name: string | null;
     modified: string;
-  }
+}
   
 const SceneCard = ({id, name, modified}: SceneCardProps) => {
   return (
