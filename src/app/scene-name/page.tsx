@@ -1,10 +1,28 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import Navbar from '../components/layout/Navbar'
 import Link from 'next/link'
 import ButtonLink from '../components/ui/ButtonLink'
 
 const SceneNamePage = () => {
+
+  const [sceneName, setSceneName] = useState('')
+
+  const handleSubmit = async () => {
+    const res = await fetch("/api/private/scenes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: sceneName
+        // user_id already being handled in scenes API route
+      })
+    })
+    const result = await res.json()
+    console.log(result)
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
         <Navbar />
@@ -16,10 +34,11 @@ const SceneNamePage = () => {
                       type="text" 
                       placeholder="Enter scene name"
                       className="relative w-125 h-15 pl-7.5 mr-4 text-lg border border-gray-300 rounded-3xl outline-none placeholder-gray-400"
+                      onChange={(e) => setSceneName(e.target.value)}
                   />
-                  <Link href="/editor">
+                  <button onClick={handleSubmit}>
                     <ButtonLink text='Done'></ButtonLink>
-                  </Link>
+                  </button>
               </div>
           </div>
         </div>

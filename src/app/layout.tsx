@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Yeseva_One, Quicksand } from "next/font/google";
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import "./globals.css";
+import InitUser from "./components/init/InitUser";
 
 const yeseva = Yeseva_One({
   subsets: ["latin"],
@@ -41,6 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${yeseva.variable} ${quicksand.variable} antialiased`}>
+        <InitUser />
         {children}
       </body>
     </html>
