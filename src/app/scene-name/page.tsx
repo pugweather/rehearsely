@@ -1,12 +1,13 @@
 'use client'
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Navbar from '../components/layout/Navbar'
-import Link from 'next/link'
 import ButtonLink from '../components/ui/ButtonLink'
 
 const SceneNamePage = () => {
 
   const [sceneName, setSceneName] = useState('')
+  const router = useRouter()
 
   const handleSubmit = async () => {
     const res = await fetch("/api/private/scenes", {
@@ -20,7 +21,8 @@ const SceneNamePage = () => {
       })
     })
     const result = await res.json()
-    console.log(result)
+    const { sceneId } = result
+    router.push(`/editor/${sceneId}`);
   }
 
   return (

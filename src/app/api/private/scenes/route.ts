@@ -37,11 +37,13 @@ export async function POST(req: Request) {
         return NextResponse.json({error: "Missing scene name"}, {status: 400})
     }
 
-    await db.insert(scenes).values({
+    const insertedScene = await db.insert(scenes).values({
         name,
         user_id: user.id
-    })
+    }).returning()
 
-    return NextResponse.json({success: true})
+    const sceneId = insertedScene[0]?.id
+
+    return NextResponse.json({sceneId})
 
 }
