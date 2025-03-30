@@ -24,9 +24,15 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
 
     const [query, setQuery]= useState<string>('')
     const [openedDropdownId, setOpenedDropdownId] = useState<number | null>(null)
+    
+    console.log(openedDropdownId)
 
     const setDropdownOpened = (sceneId: number) => {
       setOpenedDropdownId(sceneId)
+    }
+
+    const closeDropdown = () => {
+      setOpenedDropdownId(null)
     }
     
     
@@ -61,6 +67,7 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
               user_id={scene.user_id} 
               isDropdownOpen={openedDropdownId === scene.id}
               setDropdownOpened={() => setDropdownOpened(scene.id)}
+              closeDropdown={closeDropdown}
               dropdownData={sceneCardDropdownData}
               />
           })}

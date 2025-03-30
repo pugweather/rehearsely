@@ -15,7 +15,8 @@ interface SceneCardProps {
     user_id: string;
     isDropdownOpen: boolean;
     dropdownData: DropdownData[];
-    setDropdownOpened: ()=> void;
+    setDropdownOpened: () => void;
+    closeDropdown: ()=> void;
 }
 
 type DropdownData = {
@@ -24,9 +25,7 @@ type DropdownData = {
   className?: string
 }
   
-const SceneCard = ({id, name, modified_at, isDropdownOpen, dropdownData, setDropdownOpened}: SceneCardProps) => {
-
-
+const SceneCard = ({id, name, modified_at, isDropdownOpen, dropdownData, setDropdownOpened, closeDropdown}: SceneCardProps) => {
 
   return (
     <div className='relative mt-6.5'>
@@ -40,7 +39,7 @@ const SceneCard = ({id, name, modified_at, isDropdownOpen, dropdownData, setDrop
           </div>
         </div>
         <div className='relative justify-self-end items-start self-center font-bold tracking-wider cursor-pointer' onClick={() => setDropdownOpened()}>
-          {isDropdownOpen && <Dropdown dropdownData={dropdownData} className='' isOpen={true}/>}
+          {isDropdownOpen && <Dropdown dropdownData={dropdownData} className='' isOpen={true} closeDropdown={closeDropdown}/>}
           <FontAwesomeIcon icon={faEllipsis} className='z-10'/>
         </div>
       </div>
