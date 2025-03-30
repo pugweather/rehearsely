@@ -3,18 +3,31 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock} from '@fortawesome/free-regular-svg-icons';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import { timeAgo } from '@/app/utils/utils';
+import Modal from '../ui/Modal';
+import Dropdown from '../ui/Dropdown';
 
-// TODO: convert modified unix timestamp to readable format
 // TODO: limit character count to 50 chars
 
 interface SceneCardProps {
     id: number;
     name: string | null;
     modified_at: string;
-    user_id: string
+    user_id: string;
+    isDropdownOpen: boolean;
+    dropdownData: DropdownData[];
+    setDropdownOpened: ()=> void;
+}
+
+type DropdownData = {
+  label: string,
+  onClick: () => void,
+  className?: string
 }
   
-const SceneCard = ({id, name, modified_at}: SceneCardProps) => {
+const SceneCard = ({id, name, modified_at, isDropdownOpen, dropdownData, setDropdownOpened}: SceneCardProps) => {
+
+
+
   return (
     <div className='relative mt-6.5'>
       <div className="absolute z-2 -top-3 right-3 w-[85%] h-6 bg-blue-950 rounded-lg"></div>
@@ -26,7 +39,10 @@ const SceneCard = ({id, name, modified_at}: SceneCardProps) => {
             <span>{timeAgo(modified_at)}</span>
           </div>
         </div>
-        <FontAwesomeIcon icon={faEllipsis} className='justify-self-end items-start self-center font-bold tracking-wider cursor-pointer' />
+        <div className='relative justify-self-end items-start self-center font-bold tracking-wider cursor-pointer' onClick={() => setDropdownOpened()}>
+          {isDropdownOpen && <Dropdown dropdownData={dropdownData} className='' isOpen={true}/>}
+          <FontAwesomeIcon icon={faEllipsis} className='z-10'/>
+        </div>
       </div>
     </div>
   )

@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 const Switch = () => {
 
-    const [isOn, setIsOn] = useState(false);
+    const [isOn, setIsOn] = useState<boolean>(false);
 
     return (
         <button

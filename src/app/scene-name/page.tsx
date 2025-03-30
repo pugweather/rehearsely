@@ -6,7 +6,7 @@ import ButtonLink from '../components/ui/ButtonLink'
 
 const SceneNamePage = () => {
 
-  const [sceneName, setSceneName] = useState('')
+  const [sceneName, setSceneName] = useState<string>('')
   const router = useRouter()
 
   const handleSubmit = async () => {
