@@ -1,7 +1,9 @@
 "use client"
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useRef} from 'react'
 import ScenesDashboardHeader from './ScenesDashboardHeader'
 import SceneCard from './SceneCard';
+import Overlay from '../ui/Overlay';
+import Dropdown from '../ui/Dropdown';
 
 type Scene = {
     id: number;
@@ -24,8 +26,7 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
 
     const [query, setQuery]= useState<string>('')
     const [openedDropdownId, setOpenedDropdownId] = useState<number | null>(null)
-    
-    console.log(openedDropdownId)
+    const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>()
 
     const setDropdownOpened = (sceneId: number) => {
       setOpenedDropdownId(sceneId)
@@ -34,7 +35,22 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
     const closeDropdown = () => {
       setOpenedDropdownId(null)
     }
-    
+
+    const openDropdown = (sceneId: number, ref: React.RefObject<HTMLDivElement>) => {
+
+      if (!ref.current) {
+        throw new Error("Dropdown button doesn't exist, but should")
+      }
+
+      // Position of the dropdown to open
+      const dropdownBtn = ref.current?.getBoundingClientRect()
+      setDropdownPos({
+        top: dropdownBtn.top,
+        right: dropdownBtn.right
+      })
+      // Open the correct dopdown using scene id
+      setOpenedDropdownId(sceneId)
+    }
     
     // Options for our the scene card dropdowns
     const sceneCardDropdownData: DropdownData[] = [
@@ -67,11 +83,14 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
               user_id={scene.user_id} 
               isDropdownOpen={openedDropdownId === scene.id}
               setDropdownOpened={() => setDropdownOpened(scene.id)}
+              openDropdown={openDropdown}
               closeDropdown={closeDropdown}
               dropdownData={sceneCardDropdownData}
               />
           })}
         </div>
+        {openedDropdownId && <Overlay zIndex={"z-40"} closeDropdown={closeDropdown}/>}
+        {openedDropdownId && <Dropdown dropdownData={sceneCardDropdownData} closeDropdown={closeDropdown}/>}
     </>
   )
 }
