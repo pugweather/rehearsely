@@ -1,16 +1,15 @@
 import React from 'react'
 
 type Props = {
-  zIndex: string;
   bgColor?: string | null;
   closeDropdown: () => void;
 }
 
-const Overlay = ({zIndex, bgColor, closeDropdown}: Props) => {
+const Overlay = ({bgColor, closeDropdown}: Props) => {
 
   return (
     <div 
-      className={`fixed inset-0 cursor-auto ${zIndex} ${bgColor || ''}`} 
+      className={`fixed inset-0 cursor-auto z-10 ${bgColor || ''}`} 
       onClick={(e) => {
         e.stopPropagation()
         closeDropdown()

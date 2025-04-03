@@ -13,10 +13,7 @@ interface SceneCardProps {
     name: string | null;
     modified_at: string;
     user_id: string;
-    isDropdownOpen: boolean;
-    dropdownData: DropdownData[];
-    setDropdownOpened: () => void;
-    openDropdown: (sceneId: number, ref: React.RefObject<HTMLDivElement>) => void;
+    openDropdown: (sceneId: number, ref: React.RefObject<HTMLDivElement | null>) => void;
     closeDropdown: () => void;
 }
 
@@ -26,7 +23,7 @@ type DropdownData = {
   className?: string
 }
   
-const SceneCard = ({id, name, modified_at, isDropdownOpen, dropdownData, setDropdownOpened, closeDropdown}: SceneCardProps) => {
+const SceneCard = ({id, name, modified_at, openDropdown}: SceneCardProps) => {
 
   const dropdownBtnRef = useRef<HTMLDivElement | null>(null);
 
@@ -42,8 +39,8 @@ const SceneCard = ({id, name, modified_at, isDropdownOpen, dropdownData, setDrop
           </div>
         </div>
       </div>
-      <div ref={dropdownBtnRef} className='absolute top-[35%] transform -translate-y-[-50%] right-7.5 z-50 justify-self-end items-start self-center font-bold tracking-wider cursor-pointer' onClick={() => setDropdownOpened()}>
-        <FontAwesomeIcon icon={faEllipsis} className='z-10'/>
+      <div ref={dropdownBtnRef} className='absolute top-[35%] transform -translate-y-[-50%] right-7.5 z-5 justify-self-end items-start self-center font-bold tracking-wider cursor-pointer' onClick={() => openDropdown(id, dropdownBtnRef)}>
+        <FontAwesomeIcon icon={faEllipsis} className='z-5'/>
       </div>
     </div>
   )

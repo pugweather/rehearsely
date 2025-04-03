@@ -26,17 +26,14 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
 
     const [query, setQuery]= useState<string>('')
     const [openedDropdownId, setOpenedDropdownId] = useState<number | null>(null)
-    const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>()
-
-    const setDropdownOpened = (sceneId: number) => {
-      setOpenedDropdownId(sceneId)
-    }
+    const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null)
 
     const closeDropdown = () => {
       setOpenedDropdownId(null)
+      setDropdownPos(null)
     }
 
-    const openDropdown = (sceneId: number, ref: React.RefObject<HTMLDivElement>) => {
+    const openDropdown = (sceneId: number, ref: React.RefObject<HTMLDivElement | null>) => {
 
       if (!ref.current) {
         throw new Error("Dropdown button doesn't exist, but should")
@@ -45,8 +42,8 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
       // Position of the dropdown to open
       const dropdownBtn = ref.current?.getBoundingClientRect()
       setDropdownPos({
-        top: dropdownBtn.top,
-        right: dropdownBtn.right
+        top: dropdownBtn.top + window.scrollY + 25,
+        right: window.innerWidth - dropdownBtn.right
       })
       // Open the correct dopdown using scene id
       setOpenedDropdownId(sceneId)
@@ -81,16 +78,13 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
               name={scene.name} 
               modified_at={scene.modified_at} 
               user_id={scene.user_id} 
-              isDropdownOpen={openedDropdownId === scene.id}
-              setDropdownOpened={() => setDropdownOpened(scene.id)}
               openDropdown={openDropdown}
               closeDropdown={closeDropdown}
-              dropdownData={sceneCardDropdownData}
               />
           })}
         </div>
-        {openedDropdownId && <Overlay zIndex={"z-40"} closeDropdown={closeDropdown}/>}
-        {openedDropdownId && <Dropdown dropdownData={sceneCardDropdownData} closeDropdown={closeDropdown}/>}
+        {openedDropdownId && <Overlay closeDropdown={closeDropdown}/>}
+        {openedDropdownId && <Dropdown dropdownData={sceneCardDropdownData} dropdownPos={dropdownPos} closeDropdown={closeDropdown}/>}
     </>
   )
 }
