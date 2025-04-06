@@ -25,12 +25,13 @@ type Props = {
   
 const ScenesDashboardClient = ({sceneData}: Props) => {
 
+    const [scenes, setScenes] = useState<Scene[]>(sceneData)
     // Search filtering state
     const [query, setQuery]= useState<string>('')
     // Dropdown state
     const [openedDropdownId, setOpenedDropdownId] = useState<number | null>(null)
     const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null)
-    // Edit scename modal state
+    // Edit scene name modal state
     const [sceneEditing, setSceneEditing] = useState<Scene | null>(null)
 
     // Pass to SceneCard component
@@ -60,10 +61,10 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
     }
     
     const filteredScenes = useMemo(() => {
-      return sceneData.filter(scene => {
+      return scenes.filter(scene => {
         return scene.name?.toLowerCase().includes(query.toLowerCase().trim())
       })
-    }, [sceneData, query])
+    }, [scenes, query])
 
     // Options for our the scene card dropdowns
     const sceneCardDropdownData: DropdownData[] = [
@@ -103,7 +104,7 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
         </div>
         {openedDropdownId && <Overlay closeDropdown={closeDropdown}/>}
         {openedDropdownId && <Dropdown dropdownData={sceneCardDropdownData} dropdownPos={dropdownPos} closeDropdown={closeDropdown}/>}
-        {sceneEditing && <ModalSceneName closeEditNameModal={closeEditNameModal} scene={sceneEditing}/>}
+        {sceneEditing && <ModalSceneName closeEditNameModal={closeEditNameModal} setSceneEditing={setSceneEditing} setScenes={setScenes} scene={sceneEditing}/>}
     </>
   )
 }

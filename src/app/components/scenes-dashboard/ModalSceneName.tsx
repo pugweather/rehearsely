@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClose, faCircleCheck } from '@fortawesome/free-solid-svg-icons'
 import Input from '../ui/Input'
 import ButtonLink from '../ui/ButtonLink'
+import clsx from 'clsx'
 
 type Scene = {
   id: number;
@@ -13,15 +14,45 @@ type Scene = {
 };
 
 type Props =  {
-  scene: Scene,
+  scene: Scene;
   closeEditNameModal: () => void;
+  setScenes: React.Dispatch<React.SetStateAction<Scene[]>>;
+  setSceneEditing: (scene: Scene | null) => void;
 }
 
-const ModalSceneName = ({closeEditNameModal, scene}: Props) => {
+const ModalSceneName = ({closeEditNameModal, setSceneEditing, setScenes, scene}: Props) => {
 
   const [sceneName, setSceneName] = useState<string | null>(scene.name)
+  const disabled = (sceneName === null || sceneName.trim() === '')
 
-  console.log(sceneName)
+  const handleSubmit = async () => {
+    const res = await fetch("/api/private/scenes", {
+      method: "PATCH",
+      headers:{
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: scene.id,
+        name: sceneName
+      })
+    })
+
+    if (res.ok) {
+
+      const data = await res.json()
+      const updatedName = data?.updatedScene?.name
+
+      setScenes(prev => {
+        return prev.map(prevScene => {
+          return scene.id === prevScene.id 
+          ? {...prevScene, name: updatedName} : prevScene
+        })
+      })
+
+      closeEditNameModal()
+      setSceneEditing(null)
+    }
+  }
 
   return (
     <Modal width={500} height={250}>
@@ -31,7 +62,14 @@ const ModalSceneName = ({closeEditNameModal, scene}: Props) => {
           </div>
           <div className='text-2xl pl-2 mb-2.5 font-semibold'>Edit Name</div>
           <Input placeholder={'Enter scene name...'} value={sceneName || ''} onChange={setSceneName}/>
-          <button className='ml-auto mt-auto'>
+          <button 
+            className={clsx(
+              'ml-auto mt-auto',
+              disabled && 'opacity-50 pointer-events-none'
+            )}
+            disabled={disabled}
+            onClick={handleSubmit}
+          >
             <ButtonLink icon={faCircleCheck} text='Save'/>
           </button>
         </div>

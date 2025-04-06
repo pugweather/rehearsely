@@ -47,3 +47,27 @@ export async function POST(req: Request) {
     return NextResponse.json({sceneId})
 
 }
+
+export async function PATCH(req: Request) {
+
+  const supabase = await createClient();
+  const {data: { user }, error } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({error: "Unauthorized"}, {status: 401})
+  }
+
+  const body = await req.json()
+  const {id, ...updates} = body
+
+  const res  = await db
+    .update(scenes)
+    .set(updates)
+    .where(eq(scenes.id, id))
+    .returning()
+  
+  const updatedScene = res[0]
+
+  return NextResponse.json({updatedScene})
+
+}
