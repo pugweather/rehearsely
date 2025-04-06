@@ -16,12 +16,6 @@ interface SceneCardProps {
     openDropdown: (sceneId: number, ref: React.RefObject<HTMLDivElement | null>) => void;
     closeDropdown: () => void;
 }
-
-type DropdownData = {
-  label: string,
-  onClick: () => void,
-  className?: string
-}
   
 const SceneCard = ({id, name, modified_at, openDropdown}: SceneCardProps) => {
 

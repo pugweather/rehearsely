@@ -28,6 +28,8 @@ const ScenesDashboardPage = async () => {
     .from(scenes)
     .where(eq(scenes.user_id, user.id))
     .orderBy(desc(scenes.modified_at))
+  
+    console.log(sceneData)
 
   return (
     <div className="h-screen w-full bg-gray-100 flex flex-col">

@@ -4,6 +4,7 @@ import ScenesDashboardHeader from './ScenesDashboardHeader'
 import SceneCard from './SceneCard';
 import Overlay from '../ui/Overlay';
 import Dropdown from '../ui/Dropdown';
+import ModalSceneName from './ModalSceneName';
 
 type Scene = {
     id: number;
@@ -24,15 +25,15 @@ type Props = {
   
 const ScenesDashboardClient = ({sceneData}: Props) => {
 
+    // Search filtering state
     const [query, setQuery]= useState<string>('')
+    // Dropdown state
     const [openedDropdownId, setOpenedDropdownId] = useState<number | null>(null)
     const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null)
+    // Edit scename modal state
+    const [sceneEditing, setSceneEditing] = useState<Scene | null>(null)
 
-    const closeDropdown = () => {
-      setOpenedDropdownId(null)
-      setDropdownPos(null)
-    }
-
+    // Pass to SceneCard component
     const openDropdown = (sceneId: number, ref: React.RefObject<HTMLDivElement | null>) => {
 
       if (!ref.current) {
@@ -48,24 +49,41 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
       // Open the correct dopdown using scene id
       setOpenedDropdownId(sceneId)
     }
-    
-    // Options for our the scene card dropdowns
-    const sceneCardDropdownData: DropdownData[] = [
-      {
-        label: "Edit Name",
-        onClick: () => console.log("launch modal")
-      }, {
-        label: "Delete",
-        onClick: () => console.log("launch modal"),
-        className: "text-red-500",
-      }
-    ]
+
+    const closeDropdown = () => {
+      setOpenedDropdownId(null)
+      setDropdownPos(null)
+    }
+
+    const closeEditNameModal = () => {
+      setSceneEditing(null)
+    }
     
     const filteredScenes = useMemo(() => {
       return sceneData.filter(scene => {
         return scene.name?.toLowerCase().includes(query.toLowerCase().trim())
       })
     }, [sceneData, query])
+
+    // Options for our the scene card dropdowns
+    const sceneCardDropdownData: DropdownData[] = [
+      {
+        label: "Edit Name",
+        onClick: function() {
+          const scene = filteredScenes.find(s => s.id == openedDropdownId)
+          if (scene) {
+            closeDropdown()
+            setSceneEditing(scene)
+          }
+        }
+      }, {
+        label: "Delete",
+        onClick: function() {
+
+        },
+        className: "text-red-500",
+      }
+    ]
 
   return (
     <>
@@ -85,6 +103,7 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
         </div>
         {openedDropdownId && <Overlay closeDropdown={closeDropdown}/>}
         {openedDropdownId && <Dropdown dropdownData={sceneCardDropdownData} dropdownPos={dropdownPos} closeDropdown={closeDropdown}/>}
+        {sceneEditing && <ModalSceneName closeEditNameModal={closeEditNameModal} scene={sceneEditing}/>}
     </>
   )
 }
