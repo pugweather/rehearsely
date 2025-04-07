@@ -5,6 +5,7 @@ import SceneCard from './SceneCard';
 import Overlay from '../ui/Overlay';
 import Dropdown from '../ui/Dropdown';
 import ModalSceneName from './ModalSceneName';
+import ModalDeleteScene from './ModalDeleteScene';
 
 type Scene = {
     id: number;
@@ -33,6 +34,10 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
     const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null)
     // Edit scene name modal state
     const [sceneEditing, setSceneEditing] = useState<Scene | null>(null)
+    // Delete scene modal state
+    const [sceneDeleting, setSceneDeleting] = useState<Scene  | null>(null)
+
+    console.log(scenes)
 
     // Pass to SceneCard component
     const openDropdown = (sceneId: number, ref: React.RefObject<HTMLDivElement | null>) => {
@@ -59,6 +64,10 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
     const closeEditNameModal = () => {
       setSceneEditing(null)
     }
+
+    const closeDeleteSceneModal = () => {
+      setSceneDeleting(null)
+    }
     
     const filteredScenes = useMemo(() => {
       return scenes.filter(scene => {
@@ -80,7 +89,12 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
       }, {
         label: "Delete",
         onClick: function() {
-
+          console.log("test")
+          const scene = filteredScenes.find(s => s.id === openedDropdownId)
+          if (scene) {
+            closeDropdown()
+            setSceneDeleting(scene)
+          }
         },
         className: "text-red-500",
       }
@@ -105,6 +119,7 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
         {openedDropdownId && <Overlay closeDropdown={closeDropdown}/>}
         {openedDropdownId && <Dropdown dropdownData={sceneCardDropdownData} dropdownPos={dropdownPos} closeDropdown={closeDropdown}/>}
         {sceneEditing && <ModalSceneName closeEditNameModal={closeEditNameModal} setSceneEditing={setSceneEditing} setScenes={setScenes} scene={sceneEditing}/>}
+        {sceneDeleting && <ModalDeleteScene closeDeleteSceneModal={closeDeleteSceneModal} setSceneDeleting={setSceneDeleting} setScenes={setScenes} scene={sceneDeleting}/>}
     </>
   )
 }

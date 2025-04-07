@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 
 export async function GET() {
   
+  // TODO: Pretty sure this needs to be fixed to return scenes for user, not user. Right now I'm doing this in page.tsx...
 
   // Get the current user from the Supabase session
   const supabase = await createClient(); // this must use cookies() internally
@@ -69,5 +70,25 @@ export async function PATCH(req: Request) {
   const updatedScene = res[0]
 
   return NextResponse.json({updatedScene})
+
+}
+
+export async function DELETE(req: Request) {
+
+  const supabase = await createClient();
+  const {data: { user }, error } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({error: "Unauthorized"}, {status: 401})
+  }
+
+  const body = await req.json()
+  const {id} = body
+
+  const res  = await db
+    .delete(scenes)
+    .where(eq(scenes.id, id))
+
+  return NextResponse.json(null, {status: 204})
 
 }
