@@ -54,7 +54,6 @@ const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, s
           </div>
           <div className='text-2xl pl-5 pt-5 pb-5 mb-2.5 font-semibold text-white' style={{backgroundColor: "#ff7875"}}>Confirm Deletion</div>
           <div className='pl-5 pr-5'>
-            <FontAwesomeIcon icon={faClose} className="absolute top-5 right-5 text-3x cursor-pointer" style={{color: "#ff7875"}}/>
             <div className='text-xl pl-2 mt-7.5 mb-2.5 font-semibold text-center'>Are you sure you want to delete <span className="italic">{scene.name}</span>?</div>
             <div className='flex justify-center mt-12'>
                 <button  onClick={closeDeleteSceneModal}>

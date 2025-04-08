@@ -89,6 +89,6 @@ export async function DELETE(req: Request) {
     .delete(scenes)
     .where(eq(scenes.id, id))
 
-  return NextResponse.json(null, {status: 204})
+  return NextResponse.json({success: true}, {status: 200})
 
 }
