@@ -23,9 +23,13 @@ type Props =  {
 const ModalSceneName = ({closeEditNameModal, setSceneEditing, setScenes, scene}: Props) => {
 
   const [sceneName, setSceneName] = useState<string | null>(scene.name)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const disabled = (sceneName === null || sceneName.trim() === '')
 
   const handleSubmit = async () => {
+
+    setIsLoading(true)
+
     const res = await fetch("/api/private/scenes", {
       method: "PATCH",
       headers:{
@@ -39,6 +43,8 @@ const ModalSceneName = ({closeEditNameModal, setSceneEditing, setScenes, scene}:
 
     if (res.ok) {
 
+      setIsLoading(false)
+
       const data = await res.json()
       const updatedName = data?.updatedScene?.name
 
@@ -51,6 +57,9 @@ const ModalSceneName = ({closeEditNameModal, setSceneEditing, setScenes, scene}:
 
       closeEditNameModal()
       setSceneEditing(null)
+    } else {
+      setIsLoading(false)
+      console.log("Error: ")
     }
   }
 
@@ -65,12 +74,16 @@ const ModalSceneName = ({closeEditNameModal, setSceneEditing, setScenes, scene}:
           <button 
             className={clsx(
               'ml-auto mt-auto',
-              disabled && 'opacity-50 pointer-events-none'
+              disabled && 'opacity-50 pointer-events-none',
             )}
             disabled={disabled}
             onClick={handleSubmit}
           >
-            <ButtonLink icon={faCircleCheck} text='Save'/>
+            <ButtonLink 
+              icon={faCircleCheck} 
+              text={isLoading ?  'Saving Changes...' : 'Save'}
+              bgColor={isLoading ? "#ccc" : undefined}
+            />
           </button>
         </div>
     </Modal>
