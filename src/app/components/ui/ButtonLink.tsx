@@ -11,7 +11,7 @@ interface ButtonProps {
     icon?: IconDefinition;
 }
 
-export default function ButtonLink({text, textColor, bgColor, icon}: ButtonProps) {
+export default function ButtonLink({ text, textColor, bgColor, icon }: ButtonProps) {
 
     const isHexColor = (value: string) => /^#([A-Fa-f0-9]{3}){1,2}$/.test(value);
 
@@ -21,11 +21,16 @@ export default function ButtonLink({text, textColor, bgColor, icon}: ButtonProps
     }
 
     return (
-        <span 
-            className={"flex justify-between items-center px-4 py-2 bg-blue-950 text-white rounded-md font-medium"} 
-            style={buttonStyles}>
-            {icon && <FontAwesomeIcon icon={icon} className="mr-2.25"/>}
+        <span
+            className={
+                "flex justify-between items-center px-4 py-2 rounded-md font-medium " +
+                "bg-blue-950 text-white transition-all duration-200 ease-in-out " +
+                "hover:bg-blue-800 hover:text-white hover:shadow-sm"
+            }
+            style={buttonStyles}
+        >
+            {icon && <FontAwesomeIcon icon={icon} className="mr-2.25" />}
             <span>{text}</span>
         </span>
-    )
+    );
 }
