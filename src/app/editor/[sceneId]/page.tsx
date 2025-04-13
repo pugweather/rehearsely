@@ -5,8 +5,11 @@ import SceneSettings from "../../components/editor/SceneSettings";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeftLong } from "@fortawesome/free-solid-svg-icons";
 import { scenes } from "@/database/drizzle/schema";
-import db from "@/app/database";
 import { eq } from "drizzle-orm";
+import db from "@/app/database";
+import NewLine from "@/app/components/editor/NewLine";
+import Line from "@/app/components/editor/SavedLine";
+import LineList from "@/app/components/editor/LineList";
 
 type Props = {
     params: {
@@ -33,7 +36,9 @@ const Editor = async ({params}: Props) => {
                 </div>
                 <SceneSettings />
                 <div className="flex flex-col items-center py-8">
-                    {/* Lines will go here */}
+                    <div className="max-w-md w-full flex flex-col items-center">
+                        <LineList />
+                    </div>
                 </div>
             </EditorWrapper>
         </div>

@@ -28,6 +28,10 @@ body {
   /*font-family: var(--font-yeseva), sans-serif;*/
 }
 
+.font-courier {
+  font-family: "Courier New", Courier, monospace;
+}
+
 *,
 *::before,
 *::after {
