@@ -4,11 +4,9 @@ import EditorWrapper from "../../components/editor/EditorWrapper";
 import SceneSettings from "../../components/editor/SceneSettings";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeftLong } from "@fortawesome/free-solid-svg-icons";
-import { scenes } from "@/database/drizzle/schema";
+import { scenes, lines } from "@/database/drizzle/schema";
 import { eq } from "drizzle-orm";
 import db from "@/app/database";
-import NewLine from "@/app/components/editor/NewLine";
-import Line from "@/app/components/editor/SavedLine";
 import LineList from "@/app/components/editor/LineList";
 
 type Props = {
@@ -19,12 +17,20 @@ type Props = {
 
 const Editor = async ({params}: Props) => {
 
+    // Scene
     const {sceneId} = params
     const sceneRes = await db
         .select()
         .from(scenes)
         .where(eq(scenes.id, Number(sceneId)))
     const scene = sceneRes[0] || null
+
+    // Scene Lines
+    const linesRes = await db   
+        .select()
+        .from(lines)
+        .where(eq(lines.scene_id, Number(sceneId)))
+    const lineItems = linesRes || null
 
     return (
         <div className="min-h-screen bg-gray-200 flex flex-col">
@@ -37,7 +43,7 @@ const Editor = async ({params}: Props) => {
                 <SceneSettings />
                 <div className="flex flex-col items-center py-8">
                     <div className="max-w-md w-full flex flex-col items-center">
-                        <LineList />
+                        <LineList lineItems={lineItems} sceneId={Number(sceneId)}/>
                     </div>
                 </div>
             </EditorWrapper>

@@ -1,6 +1,6 @@
 // File: /app/api/private/scenes/route.ts
 import { NextResponse, userAgent } from "next/server";
-import { createClient } from "../../../../..//utils/supabase/server";
+import { createClient } from "../../../../../utils/supabase/server";
 import db from "@/app/database";
 import { scenes } from "@/database/drizzle/schema";
 import { eq } from "drizzle-orm";

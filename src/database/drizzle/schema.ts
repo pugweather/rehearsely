@@ -1,11 +1,20 @@
-import { pgTable, unique, bigint, text, uuid, timestamp, foreignKey, smallint } from "drizzle-orm/pg-core"
+import { pgTable, foreignKey, unique, bigint, text, uuid, timestamp, smallint } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
+
+
 
 export const characters = pgTable("characters", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity({ name: "characters_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
 	name: text().notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	scene_id: bigint({ mode: "number" }).notNull(),
 }, (table) => [
+	foreignKey({
+			columns: [table.scene_id],
+			foreignColumns: [scenes.id],
+			name: "characters_scene_id_fkey"
+		}),
 	unique("characters_id_key").on(table.id),
 ]);
 
@@ -14,7 +23,20 @@ export const users = pgTable("users", {
 	name: text(),
 	email: text().notNull(),
 	created_at: timestamp({ withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-});
+	user_id: uuid(),
+}, (table) => [
+	foreignKey({
+			columns: [table.id],
+			foreignColumns: [table.id],
+			name: "users_id_fkey"
+		}),
+	foreignKey({
+			columns: [table.user_id],
+			foreignColumns: [table.id],
+			name: "users_user_id_fkey"
+		}),
+	unique("users_user_id_key").on(table.user_id),
+]);
 
 export const scenes = pgTable("scenes", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
@@ -29,7 +51,6 @@ export const scenes = pgTable("scenes", {
 			name: "scenes_user_id_fkey"
 		}),
 	unique("scenes_id_key").on(table.id),
-	unique("scenes_user_id_key").on(table.user_id),
 ]);
 
 export const lines = pgTable("lines", {
@@ -39,11 +60,18 @@ export const lines = pgTable("lines", {
 	order: smallint().notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	character_id: bigint({ mode: "number" }).notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	scene_id: bigint({ mode: "number" }).notNull(),
 }, (table) => [
 	foreignKey({
 			columns: [table.character_id],
 			foreignColumns: [characters.id],
 			name: "lines_character_id_fkey"
+		}),
+	foreignKey({
+			columns: [table.scene_id],
+			foreignColumns: [scenes.id],
+			name: "lines_scene_id_fkey"
 		}),
 	unique("lines_order_key").on(table.order),
 	unique("lines_character_id_key").on(table.character_id),

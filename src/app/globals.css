@@ -32,6 +32,10 @@ body {
   font-family: "Courier New", Courier, monospace;
 }
 
+.font-courier-prime {
+  font-family: 'Courier Prime', monospace;
+}
+
 *,
 *::before,
 *::after {
