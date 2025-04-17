@@ -38,7 +38,7 @@ const SceneNamePage = () => {
   return (
     <div className="min-h-screen flex flex-col">
         <Navbar />
-        <div className='h-full text-blue-950 flex-grow flex-col flex items-center justify-center'>
+        <div className='h-full text-black flex-grow flex-col flex items-center justify-center'>
           <div className='flex flex-col items-center -mt-15'>
               <h1 className='text-2xl mb-5 font-semibold'>Enter the name for your scene</h1>
               <div className='flex items-center'>

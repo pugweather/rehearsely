@@ -51,6 +51,8 @@ const LineList = ({lineItems, sceneId}: Props) => {
   const [isCharDropdownOpen, setIsCharDropdownOpen] = useState<boolean>(false)
   const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null) // Should this be global for all dropdowns?
 
+  const TEMP_LINE_ID = -999
+
   console.log(lines)
 
   /* Characters */
@@ -114,17 +116,29 @@ const LineList = ({lineItems, sceneId}: Props) => {
 
   // Adding lines to scene
   const handleAddLine = () => {
+    // Add temp line with negative id to avoid possibl collisions
     if (lines && !lines.find(l => l.text == null)) {
       const newLine: DraftLine = {
+        id: TEMP_LINE_ID,
         character_id: null,
-        id: null,
         order: null,
         scene_id: null,
         text: null
       }
+      setLineBeingEdited(newLine)
       setLines(prev => prev == null ? [newLine] : [...prev, newLine])
     } else {
-      console.log("Can only add one new line at a time.")
+      console.log("Can only add one new line at a time")
+    }
+  }
+
+  const closeEditLine = () => {
+    setLineBeingEdited(null)
+    if (lines?.find(l => Number(l.id) == TEMP_LINE_ID)) {
+      setLines(prev => {
+        if (!prev) return null
+        return prev.filter(l => l.id != TEMP_LINE_ID)
+      })
     }
   }
 
@@ -132,11 +146,21 @@ const LineList = ({lineItems, sceneId}: Props) => {
     <>
       {
         lines?.map(line => {
-          return line.id == lineBeingEdited?.id ? <EditLine line={line} characters={characters} openCharacterDropdown={openCharacterDropdown}/> : <SavedLine line={line} />
+          console.log(line.id)
+          console.log(lineBeingEdited)
+          return line.id == lineBeingEdited?.id ? 
+          <EditLine 
+            line={line} 
+            characters={characters} 
+            openCharacterDropdown={openCharacterDropdown}
+            closeEditLine={closeEditLine}
+            />
+             : 
+          <SavedLine line={line} />
         })
       }
       <button 
-        className="mt-5 px-5 py-2 text-xl font-semibold text-blue-950 bg-transparent border-3 border-blue-950 rounded-full flex items-center hover:bg-blue-950 hover:text-white transition-colors duration-200 ease-in-out"
+        className="mt-5 px-5 py-2 text-lg font-semibold text-black bg-transparent border-3 border-black rounded-full flex items-center hover:bg-black hover:text-white transition-colors duration-200 ease-in-out"
         onClick={handleAddLine}
       >
         <FontAwesomeIcon icon={faPlus} />

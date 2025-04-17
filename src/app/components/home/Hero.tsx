@@ -13,7 +13,7 @@ export default async function Hero() {
         <section className="flex flex-grow flex-col items-center justify-center h-full w-full text-center">
 
         <h1 className="text-4xl md:text-5xl font-bold">
-            Your Digital Scene Partner—<span className="text-blue-950 text-6xl">Anytime, Anywhere.</span>.
+            Your Digital Scene Partner—<span className="text-black text-6xl">Anytime, Anywhere.</span>.
         </h1>
         
         <p className="mt-4 text-2xl font-semibold">

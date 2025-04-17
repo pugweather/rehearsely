@@ -11,7 +11,7 @@ type Props = {
 export default function ScenesDashboardHeader({onChange}: Props) {
     return (
         <div className="flex items-center p-5 border-b border-b-gray-200">
-            <div className="text-blue-950 font-bold text-xl mr-5">My Scenes</div>
+            <div className="text-black font-bold text-xl mr-5">My Scenes</div>
             <SearchInput onChange={onChange}/>
             <Link href={"/scene-name"} className="ml-auto"><ButtonLink text="Create Scene" icon={faPlus}/></Link>
         </div>

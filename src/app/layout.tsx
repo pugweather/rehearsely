@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Yeseva_One, Quicksand } from "next/font/google";
+import { Geist, Geist_Mono, Yeseva_One, Quicksand, Courier_Prime } from "next/font/google";
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import "./globals.css";
@@ -15,6 +15,12 @@ const quicksand = Quicksand({
   subsets: ["latin"],
   weight: ["300", "400", "700"], // Load multiple weights
   variable: "--font-quicksand",
+});
+
+const courierPrime = Courier_Prime({
+  subsets: ['latin'],
+  weight: ['400', '700'], // normal and bold
+  variable: '--font-courier-prime',
 });
 
 config.autoAddCss = false

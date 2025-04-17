@@ -24,8 +24,8 @@ export default function ButtonLink({ text, textColor, bgColor, icon }: ButtonPro
         <span
             className={
                 "flex justify-between items-center px-4 py-2 rounded-md font-medium " +
-                "bg-blue-950 text-white transition-all duration-200 ease-in-out " +
-                "hover:bg-blue-800 hover:text-white hover:shadow-sm"
+                "bg-black text-white transition-all duration-200 ease-in-out " +
+                "hover:opacity-85 hover:text-white hover:shadow-sm"
             }
             style={buttonStyles}
         >
