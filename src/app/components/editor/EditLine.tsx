@@ -1,5 +1,5 @@
 "use client"
-import React, {useState} from 'react'
+import React, {useState, useRef} from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone, faScissors, faHand, faCircleCheck, faXmark, faPersonRunning, faTrash } from "@fortawesome/free-solid-svg-icons";
 import ButtonLink from '../ui/ButtonLink'
@@ -17,18 +17,21 @@ type Character = {
     id: number,
     name: string,
     scene_id: number
-  }
+};
 
 type Props = {
-    line: DraftLine | null
-    characters: Character
+    line: DraftLine | null,
+    characters: Character[] | null,
+    openCharacterDropdown: (ref: React.RefObject<HTMLDivElement | null>) => void
 }
 
-const EditLine = ({line, characters}: Props) => {
+const EditLine = ({line, characters, openCharacterDropdown}: Props) => {
 
     console.log(characters)
 
     const [isLoading, setIsLoading] = useState<boolean>(false)  
+
+    const dropdownBtnRef = useRef<HTMLDivElement | null>(null);
 
     const handleSaveLine = () => {
         console.log("save line")
@@ -37,11 +40,11 @@ const EditLine = ({line, characters}: Props) => {
     return (
         <div className="bg-gray-50 p-4 rounded-xl shadow-sm w-full border border-gray-200 mb-12.5">
             <div className="flex items-center justify-start mb-3">
-                <div className="rounded-xl border border-gray-300 pl-3 pr-10 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
-                    <ul>
-                        <li>Select Character</li>
-                        {/* Character list will go here */}
-                    </ul>
+                <div 
+                    className="relative w-40 h-8.5 rounded-lg border border-gray-300 pl-3 pr-10 py-1.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400" 
+                    ref={dropdownBtnRef}
+                    onClick={() => openCharacterDropdown(dropdownBtnRef)}>
+                    <span>Hello</span>
                 </div>
                 <button className="text-blue-950 ml-5">
                     <div className='w-8 h-8 rounded-full flex justify-center items-center bg-blue-950'>

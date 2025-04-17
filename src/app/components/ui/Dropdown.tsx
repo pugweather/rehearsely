@@ -8,12 +8,13 @@ type DropdownItem = {
 }
 
 type DropdownProps = {
-    dropdownData: DropdownItem[],
+    dropdownData: DropdownItem[] | undefined,
     dropdownPos: {top: number, right: number} | null,
+    className?: string,
     closeDropdown: () => void
 }
 
-const Dropdown = ({dropdownData, dropdownPos, closeDropdown}: DropdownProps) => {
+const Dropdown = ({dropdownData, dropdownPos, className, closeDropdown}: DropdownProps) => {
 
     if (!dropdownPos) return null
 
@@ -25,8 +26,8 @@ const Dropdown = ({dropdownData, dropdownPos, closeDropdown}: DropdownProps) => 
                     right: dropdownPos.right,
                     position: "absolute"
                 }}
-                className={`px-2 py-2 top- rounded-sm font-medium text-sm bg-white text-black cursor-pointer shadow-[0_0_3px_1px_rgba(0,0,0,0.1)] min-w-37 z-20`}>
-                {dropdownData.map(item => {
+                className={`top-0 rounded-sm font-medium text-sm bg-white text-black cursor-pointer shadow-[0_0_3px_1px_rgba(0,0,0,0.1)] min-w-37 z-20 ${className}`}>
+                {dropdownData?.map(item => {
                     return (
                         <li 
                             key={item.label} 
