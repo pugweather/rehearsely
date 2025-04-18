@@ -7,36 +7,7 @@ import NewLine from './EditLine'
 import EditLine from './EditLine'
 import Dropdown from '../ui/Dropdown'
 import Overlay from '../ui/Overlay';
-
-type Line = {
-  character_id: number,
-  id: number,
-  order: number,
-  scene_id: number,
-  text: string | null
-}
-
-// For when a new line that is added
-type DraftLine = {
-  character_id: number | null,
-  id: number | null,
-  order: number | null,
-  scene_id: number | null,
-  text: string | null,
-  isNew?: boolean
-};
-
-type Character = {
-  id: number,
-  name: string,
-  scene_id: number
-}
-
-type DropdownData = {
-  label: string,
-  onClick: () => void,
-  className?: string
-};
+import { Line, DraftLine, LineBeingEditedData, Character, DropdownData } from '@/app/types';
 
 type Props = {
   lineItems: Line[] | null,
@@ -47,13 +18,19 @@ const LineList = ({lineItems, sceneId}: Props) => {
 
   const [lines, setLines] = useState<DraftLine[] | null>(lineItems)
   const [lineBeingEdited, setLineBeingEdited] = useState<DraftLine | null>(null)
+  const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({character: null, text: null}) // Single object that tracks the changes for the edited line
   const [characters, setCharacters] = useState<Character[] | null>(null)
   const [isCharDropdownOpen, setIsCharDropdownOpen] = useState<boolean>(false)
   const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null) // Should this be global for all dropdowns?
 
   const TEMP_LINE_ID = -999
+  const LINE_INITIAL: LineBeingEditedData = {
+    character: null,
+    text: null
+  }
 
-  console.log(lines)
+  console.log(lineBeingEditedData)
+  console.log(lineBeingEdited)
 
   /* Characters */
 
@@ -71,9 +48,10 @@ const LineList = ({lineItems, sceneId}: Props) => {
     fetchSceneCharacters()
   }, [sceneId])
 
+  /* Editing line */
+
   // Opening dropdown for selecting characters
   const openCharacterDropdown = (ref: React.RefObject<HTMLDivElement | null>) => {
-    console.log(ref)
     if (!ref.current) {
       throw new Error("Dropdown button doesn't exist, but should")
     }
@@ -93,18 +71,14 @@ const LineList = ({lineItems, sceneId}: Props) => {
     setDropdownPos(null)
   }
 
-  // Closing character dropdown (by clicking ovelar, which is ANY area outside of the dropdown)
-  const closeDropdown = () => {
-    setIsCharDropdownOpen(false)
-    setDropdownPos(null)
-  }
-
-  // Options for our the scene card dropdowns
+  // Character dropdown data {label, onClick, className (optional)}
+  // Passed into <Dropdown />
   const charsDropdownData: DropdownData[] | undefined = characters?.map(char => {
     return {
       label: char.name,
       onClick: function() {
         if (char) {
+          setLineBeingEditedData(prev => ({...prev, character: char}))
           setIsCharDropdownOpen(true)
         }
       },
@@ -133,30 +107,34 @@ const LineList = ({lineItems, sceneId}: Props) => {
   }
 
   const closeEditLine = () => {
-    setLineBeingEdited(null)
+    // Remove temp line from lines array. Line isn't in db so no need to hit delete endpoint
     if (lines?.find(l => Number(l.id) == TEMP_LINE_ID)) {
       setLines(prev => {
         if (!prev) return null
         return prev.filter(l => l.id != TEMP_LINE_ID)
       })
+    } else {
+      // TODO: delete line from db
     }
+    // Also reset line data
+    setLineBeingEditedData(LINE_INITIAL)
+    setLineBeingEdited(null) // TODO: we'll keep this for now. Maybe we can put all data into lineBeingEditedData....
   }
 
   return (
     <>
       {
         lines?.map(line => {
-          console.log(line.id)
-          console.log(lineBeingEdited)
           return line.id == lineBeingEdited?.id ? 
           <EditLine 
+            setLineBeingEditedData={setLineBeingEditedData}
             line={line} 
             characters={characters} 
             openCharacterDropdown={openCharacterDropdown}
             closeEditLine={closeEditLine}
             />
              : 
-          <SavedLine line={line} />
+          <SavedLine line={line} setLineBeingEdited={setLineBeingEdited} />
         })
       }
       <button 

@@ -6,13 +6,7 @@ import { scenes } from '@/database/drizzle/schema';
 import { createClient } from '../../../utils/supabase/server';
 import { eq, desc } from 'drizzle-orm';
 import ScenesDashboardClient from '../components/scenes-dashboard/ScenesDashboardClient';
-
-type Scene = {
-  id: number,
-  name: string | null,
-  modified_at: string,
-  user_id: string
-}
+import { Scene } from '../types';
 
 const ScenesDashboardPage = async () => {
 

@@ -5,13 +5,7 @@ import { faClose, faTriangleExclamation, faTrash } from '@fortawesome/free-solid
 import Input from '../ui/Input'
 import ButtonLink from '../ui/ButtonLink'
 import clsx from 'clsx'
-
-type Scene = {
-  id: number;
-  name: string | null;
-  modified_at: string;
-  user_id: string;
-};
+import { Scene } from '@/app/types'
 
 type Props =  {
   scene: Scene;

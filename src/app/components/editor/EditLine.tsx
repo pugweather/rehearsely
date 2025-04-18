@@ -3,32 +3,17 @@ import React, {useState, useRef} from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone, faScissors, faHand, faCircleCheck, faXmark, faPersonRunning, faTrash } from "@fortawesome/free-solid-svg-icons";
 import ButtonLink from '../ui/ButtonLink'
-
-type DraftLine = {
-    character_id: number | null,
-    id: number | null,
-    order: number | null,
-    scene_id: number | null,
-    text: string | null,
-    isNew?: boolean
-};
-
-type Character = {
-    id: number,
-    name: string,
-    scene_id: number
-};
+import { DraftLine, Character, LineBeingEditedData } from '@/app/types';
 
 type Props = {
     line: DraftLine | null,
     characters: Character[] | null,
     closeEditLine: () => void,
-    openCharacterDropdown: (ref: React.RefObject<HTMLDivElement | null>) => void
+    openCharacterDropdown: (ref: React.RefObject<HTMLDivElement | null>) => void,
+    setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>;
 }
 
-const EditLine = ({line, characters, closeEditLine, openCharacterDropdown}: Props) => {
-
-    console.log(`characters: ${characters}`)
+const EditLine = ({line, characters, closeEditLine, openCharacterDropdown, setLineBeingEditedData}: Props) => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false)  
 
@@ -36,6 +21,10 @@ const EditLine = ({line, characters, closeEditLine, openCharacterDropdown}: Prop
 
     const handleSaveLine = () => {
         console.log("save line")
+    }
+
+    const handleChangeLineText = (text: string) => {
+        setLineBeingEditedData(prev => ({...prev, text: text}))
     }
 
     return (
@@ -60,6 +49,7 @@ const EditLine = ({line, characters, closeEditLine, openCharacterDropdown}: Prop
             <textarea
                 placeholder="Type line here or click microphone to record audio..."
                 className="bg-white w-full border border-gray-100 rounded-md px-3 py-2 text-md text-black resize-none mb-3 font-courier font-semibold focus:outline-none focus:ring-0"
+                onChange={(e) => handleChangeLineText(e.target.value)}
                 rows={4}
             />
 

@@ -6,19 +6,7 @@ import Overlay from '../ui/Overlay';
 import Dropdown from '../ui/Dropdown';
 import ModalSceneName from './ModalSceneName';
 import ModalDeleteScene from './ModalDeleteScene';
-
-type Scene = {
-    id: number;
-    name: string | null;
-    modified_at: string;
-    user_id: string;
-};
-
-type DropdownData = {
-  label: string,
-  onClick: () => void,
-  className?: string
-}
+import { Scene, DropdownData } from '@/app/types';
 
 type Props = {
     sceneData: Scene[]

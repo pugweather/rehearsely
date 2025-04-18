@@ -1,18 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import Overlay from './Overlay';
-
-type DropdownItem = {
-    label: string,
-    onClick: () => void,
-    className?: string
-}
-
-type DropdownProps = {
-    dropdownData: DropdownItem[] | undefined,
-    dropdownPos: {top: number, right: number} | null,
-    className?: string,
-    closeDropdown: () => void
-}
+import { DropdownProps } from '@/app/types';
 
 const Dropdown = ({dropdownData, dropdownPos, className, closeDropdown}: DropdownProps) => {
 

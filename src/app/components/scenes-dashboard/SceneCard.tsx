@@ -28,7 +28,7 @@ const SceneCard = ({id, name, modified_at, openDropdown}: SceneCardProps) => {
   }
 
   return (
-    <div className='relative mt-6.5 cursor-pointer' onClick={handleCardClick}>
+    <div className='relative mt-6.5 cursor-pointer transition-transform duration-200 ease-in-out hover:-translate-y-1 hover:shadow-lg' onClick={handleCardClick}>
       <div className="absolute z-2 -top-3 right-3 w-[85%] h-6 bg-black rounded-lg"></div>
       <div className="grid grid-cols-[4fr_1fr] gap-4 z-5 relative text-black shadow-[0_0_3px_1px_rgba(0,0,0,0.1)] p-6 bg-white rounded-lg h-[8.5rem]">
         <div className='flex flex-col font-[var(--font-yeseva)]'>
