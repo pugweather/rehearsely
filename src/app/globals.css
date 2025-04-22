@@ -32,6 +32,10 @@ body {
   font-family: "Courier New", Courier, monospace;
 }
 
+.font-pacifico {
+  font-family: 'Pacifico', cursive;
+}
+
 .font-courier-prime {
   font-family: 'Courier Prime', monospace;
 }

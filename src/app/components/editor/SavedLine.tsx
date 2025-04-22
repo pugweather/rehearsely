@@ -11,10 +11,9 @@ type Props = {
 }
 
 const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLineBeingEditedData}: Props) => {
-  console.log(lines)
 
   const TEMP_LINE_ID = -999
-  const currCharacter = characters?.find(char => char.id === line?.id) || null
+  const currCharacter = characters?.find(char => char.id === line?.character_id) || null
 
   if (line == null) return
 

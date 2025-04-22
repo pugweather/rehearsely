@@ -7,6 +7,7 @@ import EditLine from './EditLine'
 import Dropdown from '../ui/Dropdown'
 import Overlay from '../ui/Overlay';
 import { Line, DraftLine, LineBeingEditedData, Character, DropdownData } from '@/app/types';
+import Image from 'next/image';
 
 type Props = {
   lineItems: Line[] | null,
@@ -27,8 +28,6 @@ const LineList = ({lineItems, sceneId}: Props) => {
     character: null,
     text: null
   }
-
-  console.log(lineBeingEditedData)
 
   /* Characters */
 
@@ -131,26 +130,41 @@ const LineList = ({lineItems, sceneId}: Props) => {
 
   return (
     <>
-      {
-        lines?.map(line => {
-          return line.id == lineBeingEdited?.id ? 
-          <EditLine 
-            line={line} 
-            characters={characters} 
-            lineBeingEditedData={lineBeingEditedData}
-            setLineBeingEditedData={setLineBeingEditedData}
-            openCharacterDropdown={openCharacterDropdown}
-            closeEditLine={closeEditLine}
-            />
-            : 
-          <SavedLine 
-            line={line} 
-            lines={lines} 
-            characters={characters} 
-            setLines={setLines}
-            setLineBeingEdited={setLineBeingEdited} 
-            setLineBeingEditedData={setLineBeingEditedData} />
-        })
+      { 
+      lines?.length ?
+      lines?.map(line => {
+        return line.id == lineBeingEdited?.id ? 
+        <EditLine 
+          key={line.id}
+          line={line} 
+          characters={characters} 
+          lineBeingEditedData={lineBeingEditedData}
+          setLineBeingEditedData={setLineBeingEditedData}
+          openCharacterDropdown={openCharacterDropdown}
+          closeEditLine={closeEditLine}
+          />
+          : 
+        <SavedLine 
+          key={line.id}
+          line={line} 
+          lines={lines} 
+          characters={characters} 
+          setLines={setLines}
+          setLineBeingEdited={setLineBeingEdited} 
+          setLineBeingEditedData={setLineBeingEditedData} />
+      }) :
+      <div>
+        <div className='font-semibold text-xl text-center font-pacifico mb-5'>Click the button below to add lines</div>
+        <div className='relative min-w-50 min-h-50 mb-10'>
+          <Image
+            src="/add-line.png"
+            alt="add line"
+            fill
+            style={{objectFit: "contain"}}
+          />
+        </div>
+      </div>
+      
       }
       <button 
         className="mt-5 px-5 py-2 text-lg font-semibold text-black bg-transparent border-3 border-black rounded-full flex items-center hover:bg-black hover:text-white transition-colors duration-200 ease-in-out"

@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMicrophone, faScissors, faHand, faCircleCheck, faXmark, faPersonRunning, faTrash } from "@fortawesome/free-solid-svg-icons";
 import ButtonLink from '../ui/ButtonLink'
 import { DraftLine, Character, LineBeingEditedData } from '@/app/types';
+import clsx from 'clsx';
 
 type Props = {
     line: DraftLine | null,
@@ -16,13 +17,23 @@ type Props = {
 
 const EditLine = ({line, characters, lineBeingEditedData, closeEditLine, openCharacterDropdown, setLineBeingEditedData}: Props) => {
 
+    const TEMP_LINE_ID = -999
+
     const [isLoading, setIsLoading] = useState<boolean>(false)  
 
     const dropdownBtnRef = useRef<HTMLDivElement | null>(null);
     const {character, text} = lineBeingEditedData
 
-    const handleSaveLine = () => {
-        console.log("save line")
+    // Save line - {text, order, scene_id, character_id}
+    // TODO:
+        // save: line
+    const handleSaveLine = async () => {
+        // sceneId never changes
+        const characterId = lineBeingEditedData.character?.id
+        const sceneId = line?.scene_id
+        const order = line?.order
+
+        //const lineRes = await fetch("/api/private/scenes/")
     }
 
     const handleChangeLineText = (text: string) => {
@@ -55,9 +66,13 @@ const EditLine = ({line, characters, lineBeingEditedData, closeEditLine, openCha
                 value={text ? text : ''}
                 rows={4}
             />
-
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-5 text-gray-500 text-sm h-10">
+            <div className={clsx("flex items-center justify-between transition-all duration-200 ease-in-out transform",
+                    lineBeingEditedData.character ? "h-10" : "h-0"
+            )}>
+                <div className={clsx(
+                        "flex items-center gap-5 text-gray-500 text-sm h-10 transition-all duration-200 ease-in-out transform",
+                    lineBeingEditedData.character ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0 pointer-events-none"
+                )}>
                     <button className='px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-200'>
                         <FontAwesomeIcon icon={faScissors} />
                     </button>
@@ -72,7 +87,12 @@ const EditLine = ({line, characters, lineBeingEditedData, closeEditLine, openCha
                         <FontAwesomeIcon icon={faTrash} color='#da2a2a' />
                     </button>
                 </div>
-                <button onClick={handleSaveLine}>
+                <button 
+                    onClick={handleSaveLine}
+                    className={clsx(
+                        "flex items-center gap-5 text-gray-500 text-sm h-10 transition-all duration-100 ease-in-out transform",
+                        lineBeingEditedData.character ? "opacity-100" : "opacity-0"
+                )}>
                     <ButtonLink 
                         icon={faCircleCheck}
                         text={isLoading ?  'Saving Changes...' : 'Save'}
