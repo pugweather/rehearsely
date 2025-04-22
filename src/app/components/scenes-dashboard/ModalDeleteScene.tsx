@@ -39,6 +39,7 @@ const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, s
         setSceneDeleting(null)
     }
   }
+  
 
   return (
     <Modal width={500} height={300}>

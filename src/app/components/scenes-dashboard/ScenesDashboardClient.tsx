@@ -14,6 +14,8 @@ type Props = {
   
 const ScenesDashboardClient = ({sceneData}: Props) => {
 
+    console.log("test")
+
     const [scenes, setScenes] = useState<Scene[]>(sceneData)
     // Search filtering state
     const [query, setQuery]= useState<string>('')

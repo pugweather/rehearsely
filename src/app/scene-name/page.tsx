@@ -45,10 +45,10 @@ const SceneNamePage = () => {
                   <input 
                       type="text" 
                       placeholder="Enter scene name"
-                      className="relative w-125 h-15 pl-7.5 mr-4 text-lg border border-gray-300 rounded-3xl outline-none placeholder-gray-400"
+                      className="relative w-125 h-12.5 pl-7.5 mr-4 text-lg border border-gray-300 rounded-3xl outline-none placeholder-gray-400"
                       onChange={(e) => setSceneName(e.target.value)}
                   />
-                  <button onClick={handleSubmit}>
+                  <button onClick={handleSubmit} className='text-lg'>
                     <ButtonLink 
                       text={isLoading ?  'Saving Changes...' : 'Save'}
                       bgColor={isLoading ? "#ccc" : undefined}

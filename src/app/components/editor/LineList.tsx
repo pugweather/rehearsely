@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SavedLine from './SavedLine'
-import NewLine from './EditLine'
 import EditLine from './EditLine'
 import Dropdown from '../ui/Dropdown'
 import Overlay from '../ui/Overlay';
@@ -30,7 +29,6 @@ const LineList = ({lineItems, sceneId}: Props) => {
   }
 
   console.log(lineBeingEditedData)
-  console.log(lineBeingEdited)
 
   /* Characters */
 
@@ -65,26 +63,35 @@ const LineList = ({lineItems, sceneId}: Props) => {
     setIsCharDropdownOpen(true)
   }
 
-  // Close character dropdown
   const closeCharDropdown = () => {
     setIsCharDropdownOpen(false)
     setDropdownPos(null)
   }
 
   // Character dropdown data {label, onClick, className (optional)}
-  // Passed into <Dropdown />
-  const charsDropdownData: DropdownData[] | undefined = characters?.map(char => {
-    return {
-      label: char.name,
+  const charsDropdownData: DropdownData[] | undefined = characters ? 
+  [
+    {
+      label: "Select Character",
       onClick: function() {
-        if (char) {
-          setLineBeingEditedData(prev => ({...prev, character: char}))
-          setIsCharDropdownOpen(true)
-        }
+        setLineBeingEditedData(prev => ({...prev, character: null}))
+        setIsCharDropdownOpen(false)
       },
       className: "hover:bg-gray-200 px-2 py-2 transition-colors duration-200 ease-in-out"
-    }
-  })
+    },
+    ...characters.map(char => {
+      return {
+        label: char.name,
+        onClick: function() {
+          if (char) {
+            setLineBeingEditedData(prev => ({...prev, character: char}))
+            setIsCharDropdownOpen(false)
+          }
+        },
+        className: "hover:bg-gray-200 px-2 py-2 transition-colors duration-200 ease-in-out"
+      }
+    })
+  ] : undefined
 
   /* Lines */ 
 
@@ -100,6 +107,7 @@ const LineList = ({lineItems, sceneId}: Props) => {
         text: null
       }
       setLineBeingEdited(newLine)
+      setLineBeingEditedData(LINE_INITIAL)
       setLines(prev => prev == null ? [newLine] : [...prev, newLine])
     } else {
       console.log("Can only add one new line at a time")
@@ -127,14 +135,21 @@ const LineList = ({lineItems, sceneId}: Props) => {
         lines?.map(line => {
           return line.id == lineBeingEdited?.id ? 
           <EditLine 
-            setLineBeingEditedData={setLineBeingEditedData}
             line={line} 
             characters={characters} 
+            lineBeingEditedData={lineBeingEditedData}
+            setLineBeingEditedData={setLineBeingEditedData}
             openCharacterDropdown={openCharacterDropdown}
             closeEditLine={closeEditLine}
             />
-             : 
-          <SavedLine line={line} setLineBeingEdited={setLineBeingEdited} />
+            : 
+          <SavedLine 
+            line={line} 
+            lines={lines} 
+            characters={characters} 
+            setLines={setLines}
+            setLineBeingEdited={setLineBeingEdited} 
+            setLineBeingEditedData={setLineBeingEditedData} />
         })
       }
       <button 

@@ -8,16 +8,18 @@ import { DraftLine, Character, LineBeingEditedData } from '@/app/types';
 type Props = {
     line: DraftLine | null,
     characters: Character[] | null,
+    lineBeingEditedData: LineBeingEditedData,
     closeEditLine: () => void,
     openCharacterDropdown: (ref: React.RefObject<HTMLDivElement | null>) => void,
     setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>;
 }
 
-const EditLine = ({line, characters, closeEditLine, openCharacterDropdown, setLineBeingEditedData}: Props) => {
+const EditLine = ({line, characters, lineBeingEditedData, closeEditLine, openCharacterDropdown, setLineBeingEditedData}: Props) => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false)  
 
     const dropdownBtnRef = useRef<HTMLDivElement | null>(null);
+    const {character, text} = lineBeingEditedData
 
     const handleSaveLine = () => {
         console.log("save line")
@@ -34,7 +36,7 @@ const EditLine = ({line, characters, closeEditLine, openCharacterDropdown, setLi
                     className="relative w-40 h-8.5 rounded-full border border-gray-300 pl-3 pr-10 py-1.5 text-sm font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400" 
                     ref={dropdownBtnRef}
                     onClick={() => openCharacterDropdown(dropdownBtnRef)}>
-                    <span>Hello</span>
+                    <span>{character?.name || "Select Character"}</span>
                 </div>
                 <button className="text-black ml-5">
                     <div className='w-8 h-8 rounded-full flex justify-center items-center bg-black hover:opacity-85 transition-colors duration-200 ease-in-out'>
@@ -50,6 +52,7 @@ const EditLine = ({line, characters, closeEditLine, openCharacterDropdown, setLi
                 placeholder="Type line here or click microphone to record audio..."
                 className="bg-white w-full border border-gray-100 rounded-md px-3 py-2 text-md text-black resize-none mb-3 font-courier font-semibold focus:outline-none focus:ring-0"
                 onChange={(e) => handleChangeLineText(e.target.value)}
+                value={text ? text : ''}
                 rows={4}
             />
 
