@@ -17,6 +17,8 @@ type Props = {
 
 const EditLine = ({line, characters, lineBeingEditedData, closeEditLine, openCharacterDropdown, setLineBeingEditedData}: Props) => {
 
+    console.log(lineBeingEditedData)
+
     const TEMP_LINE_ID = -999
 
     const [isLoading, setIsLoading] = useState<boolean>(false)  
@@ -25,13 +27,11 @@ const EditLine = ({line, characters, lineBeingEditedData, closeEditLine, openCha
     const {character, text} = lineBeingEditedData
 
     // Save line - {text, order, scene_id, character_id}
-    // TODO:
-        // save: line
     const handleSaveLine = async () => {
-        // sceneId never changes
-        const characterId = lineBeingEditedData.character?.id
         const sceneId = line?.scene_id
-        const order = line?.order
+        const order = lineBeingEditedData.order
+        const text = lineBeingEditedData.text
+        const characterId = lineBeingEditedData.character?.id
 
         //const lineRes = await fetch("/api/private/scenes/")
     }

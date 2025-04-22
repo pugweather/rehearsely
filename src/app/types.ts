@@ -25,7 +25,8 @@ export type Line = {
 
 export type LineBeingEditedData = {
     character: Character | null,
-    text: string | null
+    text: string | null,
+    order: number | null
 }
 
 // Dropdowns

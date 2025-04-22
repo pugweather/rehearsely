@@ -22,6 +22,7 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
     setLineBeingEditedData({
       character: currCharacter,
       text: line.text,
+      order: line.order
     })
     removeTempLine()
   }

@@ -18,15 +18,25 @@ const LineList = ({lineItems, sceneId}: Props) => {
 
   const [lines, setLines] = useState<DraftLine[] | null>(lineItems)
   const [lineBeingEdited, setLineBeingEdited] = useState<DraftLine | null>(null)
-  const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({character: null, text: null}) // Single object that tracks the changes for the edited line
+  const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({character: null, text: null, order: null}) // Single object that tracks the changes for the edited line
   const [characters, setCharacters] = useState<Character[] | null>(null)
   const [isCharDropdownOpen, setIsCharDropdownOpen] = useState<boolean>(false)
   const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null) // Should this be global for all dropdowns?
 
   const TEMP_LINE_ID = -999
-  const LINE_INITIAL: LineBeingEditedData = {
+
+  const newLineOrderNumber = lineItems ? lineItems.length + 1 : 1// If no other lines have been added, set the newly added line to 1
+  // Unsetting state to clean, for clarity
+  const LINE_EMPTY: LineBeingEditedData = {
     character: null,
-    text: null
+    text: null,
+    order: null
+  }
+  // Newly added line (line is placed at end)
+  const LINE_NEW: LineBeingEditedData = {
+    character: null,
+    text: null,
+    order: newLineOrderNumber
   }
 
   /* Characters */
@@ -96,17 +106,18 @@ const LineList = ({lineItems, sceneId}: Props) => {
 
   // Adding lines to scene
   const handleAddLine = () => {
+    const newLineOrderNumber = lineItems ? lineItems.length : 1
     // Add temp line with negative id to avoid possibl collisions
     if (lines && !lines.find(l => l.text == null)) {
       const newLine: DraftLine = {
         id: TEMP_LINE_ID,
         character_id: null,
-        order: null,
+        order: newLineOrderNumber,
         scene_id: null,
         text: null
       }
       setLineBeingEdited(newLine)
-      setLineBeingEditedData(LINE_INITIAL)
+      setLineBeingEditedData(LINE_NEW)
       setLines(prev => prev == null ? [newLine] : [...prev, newLine])
     } else {
       console.log("Can only add one new line at a time")
@@ -124,7 +135,7 @@ const LineList = ({lineItems, sceneId}: Props) => {
       // TODO: delete line from db
     }
     // Also reset line data
-    setLineBeingEditedData(LINE_INITIAL)
+    setLineBeingEditedData(LINE_EMPTY)
     setLineBeingEdited(null) // TODO: we'll keep this for now. Maybe we can put all data into lineBeingEditedData....
   }
 
