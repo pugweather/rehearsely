@@ -28,7 +28,7 @@ const SceneNamePage = () => {
     if (res.ok) {
       setIsLoading(false)
       const result = await res.json()
-      const { sceneId } = result
+      const {sceneId} = result
       router.push(`/editor/${sceneId}`);
     } else {
 

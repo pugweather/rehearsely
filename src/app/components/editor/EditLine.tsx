@@ -10,30 +10,76 @@ type Props = {
     line: DraftLine | null,
     characters: Character[] | null,
     lineBeingEditedData: LineBeingEditedData,
+    setLines: React.Dispatch<React.SetStateAction<DraftLine[] | null>>;
     closeEditLine: () => void,
     openCharacterDropdown: (ref: React.RefObject<HTMLDivElement | null>) => void,
     setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>;
 }
 
-const EditLine = ({line, characters, lineBeingEditedData, closeEditLine, openCharacterDropdown, setLineBeingEditedData}: Props) => {
-
-    console.log(lineBeingEditedData)
-
+const EditLine = ({line, characters, lineBeingEditedData, setLines, closeEditLine, openCharacterDropdown, setLineBeingEditedData}: Props) => {
+    
+    const LINE_BEING_EDITED_EMPTY: LineBeingEditedData = {
+        character: null,
+        text: null,
+        order: null
+    }
     const TEMP_LINE_ID = -999
+    const isNewLine = line?.id === TEMP_LINE_ID
+    const {character, text} = lineBeingEditedData
+    
 
     const [isLoading, setIsLoading] = useState<boolean>(false)  
 
     const dropdownBtnRef = useRef<HTMLDivElement | null>(null);
-    const {character, text} = lineBeingEditedData
 
     // Save line - {text, order, scene_id, character_id}
     const handleSaveLine = async () => {
-        const sceneId = line?.scene_id
-        const order = lineBeingEditedData.order
+
         const text = lineBeingEditedData.text
         const characterId = lineBeingEditedData.character?.id
+        const order = lineBeingEditedData.order
+        const sceneId = line?.scene_id
 
-        //const lineRes = await fetch("/api/private/scenes/")
+        if (isNewLine) {
+            var res = await fetch(`/api/private/scenes/${sceneId}/lines`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    text,
+                    order,
+                    characterId,
+                    sceneId
+                })
+            })
+        } else {
+            var res = await fetch(`/api/private/scenes/${sceneId}/lines/${line?.id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    text,
+                    order,
+                    character_id: characterId,
+                    scene_id: sceneId
+                })
+            })
+        }
+
+
+        if (res.ok) {
+            if (isNewLine) {
+                const result = await res.json()
+                const insertedLine = result.insertedLine[0]
+                console.log(insertedLine)
+                setLines(prev => prev ? [...prev, insertedLine]  : [insertedLine])
+                closeEditLine()
+            } else {
+
+            }
+        }
     }
 
     const handleChangeLineText = (text: string) => {

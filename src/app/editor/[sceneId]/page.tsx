@@ -46,7 +46,7 @@ const Editor = async ({params}: Props) => {
                     <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-xl font-medium text-gray-900">{scene.name}</div>
                 </div>
                 <SceneSettings />
-                <div className="flex flex-col items-center py-8">
+                <div className="flex flex-col items-center py-8 h-full overflow-y-scroll">
                     <div className="max-w-md w-full flex flex-col items-center">
                         <LineList lineItems={lineItems} sceneId={Number(sceneId)}/>
                     </div>

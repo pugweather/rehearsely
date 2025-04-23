@@ -15,20 +15,21 @@ export async function POST(
         return NextResponse.json({error: "Unauthorized"}, {status: 401});
     }
 
-    // const body = await req.json()
-    // const {text} = body
+    const body = await req.json()
+    const {text, characterId, order, sceneId} = body
 
-    // if (!text || !text.length) {
-    //     return NextResponse.json({error: "lines must have at least one character"}, {status: 400})
-    // }
+    if (!text || !text.length) {
+        return NextResponse.json({error: "lines must have at least one character"}, {status: 400})
+    }
 
-    // const insertedLine = await db.insert(lines).values({
-    //     text,
-    //     user_id: user.id
-    // }).returning()
+    const insertedLine = await db.insert(lines).values({
+        text,
+        order,
+        character_id: characterId,
+        scene_id: sceneId
+    }).returning()
 
-    // const sceneId = insertedScene[0]?.id
+    console.log(insertedLine)
 
-    // return NextResponse.json({sceneId})
-
+    return NextResponse.json({insertedLine})
 }

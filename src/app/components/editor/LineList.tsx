@@ -25,15 +25,17 @@ const LineList = ({lineItems, sceneId}: Props) => {
 
   const TEMP_LINE_ID = -999
 
-  const newLineOrderNumber = lineItems ? lineItems.length + 1 : 1// If no other lines have been added, set the newly added line to 1
-  // Unsetting state to clean, for clarity
-  const LINE_EMPTY: LineBeingEditedData = {
+  console.log(lineItems)
+
+  const newLineOrderNumber = lines ? lines.length + 1 : 1 // If no other lines have been added, set the newly added line to 1
+  // Unsetting state to "empty"", for clarity
+  const LINE_BEING_EDITED_EMPTY: LineBeingEditedData = {
     character: null,
     text: null,
     order: null
   }
   // Newly added line (line is placed at end)
-  const LINE_NEW: LineBeingEditedData = {
+  const LINE_BEING_EDITED_NEW: LineBeingEditedData = {
     character: null,
     text: null,
     order: newLineOrderNumber
@@ -113,11 +115,11 @@ const LineList = ({lineItems, sceneId}: Props) => {
         id: TEMP_LINE_ID,
         character_id: null,
         order: newLineOrderNumber,
-        scene_id: null,
+        scene_id: sceneId,
         text: null
       }
       setLineBeingEdited(newLine)
-      setLineBeingEditedData(LINE_NEW)
+      setLineBeingEditedData(LINE_BEING_EDITED_NEW)
       setLines(prev => prev == null ? [newLine] : [...prev, newLine])
     } else {
       console.log("Can only add one new line at a time")
@@ -135,7 +137,7 @@ const LineList = ({lineItems, sceneId}: Props) => {
       // TODO: delete line from db
     }
     // Also reset line data
-    setLineBeingEditedData(LINE_EMPTY)
+    setLineBeingEditedData(LINE_BEING_EDITED_EMPTY)
     setLineBeingEdited(null) // TODO: we'll keep this for now. Maybe we can put all data into lineBeingEditedData....
   }
 
@@ -150,6 +152,7 @@ const LineList = ({lineItems, sceneId}: Props) => {
           line={line} 
           characters={characters} 
           lineBeingEditedData={lineBeingEditedData}
+          setLines={setLines}
           setLineBeingEditedData={setLineBeingEditedData}
           openCharacterDropdown={openCharacterDropdown}
           closeEditLine={closeEditLine}
