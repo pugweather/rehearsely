@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SavedLine from './SavedLine'
@@ -8,24 +8,28 @@ import Dropdown from '../ui/Dropdown'
 import Overlay from '../ui/Overlay';
 import { Line, DraftLine, LineBeingEditedData, Character, DropdownData } from '@/app/types';
 import Image from 'next/image';
+import { scrollToBottom } from '@/app/utils/utils';
 
 type Props = {
-  lineItems: Line[] | null,
+  lineItems: DraftLine[] | null,
+  scrollRef: React.RefObject<HTMLElement | null>,
   sceneId: number
 }
 
-const LineList = ({lineItems, sceneId}: Props) => {
+const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
 
   const [lines, setLines] = useState<DraftLine[] | null>(lineItems)
   const [lineBeingEdited, setLineBeingEdited] = useState<DraftLine | null>(null)
-  const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({character: null, text: null, order: null}) // Single object that tracks the changes for the edited line
+  const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({character: null, text: null, order: null}) // Tracks changes for line that is currently being edited
   const [characters, setCharacters] = useState<Character[] | null>(null)
   const [isCharDropdownOpen, setIsCharDropdownOpen] = useState<boolean>(false)
   const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null) // Should this be global for all dropdowns?
+  const [shouldScroll, setShouldScroll] = useState<boolean>(false)
 
   const TEMP_LINE_ID = -999
 
-  console.log(lineItems)
+  //console.log(lineItems)
+  console.log(scrollRef)
 
   const newLineOrderNumber = lines ? lines.length + 1 : 1 // If no other lines have been added, set the newly added line to 1
   // Unsetting state to "empty"", for clarity
@@ -40,6 +44,14 @@ const LineList = ({lineItems, sceneId}: Props) => {
     text: null,
     order: newLineOrderNumber
   }
+
+  useEffect(() => {
+    if (shouldScroll) {
+      scrollToBottom(scrollRef)
+    }
+  }, [shouldScroll])
+
+  console.log(shouldScroll)
 
   /* Characters */
 
@@ -100,7 +112,7 @@ const LineList = ({lineItems, sceneId}: Props) => {
           }
         },
         className: "hover:bg-gray-200 px-2 py-2 transition-colors duration-200 ease-in-out"
-      }
+      } 
     })
   ] : undefined
 
@@ -121,6 +133,7 @@ const LineList = ({lineItems, sceneId}: Props) => {
       setLineBeingEdited(newLine)
       setLineBeingEditedData(LINE_BEING_EDITED_NEW)
       setLines(prev => prev == null ? [newLine] : [...prev, newLine])
+      setShouldScroll(true)
     } else {
       console.log("Can only add one new line at a time")
     }

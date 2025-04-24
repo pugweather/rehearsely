@@ -1,7 +1,7 @@
 "use client"
 import React, {useState, useRef} from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMicrophone, faScissors, faHand, faCircleCheck, faXmark, faPersonRunning, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faMicrophone, faScissors, faHand, faCircleCheck, faXmark, faPersonRunning, faTrash, faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import ButtonLink from '../ui/ButtonLink'
 import { DraftLine, Character, LineBeingEditedData } from '@/app/types';
 import clsx from 'clsx';
@@ -25,9 +25,10 @@ const EditLine = ({line, characters, lineBeingEditedData, setLines, closeEditLin
     }
     const TEMP_LINE_ID = -999
     const isNewLine = line?.id === TEMP_LINE_ID
+    const sceneId = line?.scene_id
+    const lineId = line?.id
     const {character, text} = lineBeingEditedData
     
-
     const [isLoading, setIsLoading] = useState<boolean>(false)  
 
     const dropdownBtnRef = useRef<HTMLDivElement | null>(null);
@@ -38,7 +39,6 @@ const EditLine = ({line, characters, lineBeingEditedData, setLines, closeEditLin
         const text = lineBeingEditedData.text
         const characterId = lineBeingEditedData.character?.id
         const order = lineBeingEditedData.order
-        const sceneId = line?.scene_id
 
         if (isNewLine) {
             var res = await fetch(`/api/private/scenes/${sceneId}/lines`, {
@@ -86,6 +86,32 @@ const EditLine = ({line, characters, lineBeingEditedData, setLines, closeEditLin
         setLineBeingEditedData(prev => ({...prev, text: text}))
     }
 
+    const handleDeleteLine = async () => {
+        
+        if (lineId == TEMP_LINE_ID) {
+            closeEditLine()
+            console.log("removing unsaved line...")
+        } else {
+            const res = await fetch(`/api/private/scenes/${sceneId}/lines/${lineId}`,{
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id: lineId
+                })
+            })
+    
+            if (res.ok) {  
+                setLines(prev => {
+                    if (!prev) return null
+                    return prev?.filter(line => line.id != lineId)
+                })
+                console.log(`line with id ${lineId} deleted...`)
+            }
+        }
+    }
+
     return (
         <div className="bg-gray-50 p-4 rounded-xl shadow-sm w-full border border-gray-200 mb-12.5">
             <div className="flex items-center justify-start mb-3">
@@ -94,6 +120,7 @@ const EditLine = ({line, characters, lineBeingEditedData, setLines, closeEditLin
                     ref={dropdownBtnRef}
                     onClick={() => openCharacterDropdown(dropdownBtnRef)}>
                     <span>{character?.name || "Select Character"}</span>
+                    <span className='w-6 h-6 flex justify-center items-center absolute top-1/2 -translate-y-1/2 right-2'><FontAwesomeIcon icon={faCaretDown} /></span>
                 </div>
                 <button className="text-black ml-5">
                     <div className='w-8 h-8 rounded-full flex justify-center items-center bg-black hover:opacity-85 transition-colors duration-200 ease-in-out'>
@@ -129,7 +156,7 @@ const EditLine = ({line, characters, lineBeingEditedData, setLines, closeEditLin
                         <FontAwesomeIcon icon={faHand} />
                     </button>
                     <div className='h-full w-0.25 bg-gray-300 mx-2'></div>
-                    <button className='px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-200'>
+                    <button className='px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-200'  onClick={handleDeleteLine}>
                         <FontAwesomeIcon icon={faTrash} color='#da2a2a' />
                     </button>
                 </div>

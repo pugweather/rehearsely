@@ -30,3 +30,26 @@ export async function PATCH(
     return NextResponse.json({line})
 
 }
+
+export async function DELETE(
+    req: Request,
+    {params}:{params: {sceneId: string}}
+) {
+
+    const supabase = await createClient();
+    const { data: { user }, error } = await supabase.auth.getUser();
+
+    if (!user) {
+        return NextResponse.json({error: "Unauthorized"}, {status: 401})
+    }
+
+    const body = await req.json()
+    const {id} = body
+
+    const res = await db
+        .delete(lines)
+        .where(eq(lines.id, id))
+
+    return NextResponse.json({success: 201})
+
+}
