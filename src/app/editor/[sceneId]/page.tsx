@@ -34,7 +34,6 @@ const Editor = async ({params}: Props) => {
             scene={scene}
             lineItems={lineItems}
         >
-
         </EditorWrapperClient>
     )
 }

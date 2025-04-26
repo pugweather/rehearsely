@@ -26,12 +26,13 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
   const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null) // Should this be global for all dropdowns?
   const [shouldScroll, setShouldScroll] = useState<boolean>(false)
 
+  console.log(lines)
   const TEMP_LINE_ID = -999
 
   //console.log(lineItems)
   console.log(scrollRef)
 
-  const newLineOrderNumber = lines ? lines.length + 1 : 1 // If no other lines have been added, set the newly added line to 1
+  const newLineOrder = lines ? lines.length + 1 : 1 // If no other lines have been added, set the newly added line to 1
   // Unsetting state to "empty"", for clarity
   const LINE_BEING_EDITED_EMPTY: LineBeingEditedData = {
     character: null,
@@ -42,7 +43,7 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
   const LINE_BEING_EDITED_NEW: LineBeingEditedData = {
     character: null,
     text: null,
-    order: newLineOrderNumber
+    order: newLineOrder
   }
 
   useEffect(() => {
@@ -165,6 +166,7 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
           line={line} 
           characters={characters} 
           lineBeingEditedData={lineBeingEditedData}
+          newLineOrder={newLineOrder}
           setLines={setLines}
           setLineBeingEditedData={setLineBeingEditedData}
           openCharacterDropdown={openCharacterDropdown}

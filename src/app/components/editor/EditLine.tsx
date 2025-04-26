@@ -10,18 +10,28 @@ type Props = {
     line: DraftLine | null,
     characters: Character[] | null,
     lineBeingEditedData: LineBeingEditedData,
+    newLineOrder: number,
     setLines: React.Dispatch<React.SetStateAction<DraftLine[] | null>>;
     closeEditLine: () => void,
     openCharacterDropdown: (ref: React.RefObject<HTMLDivElement | null>) => void,
     setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>;
 }
 
-const EditLine = ({line, characters, lineBeingEditedData, setLines, closeEditLine, openCharacterDropdown, setLineBeingEditedData}: Props) => {
+const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines, closeEditLine, openCharacterDropdown, setLineBeingEditedData}: Props) => {
+
+    console.log(lineBeingEditedData)
     
+    // Unsetting state to "empty"", for clarity
     const LINE_BEING_EDITED_EMPTY: LineBeingEditedData = {
         character: null,
         text: null,
         order: null
+    }
+    // Newly added line (line is placed at end)
+    const LINE_BEING_EDITED_NEW: LineBeingEditedData = {
+        character: null,
+        text: null,
+        order: newLineOrder
     }
     const TEMP_LINE_ID = -999
     const isNewLine = line?.id === TEMP_LINE_ID
@@ -39,7 +49,7 @@ const EditLine = ({line, characters, lineBeingEditedData, setLines, closeEditLin
         const text = lineBeingEditedData.text
         const characterId = lineBeingEditedData.character?.id
         const order = lineBeingEditedData.order
-
+        console.log(isNewLine)
         if (isNewLine) {
             var res = await fetch(`/api/private/scenes/${sceneId}/lines`, {
                 method: "POST",
@@ -68,16 +78,25 @@ const EditLine = ({line, characters, lineBeingEditedData, setLines, closeEditLin
             })
         }
 
-
         if (res.ok) {
+            //  POST - add line to db
             if (isNewLine) {
                 const result = await res.json()
                 const insertedLine = result.insertedLine[0]
-                console.log(insertedLine)
                 setLines(prev => prev ? [...prev, insertedLine]  : [insertedLine])
                 closeEditLine()
+            // PATCH - update line in db
             } else {
-
+                const result = await res.json()
+                const {id, updates} = result
+                setLines(lines => {
+                    if (!lines) return null
+                    return lines.map(line => {
+                        return line?.id == lineId ?
+                        {id: id, ...updates} : line
+                    })
+                })
+                closeEditLine()
             }
         }
     }
@@ -88,9 +107,10 @@ const EditLine = ({line, characters, lineBeingEditedData, setLines, closeEditLin
 
     const handleDeleteLine = async () => {
         
+        // Removing unsaved line
         if (lineId == TEMP_LINE_ID) {
             closeEditLine()
-            console.log("removing unsaved line...")
+        // Remove "live" line
         } else {
             const res = await fetch(`/api/private/scenes/${sceneId}/lines/${lineId}`,{
                 method: "DELETE",
@@ -107,7 +127,7 @@ const EditLine = ({line, characters, lineBeingEditedData, setLines, closeEditLin
                     if (!prev) return null
                     return prev?.filter(line => line.id != lineId)
                 })
-                console.log(`line with id ${lineId} deleted...`)
+                setLineBeingEditedData(LINE_BEING_EDITED_EMPTY)
             }
         }
     }

@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 
 export async function PATCH(
     req: Request,
-    {params}:{params: {sceneId: string}}
+    {params}:{params: {sceneId: string, lineId: string}}
 ) {
 
     const supabase = await createClient();
@@ -17,17 +17,16 @@ export async function PATCH(
     }
 
     const body = await req.json()
-    const {id, ...updates} = body
+    const {...updates} = body
+    const {lineId} = params
 
     const res = await db
         .update(lines)
         .set(updates)
-        .where(eq(lines.id, id))
+        .where(eq(lines.id, Number(lineId)))
         .returning()
-    
-    const line = res[0]
 
-    return NextResponse.json({line})
+return NextResponse.json({id: lineId, updates})
 
 }
 
