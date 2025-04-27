@@ -4,6 +4,7 @@ import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import "./globals.css";
 import InitUser from "./components/init/InitUser";
+import InitVoices from "./components/init/InitVoices";
 
 const yeseva = Yeseva_One({
   subsets: ["latin"],
@@ -55,6 +56,7 @@ export default function RootLayout({
       </head>
       <body className={`${yeseva.variable} ${quicksand.variable} antialiased`}>
         <InitUser />
+        <InitVoices />
         {children}
       </body>
     </html>

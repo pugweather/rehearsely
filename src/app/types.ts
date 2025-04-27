@@ -69,3 +69,24 @@ export type UserStore = {
     user: User | null,
     setUser: (user: User) => void
 }
+
+// Voices
+
+type VoiceLabel = {
+    accent: string,
+    description: string,
+    age: string,
+    gender: string,
+    use_case: string
+}
+
+export type Voice = {
+    voice_id: number,
+    name: string,
+    labels: VoiceLabel
+}
+
+export type VoicesStore =  {
+    voices: Voice[] | null,
+    setVoices:(voices: Voice[] | null) => void
+}

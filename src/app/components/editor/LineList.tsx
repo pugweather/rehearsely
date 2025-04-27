@@ -6,6 +6,7 @@ import SavedLine from './SavedLine'
 import EditLine from './EditLine'
 import Dropdown from '../ui/Dropdown'
 import Overlay from '../ui/Overlay';
+import ModalCreateCharacter from './ModalCreateCharacter';
 import { Line, DraftLine, LineBeingEditedData, Character, DropdownData } from '@/app/types';
 import Image from 'next/image';
 import { scrollToBottom } from '@/app/utils/utils';
@@ -23,6 +24,7 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
   const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({character: null, text: null, order: null}) // Tracks changes for line that is currently being edited
   const [characters, setCharacters] = useState<Character[] | null>(null)
   const [isCharDropdownOpen, setIsCharDropdownOpen] = useState<boolean>(false)
+  const [isCreateCharModalOpen, setIsCreateCharModalOpen] = useState<boolean>(false)
   const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null) // Should this be global for all dropdowns?
   const [shouldScroll, setShouldScroll] = useState<boolean>(false)
 
@@ -92,13 +94,19 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
     setDropdownPos(null)
   }
 
+  // Closing create character modal
+  const closeCreateCharModal = () => {
+    setIsCreateCharModalOpen(false)
+  }
+
   // Character dropdown data {label, onClick, className (optional)}
   const charsDropdownData: DropdownData[] | undefined = characters ? 
   [
     {
-      label: "Select Character",
+      label: "New Character",
       onClick: function() {
         setLineBeingEditedData(prev => ({...prev, character: null}))
+        setIsCreateCharModalOpen(true)
         setIsCharDropdownOpen(false)
       },
       className: "hover:bg-gray-200 px-2 py-2 transition-colors duration-200 ease-in-out"
@@ -204,7 +212,8 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
       </button>
 
       {isCharDropdownOpen && <Overlay closeDropdown={closeCharDropdown}/>}
-      {isCharDropdownOpen && <Dropdown dropdownData={charsDropdownData} dropdownPos={dropdownPos} className={"w-40"} closeDropdown={closeCharDropdown}/>}
+      {isCharDropdownOpen && <Dropdown dropdownData={charsDropdownData} dropdownPos={dropdownPos} className={"w-40 z-20"} closeDropdown={closeCharDropdown}/>}
+      {isCreateCharModalOpen && <ModalCreateCharacter closeModal={closeCreateCharModal} sceneId={sceneId}/>}
     </>
   )
 }
