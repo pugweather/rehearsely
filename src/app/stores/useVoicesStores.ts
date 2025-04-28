@@ -4,5 +4,7 @@ import { Voice } from "../types"
 
 export const useVoicesStore = create<VoicesStore>((set) => ({
     voices: null,
-    setVoices: (voices: Voice[] | null) => set({voices})
+    voicesCategorized: null,
+    setVoices: (voices: Voice[] | null) => set({voices}),
+    setVoicesCategorized: (voicesCategorized: Record<string, {male: Voice[], female: Voice[]}> | null) => set({voicesCategorized})
 }))

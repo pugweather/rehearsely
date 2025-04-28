@@ -88,5 +88,7 @@ export type Voice = {
 
 export type VoicesStore =  {
     voices: Voice[] | null,
+    voicesCategorized: Record<string,{male: Voice[], female: Voice[]}> | null,
     setVoices:(voices: Voice[] | null) => void
+    setVoicesCategorized:(voicesCategorized: Record<string, {male: Voice[], female: Voice[]}> | null) => void
 }

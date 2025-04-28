@@ -213,7 +213,7 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
 
       {isCharDropdownOpen && <Overlay closeDropdown={closeCharDropdown}/>}
       {isCharDropdownOpen && <Dropdown dropdownData={charsDropdownData} dropdownPos={dropdownPos} className={"w-40 z-20"} closeDropdown={closeCharDropdown}/>}
-      {isCreateCharModalOpen && <ModalCreateCharacter closeModal={closeCreateCharModal} sceneId={sceneId}/>}
+      {isCreateCharModalOpen && <ModalCreateCharacter closeModal={closeCreateCharModal} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
     </>
   )
 }
