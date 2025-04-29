@@ -21,7 +21,7 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
 
   const [lines, setLines] = useState<DraftLine[] | null>(lineItems)
   const [lineBeingEdited, setLineBeingEdited] = useState<DraftLine | null>(null)
-  const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({character: null, text: null, order: null}) // Tracks changes for line that is currently being edited
+  const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({voice: null, character: null, text: null, order: null}) // Tracks changes for line that is currently being edited
   const [characters, setCharacters] = useState<Character[] | null>(null)
   const [isCharDropdownOpen, setIsCharDropdownOpen] = useState<boolean>(false)
   const [isCreateCharModalOpen, setIsCreateCharModalOpen] = useState<boolean>(false)
@@ -37,12 +37,14 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
   const newLineOrder = lines ? lines.length + 1 : 1 // If no other lines have been added, set the newly added line to 1
   // Unsetting state to "empty"", for clarity
   const LINE_BEING_EDITED_EMPTY: LineBeingEditedData = {
+    voice: null,
     character: null,
     text: null,
     order: null
   }
   // Newly added line (line is placed at end)
   const LINE_BEING_EDITED_NEW: LineBeingEditedData = {
+    voice:  null,
     character: null,
     text: null,
     order: newLineOrder
@@ -96,6 +98,12 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
 
   // Closing create character modal
   const closeCreateCharModal = () => {
+    setLineBeingEditedData(prev=> {
+      return {
+        ...prev,
+        voice: null
+      }
+    })
     setIsCreateCharModalOpen(false)
   }
 

@@ -23,12 +23,14 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
     
     // Unsetting state to "empty"", for clarity
     const LINE_BEING_EDITED_EMPTY: LineBeingEditedData = {
+        voice: null,
         character: null,
         text: null,
         order: null
     }
     // Newly added line (line is placed at end)
     const LINE_BEING_EDITED_NEW: LineBeingEditedData = {
+        voice: null,
         character: null,
         text: null,
         order: newLineOrder

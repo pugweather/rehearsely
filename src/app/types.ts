@@ -24,6 +24,7 @@ export type Line = {
 }
 
 export type LineBeingEditedData = {
+    voice: Voice | null
     character: Character | null,
     text: string | null,
     order: number | null

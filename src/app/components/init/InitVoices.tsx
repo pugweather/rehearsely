@@ -32,11 +32,11 @@ export default function InitVoices() {
     
     useEffect(() => {
         const fetchVoices = async() => {
-            const res = await fetch("/api/private/voices")
+            const res = await fetch("/api/private/voices/voice_chars")
             if (res.ok) {
                 const voicesRes = await res.json()
                 const voicesJson = voicesRes.voices
-                // Specialized "sorted" version of voices (see voicesCategorized above for initial structure)
+                // Build 'voicesCategorized', which is more useful, restructured version of 'voicesJson' (see voicesCategorized initialization above for initial structure)
                 voicesJson.forEach((voice: Voice) => {
                     const {gender, description} = voice.labels
                     for (const [category, descriptionsArray] of Object.entries(voiceCategories)) {
