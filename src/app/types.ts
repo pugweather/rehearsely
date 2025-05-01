@@ -2,7 +2,9 @@
 export type Character = {
     id: number,
     name: string,
-    scene_id: number
+    scene_id: number,
+    voice_id: string,
+    is_me: boolean
 };
 
 // Lines
@@ -84,7 +86,8 @@ type VoiceLabel = {
 export type Voice = {
     voice_id: number,
     name: string,
-    labels: VoiceLabel
+    labels: VoiceLabel,
+    preview_url: string
 }
 
 export type VoicesStore =  {

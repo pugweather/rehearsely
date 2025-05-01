@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useRef, useState } from 'react'
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faChessKing, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SavedLine from './SavedLine'
 import EditLine from './EditLine'
@@ -28,7 +28,6 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
   const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null) // Should this be global for all dropdowns?
   const [shouldScroll, setShouldScroll] = useState<boolean>(false)
 
-  console.log(lines)
   const TEMP_LINE_ID = -999
 
   //console.log(lineItems)
@@ -65,9 +64,10 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
     const fetchSceneCharacters = async () => {
       try {
         const res = await fetch(`/api/private/scenes/${sceneId}/characters`)
-        const characters = await res.json()
-        setCharacters(characters)
-      } catch(err) {
+        const charactersJson = await res.json()
+
+        setCharacters(charactersJson)
+      } catch (err) {
         console.error("Failed to catch characters for scene", err)
       }
     }
@@ -221,7 +221,7 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
 
       {isCharDropdownOpen && <Overlay closeDropdown={closeCharDropdown}/>}
       {isCharDropdownOpen && <Dropdown dropdownData={charsDropdownData} dropdownPos={dropdownPos} className={"w-40 z-20"} closeDropdown={closeCharDropdown}/>}
-      {isCreateCharModalOpen && <ModalCreateCharacter closeModal={closeCreateCharModal} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
+      {isCreateCharModalOpen && <ModalCreateCharacter setCharacters={setCharacters} closeModal={closeCreateCharModal} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
     </>
   )
 }

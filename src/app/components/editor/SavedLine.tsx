@@ -1,5 +1,8 @@
 import React from 'react'
 import { Character, DraftLine, LineBeingEditedData } from '@/app/types';
+import { useVoicesStore } from '@/app/stores/useVoicesStores'
+
+// TODO: How to deal with adding voice to this. Feels inefficient to import all voices and select voice by character voice_id and add to linebeingediteddata
 
 type Props = {
   line: DraftLine | null,
@@ -14,6 +17,8 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
 
   const TEMP_LINE_ID = -999
   const currCharacter = characters?.find(char => char.id === line?.character_id) || null
+  const voices = useVoicesStore(s => s.voices)
+  console.log(voices)
 
   if (line == null) return
 
@@ -34,9 +39,25 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
     }
   }
 
+  const displaySelectedCharacterName = () => {
+
+    let res = ""
+
+    const meText = "(me)"
+    const charIsMe = currCharacter?.is_me === true
+
+    if (currCharacter) {
+        res += currCharacter.name
+    } if (charIsMe) {
+        res += ' ' + meText
+    }
+
+    return res
+  }
+
   return (
     <div className={`w-full text-center uppercase mb-10 rounded-xl pl-10 pr-10 cursor-pointer hover:bg-gray-100 transition-color duration-200 ease-in-out font-courier`} onClick={handleSetLineToEditMode}>
-        <div className='text-lg'>{currCharacter?.name}</div>
+        <div className='text-lg'>{displaySelectedCharacterName()}</div>
         <div className='text-md'>{line.text}</div>
     </div>
   )

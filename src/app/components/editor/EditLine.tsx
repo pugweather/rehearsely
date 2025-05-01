@@ -51,7 +51,7 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
         const text = lineBeingEditedData.text
         const characterId = lineBeingEditedData.character?.id
         const order = lineBeingEditedData.order
-        console.log(isNewLine)
+
         if (isNewLine) {
             var res = await fetch(`/api/private/scenes/${sceneId}/lines`, {
                 method: "POST",
@@ -134,6 +134,23 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
         }
     }
 
+    const displaySelectedCharacterName = () => {
+
+        let res = ""
+
+        const meText = "(me)"
+        const charIsMe = character?.is_me === true
+
+        if (character) {
+            res += character.name
+        } if (charIsMe) {
+            res += ' ' + meText
+        } else {
+            res = "Select Character"
+        }
+        return res
+    }
+
     return (
         <div className="bg-gray-50 p-4 rounded-xl shadow-sm w-full border border-gray-200 mb-12.5">
             <div className="flex items-center justify-start mb-3">
@@ -141,7 +158,7 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
                     className="relative w-40 h-8.5 rounded-full border border-gray-300 pl-3 pr-10 py-1.5 text-sm font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400" 
                     ref={dropdownBtnRef}
                     onClick={() => openCharacterDropdown(dropdownBtnRef)}>
-                    <span>{character?.name || "Select Character"}</span>
+                    <span>{displaySelectedCharacterName()}</span>
                     <span className='w-6 h-6 flex justify-center items-center absolute top-1/2 -translate-y-1/2 right-2'><FontAwesomeIcon icon={faCaretDown} /></span>
                 </div>
                 <button className="text-black ml-5">

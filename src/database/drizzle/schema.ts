@@ -1,4 +1,4 @@
-import { pgTable, foreignKey, unique, bigint, text, uuid, timestamp, smallint } from "drizzle-orm/pg-core"
+import { pgTable, foreignKey, unique, bigint, text, boolean, uuid, timestamp, smallint } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 
@@ -9,6 +9,8 @@ export const characters = pgTable("characters", {
 	name: text().notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	scene_id: bigint({ mode: "number" }).notNull(),
+	voice_id: text(),
+	is_me: boolean().default(false).notNull(),
 }, (table) => [
 	foreignKey({
 			columns: [table.scene_id],
@@ -74,5 +76,4 @@ export const lines = pgTable("lines", {
 			name: "lines_scene_id_fkey"
 		}),
 	unique("lines_order_key").on(table.order),
-	unique("lines_character_id_key").on(table.character_id),
 ]);

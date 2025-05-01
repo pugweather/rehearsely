@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useRef } from 'react'
 import Modal from '../ui/Modal'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -7,18 +8,18 @@ import ButtonLink from '../ui/ButtonLink'
 import clsx from 'clsx'
 import { useVoicesStore } from '@/app/stores/useVoicesStores'
 import { LineBeingEditedData, Voice } from '@/app/types'
-import { Preahvihear } from 'next/font/google'
-import { ElevenLabsClient, play } from "elevenlabs";
+import { Character } from '@/app/types'
 import "dotenv/config";
 
 type Props =  {
   sceneId: number;
   lineBeingEditedData: LineBeingEditedData,
   setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>,
+  setCharacters: React.Dispatch<React.SetStateAction<Character[]| null>>
   closeModal: () => void;
 }
 
-const ModalCreateCharacter = ({closeModal, lineBeingEditedData, setLineBeingEditedData, sceneId}: Props) => {
+const ModalCreateCharacter = ({closeModal, setLineBeingEditedData, setCharacters, lineBeingEditedData, sceneId}: Props) => {
 
     const [characterName, setCharacterName] = useState<string>("")
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -34,19 +35,27 @@ const ModalCreateCharacter = ({closeModal, lineBeingEditedData, setLineBeingEdit
     const currentAudio = useRef<HTMLAudioElement | null>(null)
 
     const playSelectedVoiceAudio = async () => {
-        if (!selectedVoiceId) return
-
-        if (currentAudio.current) {
-            currentAudio.current.pause()
-            currentAudio.current.currentTime = 0
-            currentAudio.current = null
+        if (!selectedVoiceId) {
+            console.error("No voice selected?! This should never happen!")
+            return
         }
-        currentAudio.current = new Audio(`/api/private/voices/voice_samples/${selectedVoiceId}`)
-        currentAudio.current.play()
+        // Reset audio
+        stopSelectedVoiceAudio()
+        // Play sample mp3 audio
+        const selectedVoiceSrc = lineBeingEditedData?.voice?.preview_url
+        const audio = new Audio(selectedVoiceSrc)
+        currentAudio.current = audio
+
+        try {
+            await currentAudio.current.play()
+            setAudioIsPlaying(true)
+        } catch(err) {
+            console.error("Audio playback failed", err)
+        }
+
         currentAudio.current.onended = () => {
             setAudioIsPlaying(false)
         }
-        setAudioIsPlaying(true)
     };
 
     const stopSelectedVoiceAudio = async () => {
@@ -55,8 +64,6 @@ const ModalCreateCharacter = ({closeModal, lineBeingEditedData, setLineBeingEdit
             currentAudio.current.currentTime = 0;
             currentAudio.current = null
             setAudioIsPlaying(false)
-        } else {
-            throw new Error("Global audio object doesn't exist?! :(")
         }
     };
 
@@ -64,14 +71,15 @@ const ModalCreateCharacter = ({closeModal, lineBeingEditedData, setLineBeingEdit
 
         setIsLoading(true)
 
-        const res = await fetch("/api/private/voices/voice_chars", {
+        const res = await fetch(`/api/private/scenes/${sceneId}/characters`, {
             method: "POST",
             headers:{
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 name: characterName,
-                sceneId: sceneId
+                sceneId: sceneId,
+                voiceId: selectedVoiceId
             })
         })
 
@@ -79,20 +87,15 @@ const ModalCreateCharacter = ({closeModal, lineBeingEditedData, setLineBeingEdit
 
         setIsLoading(false)
 
-        // const data = await res.json()
-        // const updatedName = data?.updatedScene?.name
+        const newCharacterRes = await res.json()
+        const newCharacter = newCharacterRes.insertedCharacter
 
-        // setScenes(prev => {
-        //     return prev.map(prevScene => {
-        //     return scene.id === prevScene.id 
-        //     ? {...prevScene, name: updatedName} : prevScene
-        //     })
-        // })
-
+        setCharacters(prev => {
+            return prev == null ? [newCharacter] : [...prev, newCharacter]
+        })
         closeModal()
         } else {
-        setIsLoading(false)
-        console.log("Error: ")
+            setIsLoading(false)
         }
     }
 
