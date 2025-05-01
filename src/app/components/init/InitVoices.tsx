@@ -5,7 +5,6 @@ import { Voice } from '@/app/types'
 
 export default function InitVoices() {
 
-    const voices = useVoicesStore((s) => s.voices)
     const setVoices = useVoicesStore((s) => s.setVoices)
     const setVoicesCategorized = useVoicesStore((s) => s.setVoicesCategorized)
 
@@ -50,16 +49,15 @@ export default function InitVoices() {
                         }
                     }
                 })
-                console.log(voicesCategorized)
                 // All voices, unsorted 
-                setVoices(voicesJson.voices)
+                setVoices(voicesJson)
                 setVoicesCategorized(voicesCategorized)
             } else {
                 throw new Error("Unable to fetch voices from elevenlabs")
             }
         }
         fetchVoices()
-    }, [setVoices])
+    }, [setVoicesCategorized])
 
     return null
 }

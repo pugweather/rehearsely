@@ -7,6 +7,7 @@ import EditLine from './EditLine'
 import Dropdown from '../ui/Dropdown'
 import Overlay from '../ui/Overlay';
 import ModalCreateCharacter from './ModalCreateCharacter';
+import PlaySceneButtonsWrapper from './PlaySceneButtonsWrapper';
 import { Line, DraftLine, LineBeingEditedData, Character, DropdownData } from '@/app/types';
 import Image from 'next/image';
 import { scrollToBottom } from '@/app/utils/utils';
@@ -30,7 +31,6 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
 
   const TEMP_LINE_ID = -999
 
-  //console.log(lineItems)
   console.log(scrollRef)
 
   const newLineOrder = lines ? lines.length + 1 : 1 // If no other lines have been added, set the newly added line to 1
@@ -111,7 +111,7 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
   const charsDropdownData: DropdownData[] | undefined = characters ? 
   [
     {
-      label: "New Character",
+      label: "+ New Character",
       onClick: function() {
         setLineBeingEditedData(prev => ({...prev, character: null}))
         setIsCreateCharModalOpen(true)
@@ -163,10 +163,8 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
         if (!prev) return null
         return prev.filter(l => l.id != TEMP_LINE_ID)
       })
-    } else {
-      // TODO: delete line from db
     }
-    // Also reset line data
+    // Also reset data for line being edited
     setLineBeingEditedData(LINE_BEING_EDITED_EMPTY)
     setLineBeingEdited(null) // TODO: we'll keep this for now. Maybe we can put all data into lineBeingEditedData....
   }
@@ -218,6 +216,8 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
         <FontAwesomeIcon icon={faPlus} />
         <span className="ml-2">Add Line</span>
       </button>
+
+      <PlaySceneButtonsWrapper />
 
       {isCharDropdownOpen && <Overlay closeDropdown={closeCharDropdown}/>}
       {isCharDropdownOpen && <Dropdown dropdownData={charsDropdownData} dropdownPos={dropdownPos} className={"w-40 z-20"} closeDropdown={closeCharDropdown}/>}

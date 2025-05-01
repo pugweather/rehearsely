@@ -17,17 +17,19 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
 
   const TEMP_LINE_ID = -999
   const currCharacter = characters?.find(char => char.id === line?.character_id) || null
-  const voices = useVoicesStore(s => s.voices)
-  console.log(voices)
+  const voices = useVoicesStore((s) => s.voices)
 
   if (line == null) return
 
   const handleSetLineToEditMode = () => {
     setLineBeingEdited(line)
+    // Get voice object to pass into the edit mode line
+    const voice = voices?.find(voice => Number(voice.voice_id) == Number(currCharacter?.voice_id))
     setLineBeingEditedData({
       character: currCharacter,
       text: line.text,
-      order: line.order
+      order: line.order,
+      voice: voice || null
     })
     removeTempLine()
   }

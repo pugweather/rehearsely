@@ -5,8 +5,9 @@ import Navbar from "../../components/layout/Navbar";
 import EditorWrapper from "../../components/editor/EditorWrapper";
 import SceneSettings from "../../components/editor/SceneSettings";
 import LineList from "@/app/components/editor/LineList";
+import ButtonLink from '../ui/ButtonLink';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeftLong } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeftLong, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { Line } from '@/app/types';
 import { Scene } from '@/app/types';
 

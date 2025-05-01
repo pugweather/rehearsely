@@ -141,12 +141,17 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
         const meText = "(me)"
         const charIsMe = character?.is_me === true
 
+        console.log(character)
+
         if (character) {
             res += character.name
-        } if (charIsMe) {
-            res += ' ' + meText
+            if (charIsMe) {
+                res += ' ' + meText
+                console.log(res)
+            }
         } else {
             res = "Select Character"
+            console.log(res)
         }
         return res
     }
