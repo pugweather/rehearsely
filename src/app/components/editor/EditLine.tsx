@@ -200,8 +200,8 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
                         <FontAwesomeIcon icon={faHand} />
                     </button>
                     <div className='h-full w-0.25 bg-gray-300 mx-2'></div>
-                    <button className='px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-200'  onClick={handleDeleteLine}>
-                        <FontAwesomeIcon icon={faTrash} color='#da2a2a' />
+                    <button className='px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-200' onClick={handleDeleteLine}>
+                        <FontAwesomeIcon icon={faTrash} color='#ff7875' />
                     </button>
                 </div>
                 <button 

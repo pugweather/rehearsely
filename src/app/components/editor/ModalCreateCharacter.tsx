@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react'
 import Modal from '../ui/Modal'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faClose, faCircleCheck, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faClose, faCircleCheck, faXmark, faPlay } from '@fortawesome/free-solid-svg-icons'
 import Input from '../ui/Input'
 import ButtonLink from '../ui/ButtonLink'
 import clsx from 'clsx'
@@ -113,14 +113,13 @@ const ModalCreateCharacter = ({closeModal, setLineBeingEditedData, setCharacters
         return Object.entries(voicesCategorized).map(([category, voices]) => {
             return (
                 <>
-                    <div className='w-full'>{category}</div>
+                    <div className='w-full text-lg'>{category}</div>
                     {voices[gender].map(voice => {
                         return  (
                             <div 
                                 className={clsx(
-                                    'px-3 py-3 mt-2 mr-3 mb-2 w-30 bg-gray-100 rounded-lg text-center cursor-pointer transition-all ease-in-out duration-200 hover:bg-green-100',
+                                    'px-3 py-2.5 mt-2 mr-3 mb-2 w-25 bg-[#fff4d8] rounded-xl text-lg text-center cursor-pointer transition-all ease-in-out duration-200 hover:bg-green-100',
                                     voice.voice_id === selectedVoiceId && "bg-green-100",
-
                                 )}
                                 onClick={() => handleSelectVoice(voice)}
                             >
@@ -136,7 +135,7 @@ const ModalCreateCharacter = ({closeModal, setLineBeingEditedData, setCharacters
     const femaleCharBtns = getVoicesJSX("female")
 
     return (
-        <Modal width={900} height={750}>
+        <Modal width={800} height={750}>
             <div className='flex flex-col pt-10 pl-5 pr-5 h-[95%]'>
             <div onClick={closeModal}>
                 <FontAwesomeIcon icon={faClose} className="absolute top-5 right-5 text-3xl text-gray-800 cursor-pointer" />
@@ -146,13 +145,13 @@ const ModalCreateCharacter = ({closeModal, setLineBeingEditedData, setCharacters
             <div className='text-2xl pl-2 mb-5 mt-5 font-semibold'>Select Voice</div>
             <div className='flex justify-between font-semibold ml-2 overflow-y-auto'>
                 <div className='w-[50%] mr-2'>
-                    <div className='mb-4 text-lg'>Male</div>
+                    <div className='mb-4 text-xl' style={{color: "#f47c2c"}}>MALE</div>
                     <div className='flex flex-wrap justify-start'>
                         {maleCharBtns}
                     </div>
                 </div>
                 <div className='w-[50%] ml-2'>
-                    <div className='mb-4 text-lg'>Female</div>
+                    <div className='mb-4 text-xl' style={{color: "#f7a954"}}>FEMALE</div>
                     <div className='flex flex-wrap justify-start'>
                         {femaleCharBtns}
                     </div>
@@ -169,9 +168,9 @@ const ModalCreateCharacter = ({closeModal, setLineBeingEditedData, setCharacters
                     onClick={audioIsPlaying ? stopSelectedVoiceAudio : playSelectedVoiceAudio}
                 >
                     <ButtonLink 
-                        icon={audioIsPlaying ? faXmark : faCircleCheck} 
+                        icon={audioIsPlaying ? faXmark : faPlay} 
                         text={audioIsPlaying ?  'Stop playing' : 'Play selected voice'}
-                        bgColor={isLoading ? "#ccc" : undefined}
+                        bgColor="#f47c2c"
                     />
                 </button>
                 {/* Saving character */}

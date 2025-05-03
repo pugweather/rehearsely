@@ -58,7 +58,7 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
   }
 
   return (
-    <div className={`w-full text-center uppercase mb-10 rounded-xl pl-10 pr-10 cursor-pointer hover:bg-gray-100 transition-color duration-200 ease-in-out font-courier`} onClick={handleSetLineToEditMode}>
+    <div className={`w-full text-center uppercase mb-10 rounded-xl pl-10 pr-10 py-3 cursor-pointer hover:bg-gray-100 transition-color duration-200 ease-in-out font-courier`} onClick={handleSetLineToEditMode}>
         <div className='text-lg'>{displaySelectedCharacterName()}</div>
         <div className='text-md'>{line.text}</div>
     </div>

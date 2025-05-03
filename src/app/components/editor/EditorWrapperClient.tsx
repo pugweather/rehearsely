@@ -22,7 +22,7 @@ const EditorWrapperClient = ({scene, lineItems}: Props) => {
     
     return (
         <div 
-            className="min-h-screen bg-gray-200 flex flex-col"
+            className="min-h-screen bg-gray-100 flex flex-col"
             ref={scrollRef}
         >
             <Navbar />
@@ -38,7 +38,7 @@ const EditorWrapperClient = ({scene, lineItems}: Props) => {
                     </div>
                     <SceneSettings />
                     <div className="flex flex-col items-center py-8">
-                        <div className="max-w-md w-full flex flex-col items-center">
+                        <div className="max-w-md w-full flex flex-col items-center pb-25">
                             <LineList 
                                 lineItems={lineItems} 
                                 sceneId={scene.id}
