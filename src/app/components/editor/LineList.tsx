@@ -20,7 +20,12 @@ type Props = {
 
 const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
 
-  const [lines, setLines] = useState<DraftLine[] | null>(lineItems)
+  const sortedLines = lineItems?.slice().sort((a, b) => {
+    if (!a || !b || a.order == null || b.order == null) return 0;
+    return a.order - b.order;
+  });
+
+  const [lines, setLines] = useState<DraftLine[] | null>(sortedLines || null)
   const [lineBeingEdited, setLineBeingEdited] = useState<DraftLine | null>(null)
   const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({voice: null, character: null, text: null, order: null}) // Tracks changes for line that is currently being edited
   const [characters, setCharacters] = useState<Character[] | null>(null)
@@ -31,9 +36,12 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
 
   const TEMP_LINE_ID = -999
 
-  console.log(scrollRef)
-
-  const newLineOrder = lines ? lines.length + 1 : 1 // If no other lines have been added, set the newly added line to 1
+  const highestLineOrder = lines?.reduce((max, line) => {
+    const lineOrder = line.order ? line.order : -1
+    return lineOrder > max ? lineOrder : max
+  }, -Infinity)
+  const newLineOrder = highestLineOrder ? highestLineOrder + 1 : 1
+  console.log(newLineOrder)
   // Unsetting state to "empty"", for clarity
   const LINE_BEING_EDITED_EMPTY: LineBeingEditedData = {
     voice: null,

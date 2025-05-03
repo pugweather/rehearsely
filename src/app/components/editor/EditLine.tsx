@@ -60,9 +60,8 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
                 },
                 body: JSON.stringify({
                     text,
-                    order,
                     characterId,
-                    sceneId
+                    order,
                 })
             })
         } else {

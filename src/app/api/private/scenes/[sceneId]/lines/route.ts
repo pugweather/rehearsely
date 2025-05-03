@@ -16,7 +16,7 @@ export async function POST(
     }
 
     const body = await req.json()
-    const {text, characterId, order, sceneId} = body
+    const {text, characterId, order} = body
 
     if (!text || !text.length) {
         return NextResponse.json({error: "lines must have at least one character"}, {status: 400})
@@ -26,7 +26,7 @@ export async function POST(
         text,
         order,
         character_id: characterId,
-        scene_id: sceneId
+        scene_id: Number(params.sceneId)
     }).returning()
 
     console.log(insertedLine)

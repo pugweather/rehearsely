@@ -19,14 +19,14 @@ export async function PATCH(
     const body = await req.json()
     const {...updates} = body
     const {lineId} = params
-
+    
     const res = await db
         .update(lines)
         .set(updates)
         .where(eq(lines.id, Number(lineId)))
         .returning()
 
-return NextResponse.json({id: lineId, updates})
+    return NextResponse.json({id: lineId, updates})
 
 }
 
