@@ -19,6 +19,7 @@ type Props = {
 
 const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines, closeEditLine, openCharacterDropdown, setLineBeingEditedData}: Props) => {
 
+    console.log("lineBeingEditedData")
     console.log(lineBeingEditedData)
     
     // Unsetting state to "empty"", for clarity
@@ -50,6 +51,7 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
 
         const text = lineBeingEditedData.text
         const characterId = lineBeingEditedData.character?.id
+        const voiceId = lineBeingEditedData.voice?.voice_id
         const order = lineBeingEditedData.order
 
         if (isNewLine) {
@@ -71,6 +73,7 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    voiceId, // Not a column in "lines". Used to create tts
                     text,
                     order,
                     character_id: characterId,
@@ -89,6 +92,7 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
             // PATCH - update line in db
             } else {
                 const result = await res.json()
+                console.log(result)
                 const {id, updates} = result
                 setLines(lines => {
                     if (!lines) return null
@@ -139,8 +143,6 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
 
         const meText = "(me)"
         const charIsMe = character?.is_me === true
-
-        console.log(character)
 
         if (character) {
             res += character.name

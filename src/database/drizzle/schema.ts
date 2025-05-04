@@ -64,6 +64,7 @@ export const lines = pgTable("lines", {
 	character_id: bigint({ mode: "number" }).notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	scene_id: bigint({ mode: "number" }).notNull(),
+	audio_url: text(),
 }, (table) => [
 	foreignKey({
 			columns: [table.character_id],
@@ -76,4 +77,5 @@ export const lines = pgTable("lines", {
 			name: "lines_scene_id_fkey"
 		}),
 	unique("lines_order_key").on(table.order),
+	unique("lines_audio_url_key").on(table.audio_url),
 ]);

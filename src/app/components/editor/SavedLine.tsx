@@ -16,7 +16,7 @@ type Props = {
 const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLineBeingEditedData}: Props) => {
 
   const TEMP_LINE_ID = -999
-  const currCharacter = characters?.find(char => char.id === line?.character_id) || null
+  const currCharacter = characters?.find(char => char.id === line?.character_id)
   const voices = useVoicesStore((s) => s.voices)
 
   if (line == null) return
@@ -24,9 +24,10 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
   const handleSetLineToEditMode = () => {
     setLineBeingEdited(line)
     // Get voice object to pass into the edit mode line
-    const voice = voices?.find(voice => Number(voice.voice_id) == Number(currCharacter?.voice_id))
+    const voice = voices?.find(voice => String(voice.voice_id) == String(currCharacter?.voice_id)) // TODO: For some reason when i remove the string conversion it says one I can't compared nums and strs????
+    console.log(currCharacter)
     setLineBeingEditedData({
-      character: currCharacter,
+      character: currCharacter || null,
       text: line.text,
       order: line.order,
       voice: voice || null
