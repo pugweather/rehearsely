@@ -54,6 +54,8 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
         const voiceId = lineBeingEditedData.voice?.voice_id
         const order = lineBeingEditedData.order
 
+        const charIsMe = character?.is_me
+
         if (isNewLine) {
             var res = await fetch(`/api/private/scenes/${sceneId}/lines`, {
                 method: "POST",
@@ -61,9 +63,10 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    ...(charIsMe === false ? {voiceId} : {}), // Not a column in "lines". Used to create tts
                     text,
                     characterId,
-                    order,
+                    order
                 })
             })
         } else {
@@ -73,7 +76,7 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    voiceId, // Not a column in "lines". Used to create tts
+                    ...(charIsMe === false ? {voiceId} : {}),
                     text,
                     order,
                     character_id: characterId,

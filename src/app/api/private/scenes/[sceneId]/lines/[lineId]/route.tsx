@@ -4,7 +4,6 @@ import { lines } from "@/database/drizzle/schema";
 import db from "@/app/database";
 import { eq } from "drizzle-orm";
 import { createAudioBufferFromText } from "@/app/lib/elevenlabs";
-import { readFileSync } from "fs";
 import { v4 as uuid } from 'uuid';
 
 export async function PATCH(
@@ -28,41 +27,47 @@ export async function PATCH(
     const text = updates.text
     const voiceId = updates.voiceId
 
-    if (!text || !voiceId) {
-        return NextResponse.json({error: "Error: Missing either text or order"}, {status: 500})
+    if (!text) {
+        return NextResponse.json({error: "Error: Missing text"}, {status: 500})
     }
 
-    const audioFile = await createAudioBufferFromText(text, voiceId)
-    const fileName = `${uuid()}.mp3`;
-    const filePath = `${userId}/${fileName}`
-
-    // Save audio to S3
-    const {error: uploadError } = await supabase.storage
-        .from('audio-urls')
-        .upload(filePath, audioFile, {
-            contentType: 'audio/mpeg',
-            upsert: true,
-        });
-
-    if (uploadError) {
-        return NextResponse.json({error: "Audio upload failed"}, {status: 500})
+    var publicUrl: string | null = null;
+    if (voiceId) {
+        var audioFile = await createAudioBufferFromText(text, voiceId)
+        var fileName = `${uuid()}.mp3`;
+        var filePath = `${userId}/${fileName}`
+        // Save audio to S3
+        const {error: uploadError } = await supabase.storage
+            .from('audio-urls')
+            .upload(filePath, audioFile, {
+                contentType: 'audio/mpeg',
+                upsert: true,
+            });
+    
+        if (uploadError) {
+            return NextResponse.json({error: "Audio upload failed"}, {status: 500})
+        }
+    
+        var {data: publicUrlData} = await supabase.storage
+            .from('audio-urls')
+            .getPublicUrl(filePath)
+        
+        publicUrl = publicUrlData.publicUrl
+            
     }
-
-    const {data: publicUrl} = await supabase.storage
-        .from('audio-urls')
-        .getPublicUrl(filePath)
 
     // Update line in db
     const res = await db
         .update(lines)
         .set({
             ...updates,
-            audio_url: filePath
+            ...(publicUrl ? {audio_url: publicUrl} : {audio_url: null})
         })
         .where(eq(lines.id, Number(lineId)))
         .returning()
 
-    return NextResponse.json({id: lineId, updates: {...updates, audio_url: filePath}}, {status: 200})
+    // Pass in NULL to audio_url if we're updating our own character
+    return NextResponse.json({id: lineId, updates: {...updates, ...(publicUrl ? {audio_url: publicUrl} : {audio_url: null})}}, {status: 200})
 
 }
 

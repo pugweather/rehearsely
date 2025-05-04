@@ -11,6 +11,7 @@ import PlaySceneButtonsWrapper from './PlaySceneButtonsWrapper';
 import { Line, DraftLine, LineBeingEditedData, Character, DropdownData } from '@/app/types';
 import Image from 'next/image';
 import { scrollToBottom } from '@/app/utils/utils';
+import { useVoicesStore } from '@/app/stores/useVoicesStores';
 
 type Props = {
   lineItems: DraftLine[] | null,
@@ -35,6 +36,7 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
   const [shouldScroll, setShouldScroll] = useState<boolean>(false)
 
   const TEMP_LINE_ID = -999
+  const voices = useVoicesStore(s => s.voices)
 
   const highestLineOrder = lines?.reduce((max, line) => {
     const lineOrder = line.order ? line.order : -1
@@ -132,7 +134,8 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
         label: char.name,
         onClick: function() {
           if (char) {
-            setLineBeingEditedData(prev => ({...prev, character: char}))
+            const voice = voices?.find(v => v.voice_id === char.voice_id) || null
+            setLineBeingEditedData(prev => ({...prev, character: char, voice: voice}))
             setIsCharDropdownOpen(false)
           }
         },

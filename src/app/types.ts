@@ -84,7 +84,7 @@ type VoiceLabel = {
 }
 
 export type Voice = {
-    voice_id: number,
+    voice_id: string,
     name: string,
     labels: VoiceLabel,
     preview_url: string
