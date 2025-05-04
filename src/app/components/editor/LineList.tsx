@@ -106,17 +106,6 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
     setDropdownPos(null)
   }
 
-  // Closing create character modal
-  const closeCreateCharModal = () => {
-    setLineBeingEditedData(prev=> {
-      return {
-        ...prev,
-        voice: null
-      }
-    })
-    setIsCreateCharModalOpen(false)
-  }
-
   // Character dropdown data {label, onClick, className (optional)}
   const charsDropdownData: DropdownData[] | undefined = characters ? 
   [
@@ -232,7 +221,7 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
 
       {isCharDropdownOpen && <Overlay closeDropdown={closeCharDropdown}/>}
       {isCharDropdownOpen && <Dropdown dropdownData={charsDropdownData} dropdownPos={dropdownPos} className={"w-40 z-20"} closeDropdown={closeCharDropdown}/>}
-      {isCreateCharModalOpen && <ModalCreateCharacter setCharacters={setCharacters} closeModal={closeCreateCharModal} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
+      {isCreateCharModalOpen && <ModalCreateCharacter setCharacters={setCharacters} setIsCreateCharModalOpen={setIsCreateCharModalOpen} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
     </>
   )
 }

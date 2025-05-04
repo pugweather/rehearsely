@@ -16,10 +16,10 @@ type Props =  {
   lineBeingEditedData: LineBeingEditedData,
   setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>,
   setCharacters: React.Dispatch<React.SetStateAction<Character[]| null>>
-  closeModal: () => void;
+  setIsCreateCharModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const ModalCreateCharacter = ({closeModal, setLineBeingEditedData, setCharacters, lineBeingEditedData, sceneId}: Props) => {
+const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData, setCharacters, lineBeingEditedData, sceneId}: Props) => {
 
     const [characterName, setCharacterName] = useState<string>("")
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -89,14 +89,36 @@ const ModalCreateCharacter = ({closeModal, setLineBeingEditedData, setCharacters
 
         const newCharacterRes = await res.json()
         const newCharacter = newCharacterRes.insertedCharacter
+        const newCharacterVoice = voices?.find(voice => voice.voice_id === newCharacter.voice_id) || null
 
+        // Append to characters,
         setCharacters(prev => {
             return prev == null ? [newCharacter] : [...prev, newCharacter]
         })
-        closeModal()
+        // Attach character & voice to current line
+        setLineBeingEditedData(prev => {
+            const updated = {...prev, character: newCharacter, voice: newCharacterVoice}
+            console.log("updated lineBeingEditedData:", updated)
+            return updated
+        })
+
+        closeCreateCharModal()
+
         } else {
             setIsLoading(false)
         }
+    }
+
+    // Closing entire modal
+    const closeCreateCharModal = () => {
+        // TODO: Delete this part. setLineBeingEditedData in handleAddNewCharacter is handling the data change
+        // setLineBeingEditedData(prev=> {
+        //     return {
+        //         ...prev,
+        //         voice: null
+        //     }
+        // })
+        setIsCreateCharModalOpen(false)
     }
 
     const handleSelectVoice = (voice: Voice) => {
@@ -137,7 +159,7 @@ const ModalCreateCharacter = ({closeModal, setLineBeingEditedData, setCharacters
     return (
         <Modal width={800} height={750}>
             <div className='flex flex-col pt-10 pl-5 pr-5 h-[95%]'>
-            <div onClick={closeModal}>
+            <div onClick={closeCreateCharModal}>
                 <FontAwesomeIcon icon={faClose} className="absolute top-5 right-5 text-3xl text-gray-800 cursor-pointer" />
             </div>
             <div className='text-2xl pl-2 mb-5 font-semibold'>Character Name</div>
