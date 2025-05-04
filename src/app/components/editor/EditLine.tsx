@@ -1,7 +1,7 @@
 "use client"
 import React, {useState, useRef} from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMicrophone, faScissors, faHand, faCircleCheck, faXmark, faPersonRunning, faTrash, faCaretDown } from "@fortawesome/free-solid-svg-icons";
+import { faMicrophone, faScissors, faHand, faCircleCheck, faXmark, faPersonRunning, faTrashCan, faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import ButtonLink from '../ui/ButtonLink'
 import { DraftLine, Character, LineBeingEditedData } from '@/app/types';
 import clsx from 'clsx';
@@ -181,7 +181,7 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
             </div>
 
             <textarea
-                placeholder="Type line here or click microphone to record audio..."
+                placeholder="Type the line and choose a voice (optional). Recording audio enhances the AI voice."
                 className="bg-white w-full border border-gray-100 rounded-md px-3 py-2 text-md text-black resize-none mb-3 font-courier font-semibold focus:outline-none focus:ring-0"
                 onChange={(e) => handleChangeLineText(e.target.value)}
                 value={text ? text : ''}
@@ -194,18 +194,18 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
                         "flex items-center gap-5 text-gray-500 text-sm h-10 transition-all duration-200 ease-in-out transform",
                     lineBeingEditedData.character ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0 pointer-events-none"
                 )}>
-                    <button className='px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-200'>
+                    <button className='px-3 py-1.5 rounded-lg border border-gray-200 text-black hover:bg-gray-200'>
                         <FontAwesomeIcon icon={faScissors} />
                     </button>
-                    <button className='px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-200'>
+                    <button className='px-3 py-1.5 rounded-lg border border-gray-200 text-black hover:bg-gray-200'>
                         <FontAwesomeIcon icon={faPersonRunning} />
                     </button>
-                    <button className='px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-200'>
+                    <button className='px-3 py-1.5 rounded-lg border border-gray-200 text-black hover:bg-gray-200'>
                         <FontAwesomeIcon icon={faHand} />
                     </button>
                     <div className='h-full w-0.25 bg-gray-300 mx-2'></div>
                     <button className='px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-200' onClick={handleDeleteLine}>
-                        <FontAwesomeIcon icon={faTrash} color='#ff7875' />
+                        <FontAwesomeIcon icon={faTrashCan} color='#ff7875' />
                     </button>
                 </div>
                 <button 

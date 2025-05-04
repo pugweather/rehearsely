@@ -1,9 +1,9 @@
 "use client"
 import React, { PropsWithChildren, useRef } from 'react'
 import Link from "next/link";
-import Navbar from "../../components/layout/Navbar";
-import EditorWrapper from "../../components/editor/EditorWrapper";
-import SceneSettings from "../../components/editor/SceneSettings";
+import Navbar from "../layout/Navbar";
+import EditorWrapper from "./EditorWrapper";
+import SceneSettings from "./SceneSettings";
 import LineList from "@/app/components/editor/LineList";
 import ButtonLink from '../ui/ButtonLink';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -16,7 +16,7 @@ type Props = {
     lineItems: Line[] | null
 }
 
-const EditorWrapperClient = ({scene, lineItems}: Props) => {
+const EditorWrapperOuter = ({scene, lineItems}: Props) => {
 
     const scrollRef = useRef<HTMLDivElement | null>(null)
     
@@ -51,4 +51,4 @@ const EditorWrapperClient = ({scene, lineItems}: Props) => {
     )
 }
 
-export default EditorWrapperClient
+export default EditorWrapperOuter

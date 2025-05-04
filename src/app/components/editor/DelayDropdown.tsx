@@ -5,7 +5,6 @@ const DelayDropdown = () => {
     <div>
         <label htmlFor="delay-dropdown" className='mr-3'>Delay</label>
         <select name="delay dropdown" id="delay-dropdown" className='pr-1'>
-            <option value="0">0s</option>
             <option value="3">3s</option>
             <option value="5">5s</option>
             <option value="10">10s</option>

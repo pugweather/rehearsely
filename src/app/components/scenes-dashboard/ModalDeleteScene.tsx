@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Modal from '../ui/Modal'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faClose, faTriangleExclamation, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faClose, faTriangleExclamation, faTrashCan } from '@fortawesome/free-solid-svg-icons'
 import Input from '../ui/Input'
 import ButtonLink from '../ui/ButtonLink'
 import clsx from 'clsx'
@@ -55,7 +55,7 @@ const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, s
                     <ButtonLink icon={faClose} textColor='#000' bgColor='#ebecee' text='Cancel'/>
                 </button>
                 <button className='ml-10' onClick={handleDelete}>
-                    <ButtonLink icon={faTrash} textColor='#fff' bgColor='#ff7875' text='Delete'/>
+                    <ButtonLink icon={faTrashCan} textColor='#fff' bgColor='#ff7875' text='Delete'/>
                 </button>
             </div>
           </div>

@@ -1,18 +1,18 @@
 
 import { scenes, lines } from "@/database/drizzle/schema";
-import { useRef } from "react";
 import { eq } from "drizzle-orm";
-import EditorWrapperClient from "@/app/components/editor/EditorWrapperClient";
+import { ReactNode } from "react";
 import db from "@/app/database";
-import { Line } from "@/app/types";
+import EditorAndPlayWrapperClient from "@/app/components/editor/EditorAndPlayWrapperClient";
 
 type Props = {
     params: {
-        sceneId: string;
-      };
+        sceneId: string,
+    };
+    children: ReactNode
 }
 
-const Editor = async ({params}: Props) => {
+const Editor = async ({params, children}: Props) => {
 
     // Scene
     const {sceneId} = params
@@ -23,18 +23,14 @@ const Editor = async ({params}: Props) => {
     const scene = sceneRes[0] || null
 
     // Scene Lines
-    const linesRes = await db   
+    const linesRes = await db
         .select()
         .from(lines)
         .where(eq(lines.scene_id, Number(sceneId)))
     const lineItems = linesRes || null
 
     return (
-        <EditorWrapperClient
-            scene={scene}
-            lineItems={lineItems}
-        >
-        </EditorWrapperClient>
+        <EditorAndPlayWrapperClient scene={scene} lineItems={lineItems}/>
     )
 }
 
