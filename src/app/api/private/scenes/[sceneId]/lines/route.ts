@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "../../../../../../../utils/supabase/server";
 import { lines } from "@/database/drizzle/schema";
 import db from "@/app/database";
+import { createAudioBufferFromText } from "@/app/lib/elevenlabs";
+import { v4 as uuid } from 'uuid';
 
 export async function POST(
     req: Request,
@@ -16,13 +18,41 @@ export async function POST(
     }
 
     const body = await req.json()
-    const {text, characterId, order} = body
+    const {text, characterId, order, voiceId} = body
 
-    if (!text || !text.length) {
-        return NextResponse.json({error: "lines must have at least one character"}, {status: 400})
+    if (!text || !order || !characterId) {
+        return NextResponse.json({error: "Must pass in text, order, and characterId"}, {status: 400})
+    }
+
+    var publicUrl: string | null = null;
+    var userId = user.id
+
+    if (voiceId) {
+        var audioFile = await createAudioBufferFromText(text, voiceId)
+        var fileName = `${uuid()}.mp3`;
+        var filePath = `${userId}/${fileName}`
+        // Save audio to S3
+        const {error: uploadError } = await supabase.storage
+            .from('audio-urls')
+            .upload(filePath, audioFile, {
+                contentType: 'audio/mpeg',
+                upsert: true,
+            });
+    
+        if (uploadError) {
+            return NextResponse.json({error: "Audio upload failed"}, {status: 500})
+        }
+    
+        var {data: publicUrlData} = await supabase.storage
+            .from('audio-urls')
+            .getPublicUrl(filePath)
+        
+        publicUrl = publicUrlData.publicUrl
+            
     }
 
     const insertedLine = await db.insert(lines).values({
+        ...(publicUrl ? {audio_url: publicUrl} : {audio_url: null}),
         text,
         order,
         character_id: characterId,
