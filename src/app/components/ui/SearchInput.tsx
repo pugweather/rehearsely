@@ -11,11 +11,11 @@ type Props = {
 const SearchInput = ({onChange, placeholder}: Props) => {
   return (
     <div className='relative'>
-        <FontAwesomeIcon icon={faMagnifyingGlass} className="absolute top-4.75 -translate-y-1/2 left-2.25 text-gray-300" />
+        <FontAwesomeIcon icon={faMagnifyingGlass} className="absolute top-5.75 -translate-y-1/2 left-3 text-gray-300" />
         <input 
             type="text" 
             placeholder={placeholder || "Search..."}
-            className="relative w-75 h-10 pl-7.5 border border-gray-300 rounded-3xl outline-none placeholder-gray-400"
+            className="relative w-100 h-12 pl-8.5 border text-xl border-gray-300 rounded-3xl outline-none placeholder-gray-400"
             onChange={(e) => onChange(e.target.value)}
         />
     </div>

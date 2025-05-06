@@ -29,22 +29,21 @@ const SceneCard = ({id, name, modified_at, openDropdown}: SceneCardProps) => {
 
   return (
     <div className='relative mt-6.5 cursor-pointer transition-transform duration-200 ease-in-out hover:-translate-y-1 hover:shadow-lg' onClick={handleCardClick}>
-      <div className="absolute z-2 -top-3 right-3 w-[85%] h-6 bg-black rounded-lg"></div>
-      <div className="grid grid-cols-[4fr_1fr] gap-4 z-5 relative text-black shadow-[0_0_3px_1px_rgba(0,0,0,0.1)] p-6 bg-white rounded-lg h-[8.5rem]">
-        <div className='flex flex-col font-[var(--font-yeseva)]'>
-          <div className="font-bold mb-2.5">{name}</div>
-          <div className='flex items-center'>
-            <FontAwesomeIcon icon={faClock} className="mr-1.75 mb-0.5" />
-            <span>{timeAgo(modified_at)}</span>
+      <div className="z-5 relative text-black shadow-[0_0_3px_1px_rgba(0,0,0,0.08)] p-6 bg-[#fffdf7] rounded-lg min-h-[8.5rem]">
+        <div className='flex items-center w-full justify-between mb-5'>
+          <div className="font-bold text-2xl">{name}</div>
+          <div ref={dropdownBtnRef} className='z-5 font-bold tracking-wider cursor-pointer text-xl' 
+            onClick={(e) => {
+              e.stopPropagation()
+              openDropdown(id, dropdownBtnRef)
+            }}>
+            <FontAwesomeIcon icon={faEllipsis} className='z-5'/>
           </div>
         </div>
-      </div>
-      <div ref={dropdownBtnRef} className='absolute top-[35%] transform -translate-y-[-50%] right-7.5 z-5 justify-self-end items-start self-center font-bold tracking-wider cursor-pointer' 
-        onClick={(e) => {
-          e.stopPropagation()
-          openDropdown(id, dropdownBtnRef)
-          }}>
-        <FontAwesomeIcon icon={faEllipsis} className='z-5'/>
+        <div className='flex items-center text-lg'>
+          <FontAwesomeIcon icon={faClock} className="mr-1.75 mb-0.5" />
+          <span>{timeAgo(modified_at)}</span>
+        </div>
       </div>
     </div>
   )

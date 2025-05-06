@@ -26,9 +26,9 @@ const ScenesDashboardPage = async () => {
     console.log(sceneData)
 
   return (
-    <div className="h-screen w-full bg-gray-100 flex flex-col">
+    <div className="h-screen w-full bg-main flex flex-col">
       <Navbar />
-      <div className="max-w-[65rem] w-full flex-grow m-auto bg-white">
+      <div className="max-w-[75rem] w-full flex-grow m-auto bg-main">
         <ScenesDashboardClient sceneData={sceneData}/>
       </div>
     </div>

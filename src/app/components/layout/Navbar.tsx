@@ -5,10 +5,10 @@ import Image from "next/image";
 export default function Navbar() {
 
     return (
-        <nav className="w-full h-20 px-5 flex justify-between items-center bg-white border-b border-gray-300">
-            <Link href={"/"} className="font-bold text-xl cursor-pointer relative" style={{ width: "75px", height: "75px" }}>
+        <nav className="w-full h-20 px-5 flex justify-between items-center bg-[#fffef5] border-gray-300">
+            <Link href={"/"} className="font-bold text-xl cursor-pointer relative" style={{ width: "250px", height: "75px" }}>
             <Image
-                src="/rehearsely-jester.png"
+                src="/logo-2.png"
                 alt="Rehearsely logo"
                 fill
                 style={{objectFit: "contain"}}
