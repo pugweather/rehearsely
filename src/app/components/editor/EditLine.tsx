@@ -161,68 +161,99 @@ const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines
     }
 
     return (
-        <div className="bg-gray-50 p-4 rounded-xl shadow-sm w-full border border-gray-200 mb-12.5">
-            <div className="flex items-center justify-start mb-3">
-                <div 
-                    className="relative w-40 h-8.5 rounded-full border border-gray-300 pl-3 pr-10 py-1.5 text-sm font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400" 
-                    ref={dropdownBtnRef}
-                    onClick={() => openCharacterDropdown(dropdownBtnRef)}>
-                    <span>{displaySelectedCharacterName()}</span>
-                    <span className='w-6 h-6 flex justify-center items-center absolute top-1/2 -translate-y-1/2 right-2'><FontAwesomeIcon icon={faCaretDown} /></span>
-                </div>
-                <button className="text-black ml-5">
-                    <div className='w-8 h-8 rounded-full flex justify-center items-center bg-black hover:opacity-85 transition-colors duration-200 ease-in-out'>
-                        <FontAwesomeIcon color='#fff' icon={faMicrophone} />
-                    </div>
-                </button>
-                <button className='text-xl ml-auto w-8 h-8 rounded-md hover:bg-gray-200' onClick={closeEditLine}>
-                    <FontAwesomeIcon icon={faXmark}/>
-                </button>
+        <div className="bg-[#fffef5] px-6 py-6 rounded-2xl shadow-[0_0_3px_1px_rgba(0,0,0,0.05)] border border-gray-200 mb-10 w-full max-w-3xl mx-auto">
+          {/* Top Controls */}
+          <div className="flex items-center justify-start mb-5">
+            <div
+              className="relative w-52 h-9 bg-white rounded-full border border-gray-300 pl-4 pr-10 py-1.5 text-sm font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+              ref={dropdownBtnRef}
+              onClick={() => openCharacterDropdown(dropdownBtnRef)}
+            >
+              <span>{displaySelectedCharacterName()}</span>
+              <span className="w-6 h-6 flex justify-center items-center absolute top-1/2 -translate-y-1/2 right-2">
+                <FontAwesomeIcon icon={faCaretDown} />
+              </span>
             </div>
-
-            <textarea
-                placeholder="Type the line and choose a voice (optional). Recording audio enhances the AI voice."
-                className="bg-white w-full border border-gray-100 rounded-md px-3 py-2 text-md text-black resize-none mb-3 font-courier font-semibold focus:outline-none focus:ring-0"
-                onChange={(e) => handleChangeLineText(e.target.value)}
-                value={text ? text : ''}
-                rows={4}
-            />
-            <div className={clsx("flex items-center justify-between transition-all duration-200 ease-in-out transform",
-                    lineBeingEditedData.character ? "h-10" : "h-0"
-            )}>
-                <div className={clsx(
-                        "flex items-center gap-5 text-gray-500 text-sm h-10 transition-all duration-200 ease-in-out transform",
-                    lineBeingEditedData.character ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0 pointer-events-none"
-                )}>
-                    <button className='px-3 py-1.5 rounded-lg border border-gray-200 text-black hover:bg-gray-200'>
-                        <FontAwesomeIcon icon={faScissors} />
-                    </button>
-                    <button className='px-3 py-1.5 rounded-lg border border-gray-200 text-black hover:bg-gray-200'>
-                        <FontAwesomeIcon icon={faPersonRunning} />
-                    </button>
-                    <button className='px-3 py-1.5 rounded-lg border border-gray-200 text-black hover:bg-gray-200'>
-                        <FontAwesomeIcon icon={faHand} />
-                    </button>
-                    <div className='h-full w-0.25 bg-gray-300 mx-2'></div>
-                    <button className='px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-200' onClick={handleDeleteLine}>
-                        <FontAwesomeIcon icon={faTrashCan} color='#ff7875' />
-                    </button>
-                </div>
-                <button 
-                    onClick={handleSaveLine}
-                    className={clsx(
-                        "flex items-center gap-5 text-gray-500 text-sm h-10 transition-all duration-100 ease-in-out transform",
-                        lineBeingEditedData.character ? "opacity-100" : "opacity-0"
-                )}>
-                    <ButtonLink 
-                        icon={faCircleCheck}
-                        text={isLoading ?  'Saving Changes...' : 'Save'}
-                        bgColor={isLoading ? "#ccc" : undefined}
-                    />
+      
+            <button className="ml-4" aria-label="Record">
+              <div className="w-9 h-9 rounded-full bg-black flex items-center justify-center hover:opacity-85 transition">
+                <FontAwesomeIcon icon={faMicrophone} color="#fff" />
+              </div>
+            </button>
+      
+            <button
+              className="ml-auto w-9 h-9 rounded-md hover:bg-gray-200 transition"
+              onClick={closeEditLine}
+              aria-label="Cancel edit"
+            >
+              <FontAwesomeIcon icon={faXmark} />
+            </button>
+          </div>
+      
+          {/* Line Text */}
+          <textarea
+            placeholder="Type the line and choose a voice (optional). Recording audio enhances the AI voice."
+            className="bg-white w-full border border-gray-200 rounded-md px-4 py-3 text-base font-courier font-semibold text-black resize-none focus:outline-none focus:ring-2 focus:ring-blue-300 transition mb-4"
+            onChange={(e) => handleChangeLineText(e.target.value)}
+            value={text || ""}
+            rows={5}
+          />
+      
+          {/* Action Row */}
+          <div
+            className={clsx(
+              "flex items-center justify-between transition-all duration-200",
+              lineBeingEditedData.character ? "h-10" : "h-0"
+            )}
+          >
+            {/* Styled Icon Buttons */}
+            <div
+              className={clsx(
+                "flex items-center gap-4 text-sm transition-all duration-200",
+                lineBeingEditedData.character
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-5 opacity-0 pointer-events-none"
+              )}
+            >
+              {[faScissors, faPersonRunning, faHand].map((icon, i) => (
+                <button
+                  key={i}
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-[#ffeeda] text-[#3f3f3f] shadow-[0_0_2px_1px_rgba(0,0,0,0.04)] hover:shadow-md transition-all"
+                >
+                  <FontAwesomeIcon icon={icon} />
                 </button>
+              ))}
+              <div className="h-6 w-px bg-[#e0cfc3] mx-3" />
+              <button
+                onClick={handleDeleteLine}
+                aria-label="Delete line"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-[#ffeaea] text-red-500 shadow-[0_0_2px_1px_rgba(0,0,0,0.04)] hover:shadow-md transition-all"
+              >
+                <FontAwesomeIcon icon={faTrashCan} />
+              </button>
             </div>
+      
+            {/* Save Button */}
+            <button
+              onClick={handleSaveLine}
+              className={clsx(
+                "transition-opacity duration-100 ml-4",
+                lineBeingEditedData.character
+                  ? "opacity-100"
+                  : "opacity-0 pointer-events-none"
+              )}
+            >
+              <ButtonLink
+                icon={faCircleCheck}
+                text={isLoading ? "Saving..." : "Save"}
+                bgColor={isLoading ? "#ccc" : undefined}
+                className="px-5 py-2 text-md"
+              />
+            </button>
+          </div>
         </div>
-    )
+      );      
+      
 }
 
 export default EditLine

@@ -77,6 +77,7 @@ const ModalSceneName = ({closeEditNameModal, setSceneEditing, setScenes, scene}:
               icon={faCircleCheck} 
               text={isLoading ?  'Saving Changes...' : 'Save'}
               bgColor={isLoading ? "#ccc" : undefined}
+              className='px-3 py-1 text-lg'
             />
           </button>
         </div>

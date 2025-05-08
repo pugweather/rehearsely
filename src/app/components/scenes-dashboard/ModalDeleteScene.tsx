@@ -52,10 +52,22 @@ const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, s
             <div className='text-xl pl-2 mt-7.5 mb-2.5 font-semibold text-center'>Are you sure you want to delete <span className="italic">{scene.name}</span>?</div>
             <div className='flex justify-center mt-12'>
                 <button  onClick={closeDeleteSceneModal}>
-                    <ButtonLink icon={faClose} textColor='#000' bgColor='#ebecee' text='Cancel'/>
+                    <ButtonLink 
+                      icon={faClose} 
+                      textColor='#000' 
+                      bgColor='#ebecee' 
+                      text='Cancel'
+                      className='px-3 py-1 text-lg'
+                    />
                 </button>
                 <button className='ml-10' onClick={handleDelete}>
-                    <ButtonLink icon={faTrashCan} textColor='#fff' bgColor='#ff7875' text='Delete'/>
+                    <ButtonLink 
+                      icon={faTrashCan} 
+                      textColor='#fff' 
+                      bgColor='#ff7875' 
+                      text='Delete'
+                      className='px-3 py-1 text-lg'
+                    />
                 </button>
             </div>
           </div>

@@ -15,7 +15,7 @@ const SearchInput = ({onChange, placeholder}: Props) => {
         <input 
             type="text" 
             placeholder={placeholder || "Search..."}
-            className="relative w-100 h-12 pl-8.5 border text-xl border-gray-300 rounded-3xl outline-none placeholder-gray-400"
+            className="relative w-100 h-12 pl-8.5 border text-xl border-gray-300 bg-white rounded-3xl outline-none placeholder-gray-400"
             onChange={(e) => onChange(e.target.value)}
         />
     </div>

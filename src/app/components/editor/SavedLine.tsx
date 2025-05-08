@@ -1,6 +1,12 @@
 import React from 'react'
 import { Character, DraftLine, LineBeingEditedData } from '@/app/types';
 import { useVoicesStore } from '@/app/stores/useVoicesStores'
+import localFont from "next/font/local";
+// import { logout } from "../../logout/actions" // Uncomment if needed
+
+const courierPrimeRegular = localFont({
+    src: "../../../../public/fonts/courierPrimeRegular.ttf",
+})
 
 // TODO: How to deal with adding voice to this. Feels inefficient to import all voices and select voice by character voice_id and add to linebeingediteddata
 
@@ -59,11 +65,22 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
   }
 
   return (
-    <div className={`w-full text-center uppercase mb-10 rounded-xl pl-10 pr-10 py-3 cursor-pointer hover:bg-gray-100 transition-color duration-200 ease-in-out font-courier`} onClick={handleSetLineToEditMode}>
-        <div className='text-lg'>{displaySelectedCharacterName()}</div>
-        <div className='text-md'>{line.text}</div>
+    <div
+      className={`w-full text-center mb-10 rounded-xl pl-10 pr-10 py-4 cursor-pointer hover:bg-gray-100 transition-colors duration-200 ease-in-out font-medium ${courierPrimeRegular.className}`}
+      onClick={handleSetLineToEditMode}
+    >
+      {/* Character Name */}
+      <div className="text-lg tracking-wider uppercase text-gray-700 mb-2 font-semibold">
+        {displaySelectedCharacterName()}
+      </div>
+  
+      {/* Line Text */}
+      <div className="text-xl leading-relaxed text-black whitespace-pre-wrap">
+        {line.text}
+      </div>
     </div>
-  )
+  );
+  
 }
 
 export default SavedLine

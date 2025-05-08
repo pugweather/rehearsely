@@ -193,6 +193,7 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
                         icon={audioIsPlaying ? faXmark : faPlay} 
                         text={audioIsPlaying ?  'Stop playing' : 'Play selected voice'}
                         bgColor="#f47c2c"
+                        className='px-3 py-1 text-lg'
                     />
                 </button>
                 {/* Saving character */}
@@ -208,6 +209,7 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
                         icon={faCircleCheck} 
                         text={isLoading ?  'Saving Character...' : 'Save Character'}
                         bgColor={isLoading ? "#ccc" : undefined}
+                        className='px-3 py-1 text-lg'
                     />
                 </button>
             </div>

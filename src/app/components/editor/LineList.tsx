@@ -43,7 +43,6 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
     return lineOrder > max ? lineOrder : max
   }, -Infinity)
   const newLineOrder = highestLineOrder ? highestLineOrder + 1 : 1
-  console.log(newLineOrder)
   // Unsetting state to "empty"", for clarity
   const LINE_BEING_EDITED_EMPTY: LineBeingEditedData = {
     voice: null,
@@ -216,8 +215,6 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
         <FontAwesomeIcon icon={faPlus} />
         <span className="ml-2">Add Line</span>
       </button>
-
-      <PlaySceneButtonsWrapper />
 
       {isCharDropdownOpen && <Overlay closeDropdown={closeCharDropdown}/>}
       {isCharDropdownOpen && <Dropdown dropdownData={charsDropdownData} dropdownPos={dropdownPos} className={"w-40 z-20"} closeDropdown={closeCharDropdown}/>}
