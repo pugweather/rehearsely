@@ -11,13 +11,20 @@ import { faArrowLeftLong, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { Line } from '@/app/types';
 import { Scene } from '@/app/types';
 import PlaySceneButtonsWrapper from './PlaySceneButtonsWrapper';
+import localFont from 'next/font/local';
+
+const sunsetSerialMediumFont = localFont({
+    src: "../../../../public/fonts/sunsetSerialMedium.ttf",
+})
 
 type Props = {
     scene: Scene,
-    lineItems: Line[] | null
+    lineItems: Line[] | null,
+    setSceneIsPlaying: React.Dispatch<React.SetStateAction<boolean>>,
+    sceneIsPlaying: boolean
 }
 
-const EditorWrapperOuter = ({scene, lineItems}: Props) => {
+const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setSceneIsPlaying}: Props) => {
 
     const scrollRef = useRef<HTMLDivElement | null>(null)
     
@@ -29,14 +36,14 @@ const EditorWrapperOuter = ({scene, lineItems}: Props) => {
           {/* scrollable area */}
           <div className="flex-1 overflow-y-auto">
             <EditorWrapper>
-              <div className="relative text-gray-500 py-6 border-b border-b-gray-300">
+              <div className="relative text-black py-6 border-b border-b-gray-300 min-h-20">
                 <Link href="/scenes-dashboard">
                   <span className="p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 ease-in-out">
                     <FontAwesomeIcon icon={faArrowLeftLong} />
-                    <span className="ml-1">Back to Scenes</span>
+                    <span className={`ml-1 ${sunsetSerialMediumFont.className}`}>Back to Scenes</span>
                   </span>
                 </Link>
-                <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-xl font-medium text-gray-900">
+                <div className={`absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-2xl font-medium text-gray-900 ${sunsetSerialMediumFont.className}`}>
                   {scene.name}
                 </div>
               </div>
@@ -57,7 +64,7 @@ const EditorWrapperOuter = ({scene, lineItems}: Props) => {
       
           {/* Fixed play button */}
           <div className="shrink-0 p-4 border-t border-gray-300 bg-main">
-            <PlaySceneButtonsWrapper />
+            <PlaySceneButtonsWrapper setSceneIsPlaying={setSceneIsPlaying} sceneIsPlaying={sceneIsPlaying}/>
           </div>
         </div>
       )

@@ -2,7 +2,7 @@ import React from 'react'
 
 const DelayDropdown = () => {
   return (
-    <div>
+    <div className='font-medium'>
         <label htmlFor="delay-dropdown" className='mr-3'>Delay</label>
         <select name="delay dropdown" id="delay-dropdown" className='pr-1'>
             <option value="3">3s</option>

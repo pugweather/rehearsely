@@ -2,7 +2,6 @@ import React from 'react'
 import { Character, DraftLine, LineBeingEditedData } from '@/app/types';
 import { useVoicesStore } from '@/app/stores/useVoicesStores'
 import localFont from "next/font/local";
-// import { logout } from "../../logout/actions" // Uncomment if needed
 
 const courierPrimeRegular = localFont({
     src: "../../../../public/fonts/courierPrimeRegular.ttf",

@@ -21,12 +21,16 @@ const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
                 <PlaySceneWrapperOuter
                     scene={scene}
                     lineItems={lineItems}
+                    setSceneIsPlaying={setSceneIsPlaying}
+                    sceneIsPlaying={sceneIsPlaying}
                 >
                 </PlaySceneWrapperOuter> 
                 :
                 <EditorWrapperOuter
                     scene={scene}
                     lineItems={lineItems}
+                    setSceneIsPlaying={setSceneIsPlaying}
+                    sceneIsPlaying={sceneIsPlaying}
                 >
                 </EditorWrapperOuter>
             }

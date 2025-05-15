@@ -17,7 +17,7 @@ const Input = ({onChange, value, placeholder, className}: Props) => {
             placeholder={placeholder || "Search..."}
             value={value || ''}
             className={clsx(
-              "relative w-[100%] text-black border border-gray-300 outline-none placeholder-gray-400",
+              "relative w-[100%] text-black border border-gray-300 outline-none placeholder-gray-400 bg-white",
               className ? className : "h-12 pl-5 text-xl rounded-3xl"
             )}
             onChange={(e) => onChange(e.target.value)}
