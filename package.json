@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@deepgram/sdk": "^4.1.1",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
@@ -29,6 +30,7 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/node-fetch": "^2.6.12",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "drizzle-kit": "^0.30.5",
