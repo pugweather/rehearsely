@@ -48,7 +48,7 @@ const PlaySceneWrapperOuter = ({ scene, lineItems, sceneIsPlaying, setSceneIsPla
       </div>
 
       {/* Fixed Play Button */}
-      <div className="shrink-0 p-4 border-t border-gray-300 bg-main">
+      <div className="shrink-0 p-4 border-t border-gray-300 bg-main z-9999999">
         <PlaySceneButtonsWrapper
           setSceneIsPlaying={setSceneIsPlaying}
           sceneIsPlaying={sceneIsPlaying}

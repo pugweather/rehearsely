@@ -1,6 +1,7 @@
 import React from 'react'
 import { Character, Line} from '@/app/types';
 import { useVoicesStore } from '@/app/stores/useVoicesStores'
+import clsx from 'clsx';
 import localFont from "next/font/local";
 
 const courierPrimeRegular = localFont({
@@ -12,10 +13,14 @@ const courierPrimeRegular = localFont({
 type Props = {
   line: Line | null,
   characters: Character[] | null,
+  isCurrentLine: boolean
+  lineIndex: number,
+  currentLineIndex: number | null
 }
 
-const PlayerLine = ({line, characters}: Props) => {
+const PlayerLine = ({line, characters, isCurrentLine, lineIndex, currentLineIndex}: Props) => {
 
+  const lineAlreadySpoken = currentLineIndex != null && lineIndex < currentLineIndex
   const currCharacter = characters?.find(char => char.id === line?.character_id)
 
   if (line == null) return
@@ -37,7 +42,11 @@ const PlayerLine = ({line, characters}: Props) => {
   }
 
   return (
-    <div className={`w-full text-center mb-10 rounded-xl pl-10 pr-10 py-3 ${courierPrimeRegular.className}`}>
+    <div className={clsx(
+      `w-full text-center mb-10 rounded-xl pl-10 pr-10 py-3 ${courierPrimeRegular.className}`,
+      isCurrentLine ? "bg-gray-100" : "",
+      lineAlreadySpoken ? "opacity-30" : ""
+      )}>
         <div className='text-lg tracking-wider uppercase text-gray-700 mb-2 font-semibold'>{displaySelectedCharacterName()}</div>
         <div className='text-xl leading-relaxed text-black whitespace-pre-wrap'>{line.text}</div>
     </div>

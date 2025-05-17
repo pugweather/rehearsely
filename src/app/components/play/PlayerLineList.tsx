@@ -97,8 +97,9 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
     return (
         <>
           {
-            sortedLines?.map(line => {
-              return <PlayerLine key={line.id} line={line} characters={characters}/>
+            sortedLines?.map((line, idx) => {
+              const isCurrentLine = line.id === currentLine?.id
+              return <PlayerLine key={line.id} line={line} characters={characters} isCurrentLine={isCurrentLine} lineIndex={idx} currentLineIndex={currentLineIndex}/>
             })
           }
           {sceneIsPlaying && countdown !== null && <CountdownModal countdown={countdown} />}
