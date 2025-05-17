@@ -58,13 +58,13 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
     order: newLineOrder
   }
 
-  useEffect(() => {
-    if (shouldScroll) {
-      scrollToBottom(scrollRef)
-    }
-  }, [shouldScroll])
+  // useEffect(() => {
+  //   if (shouldScroll) {
+  //     scrollToBottom(scrollRef)
+  //   }
+  // }, [shouldScroll])
 
-  console.log(shouldScroll)
+  // console.log(shouldScroll)
 
   /* Characters */
 

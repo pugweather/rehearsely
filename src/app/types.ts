@@ -23,6 +23,7 @@ export type Line = {
     order: number,
     scene_id: number,
     text: string | null
+    audio_url: string
 }
 
 export type LineBeingEditedData = {

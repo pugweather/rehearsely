@@ -22,6 +22,7 @@ type Props = {
 }
 
 const PlaySceneWrapperOuter = ({ scene, lineItems, sceneIsPlaying, setSceneIsPlaying }: Props) => {
+
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
   return (
@@ -38,6 +39,8 @@ const PlaySceneWrapperOuter = ({ scene, lineItems, sceneIsPlaying, setSceneIsPla
               <PlayerLineList
                 lineItems={lineItems}
                 sceneId={scene.id}
+                sceneIsPlaying={sceneIsPlaying}
+                setSceneIsPlaying={setSceneIsPlaying}
               />
             </div>
           </div>

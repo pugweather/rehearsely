@@ -14,6 +14,8 @@ const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
 
     const [sceneIsPlaying, setSceneIsPlaying] = useState<boolean>(false)
 
+    console.log(sceneIsPlaying)
+
     return (
         <div>
             {
