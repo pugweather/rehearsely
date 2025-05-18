@@ -33,7 +33,7 @@ export default async function Hero() {
                 <ButtonLink text="Go To Scenes Dashboard" className={"px-7 py-3 text-2xl"}/>
             </Link>
             {!user && 
-            <Link href="#">
+            <Link href="/signin">
                 <ButtonLink text="Log In" className={"px-7 py-3 text-2xl"}/>
             </Link>}
         </div>
