@@ -62,3 +62,11 @@ button {
 .bg-main{
   background-color: #fffbf2;
 }
+
+.bg-dark-orange {
+  background-color: #f47c2c;
+}
+
+.color-dark-orange {
+  color: #f47c2c;
+}

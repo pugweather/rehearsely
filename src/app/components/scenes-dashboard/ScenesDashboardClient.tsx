@@ -14,8 +14,6 @@ type Props = {
   
 const ScenesDashboardClient = ({sceneData}: Props) => {
 
-    console.log("test")
-
     const [scenes, setScenes] = useState<Scene[]>(sceneData)
     // Search filtering state
     const [query, setQuery]= useState<string>('')
@@ -26,8 +24,6 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
     const [sceneEditing, setSceneEditing] = useState<Scene | null>(null)
     // Delete scene modal state
     const [sceneDeleting, setSceneDeleting] = useState<Scene  | null>(null)
-
-    console.log(scenes)
 
     // Pass to SceneCard component
     const openDropdown = (sceneId: number, ref: React.RefObject<HTMLDivElement | null>) => {
@@ -79,7 +75,6 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
       }, {
         label: "Delete",
         onClick: function() {
-          console.log("test")
           const scene = filteredScenes.find(s => s.id === openedDropdownId)
           if (scene) {
             closeDropdown()

@@ -24,7 +24,6 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
     var audio = useRef<HTMLAudioElement | null>(null)
     const lastLineIndex = sortedLines ? sortedLines.length - 1 : -1 // -1 = invalid index. Easier than using null
     const currentLine = sortedLines ? sortedLines[currentLineIndex] : null
-    console.log(currentLineIndex)
 
     // Playing scene
     useEffect(() => {

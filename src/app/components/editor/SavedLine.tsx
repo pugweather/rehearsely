@@ -30,7 +30,6 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
     setLineBeingEdited(line)
     // Get voice object to pass into the edit mode line
     const voice = voices?.find(voice => String(voice.voice_id) == String(currCharacter?.voice_id)) // TODO: For some reason when i remove the string conversion it says one I can't compared nums and strs????
-    console.log(currCharacter)
     setLineBeingEditedData({
       character: currCharacter || null,
       text: line.text,

@@ -9,7 +9,6 @@ const client = new ElevenLabsClient({
 export async function GET(req: NextRequest) {
   try {
     const voicesRes = await client.voices.getAll();
-    console.log(voicesRes)
     const voices = voicesRes.voices
         .map(voice => {
             return {

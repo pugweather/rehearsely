@@ -53,7 +53,7 @@ const ModalSceneName = ({closeEditNameModal, setSceneEditing, setScenes, scene}:
       setSceneEditing(null)
     } else {
       setIsLoading(false)
-      console.log("Error: ")
+      console.log("Error: failed to update scene name")
     }
   }
 

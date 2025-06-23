@@ -1,14 +1,46 @@
-import React from "react";
+"use client"
+import React, {useEffect} from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import localFont from 'next/font/local';
+import ButtonLink from "../ui/ButtonLink";
+import { useUserStore } from "@/app/stores/useUserStores";
+import { createClient } from "../../../../utils/supabase/client";
+
+const sunsetSerialMediumFont = localFont({
+    src: "../../../../public/fonts/sunsetSerialMedium.ttf",
+})
 
 export default function Navbar() {
+
+  const user = useUserStore((s) => s.user);
+  const setUser = useUserStore((s) => s.setUser); 
+
+  const router = useRouter()
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user)
+    }
+    fetchUser()
+  }, [])
+  
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push("/signin")
+  }
+
   return (
-    <nav className="w-full h-20 px-6 md:px-10 flex justify-between items-center bg-main shadow-[0_2px_6px_rgba(0,0,0,0.06)] border-b border-black/10">
+    <nav className="w-full h-20 px-6 md:px-10 flex justify-start items-center bg-main shadow-[0_2px_6px_rgba(0,0,0,0.06)] border-b border-black/10">
       {/* Logo */}
       <Link
         href="/"
-        className="relative"
+        className="relative mr-auto"
         style={{ width: "200px", height: "60px" }}
       >
         <Image
@@ -20,8 +52,18 @@ export default function Navbar() {
         />
       </Link>
 
+      {
+      user ? 
+      <button onClick={handleLogout}>
+        <ButtonLink text="Logout" className={`font-bold text-lg px-3.5 py-1.5 ${sunsetSerialMediumFont}`} />
+      </button> : 
+      <button onClick={() => console.log("Log in from navbar....")}>
+        <ButtonLink text="Login" className={`font-bold text-lg px-3.5 py-1.5 ${sunsetSerialMediumFont}`} />
+      </button>
+      }
+
       {/* Profile or user bubble */}
-      <div className="w-10 h-10 rounded-full flex justify-center items-center bg-blue-400 text-white text-base font-semibold hover:opacity-90 transition-opacity">
+      <div className="w-10 h-10 rounded-full flex justify-center items-center bg-blue-400 text-white text-base font-semibold hover:opacity-90 transition-opacity ml-5">
         M
       </div>
     </nav>

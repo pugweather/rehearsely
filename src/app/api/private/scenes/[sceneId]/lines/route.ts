@@ -59,7 +59,5 @@ export async function POST(
         scene_id: Number(params.sceneId)
     }).returning()
 
-    console.log(insertedLine)
-
     return NextResponse.json({insertedLine})
 }

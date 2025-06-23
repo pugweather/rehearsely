@@ -25,9 +25,7 @@ export function timeAgo(dateString: string): string {
 export function scrollToBottom(ref: React.RefObject<HTMLElement | null>) {
   const element = ref.current
   if (element) {
-    console.log(element.scrollTop)
     element.scrollTop = element.scrollHeight
-    console.log(element.scrollTop)
   } else {
     console.log("ref " + ref + " not found")
   }

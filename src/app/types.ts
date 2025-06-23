@@ -1,3 +1,5 @@
+import { User as SupabaseUser } from '@supabase/auth-js'
+
 // Characters
 export type Character = {
     id: number,
@@ -70,8 +72,8 @@ export type User = {
 }
 
 export type UserStore = {
-    user: User | null,
-    setUser: (user: User) => void
+    user: SupabaseUser | null,
+    setUser: (user: SupabaseUser | null) => void
 }
 
 // Voices

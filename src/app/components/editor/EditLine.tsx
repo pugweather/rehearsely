@@ -18,9 +18,6 @@ type Props = {
 }
 
 const EditLine = ({line, characters, lineBeingEditedData, newLineOrder, setLines, closeEditLine, openCharacterDropdown, setLineBeingEditedData}: Props) => {
-
-    console.log("lineBeingEditedData")
-    console.log(lineBeingEditedData)
     
     // Unsetting state to "empty"", for clarity
     const LINE_BEING_EDITED_EMPTY: LineBeingEditedData = {
