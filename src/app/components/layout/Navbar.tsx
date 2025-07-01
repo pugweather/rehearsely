@@ -30,10 +30,24 @@ export default function Navbar() {
   
   const handleLogout = async () => {
     const supabase = createClient();
-    await supabase.auth.signOut();
-    setUser(null);
-    router.push("/signin")
-  }
+
+    const { error } = await supabase.auth.signOut({ scope: 'global' }); // ✅ more aggressive logout
+
+    if (error) {
+      console.error("Logout error:", error.message);
+      return;
+    } else {
+      console.log("logged out!")
+    }
+
+    useUserStore.getState().setUser(null);
+
+    // Let Supabase finish clearing local session
+    setTimeout(() => {
+      router.push('/signin');
+    }, 300);
+  };
+
 
   return (
     <nav className="w-full h-20 px-6 md:px-10 flex justify-start items-center bg-main shadow-[0_2px_6px_rgba(0,0,0,0.06)] border-b border-black/10">
@@ -57,7 +71,7 @@ export default function Navbar() {
       <button onClick={handleLogout}>
         <ButtonLink text="Logout" className={`font-bold text-lg px-3.5 py-1.5 ${sunsetSerialMediumFont}`} />
       </button> : 
-      <button onClick={() => console.log("Log in from navbar....")}>
+      <button onClick={() => console.log("Login from navbar....")}>
         <ButtonLink text="Login" className={`font-bold text-lg px-3.5 py-1.5 ${sunsetSerialMediumFont}`} />
       </button>
       }

@@ -25,10 +25,9 @@ export async function login(formData: FormData) {
     console.log("SIGNED IN!")
     console.log(data.user)
     console.log(useUserStore.getState().user)
+    redirect('/')
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/')
 }
 
 export async function signup(formData: FormData) {
@@ -41,12 +40,14 @@ export async function signup(formData: FormData) {
     password: formData.get('password') as string,
   }
 
+  console.log(data)
+
   const { error } = await supabase.auth.signUp(data)
 
   if (error) {
+    console.log("error")
     redirect('/error')
+  } else {
+    redirect('/')
   }
-
-  revalidatePath('/', 'layout')
-  redirect('/')
 }

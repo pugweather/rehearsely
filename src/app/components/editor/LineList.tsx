@@ -12,6 +12,7 @@ import { Line, DraftLine, LineBeingEditedData, Character, DropdownData } from '@
 import Image from 'next/image';
 import { scrollToBottom } from '@/app/utils/utils';
 import { useVoicesStore } from '@/app/stores/useVoicesStores';
+import { Reem_Kufi_Fun } from 'next/font/google';
 
 type Props = {
   lineItems: DraftLine[] | null,
@@ -58,13 +59,14 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
     order: newLineOrder
   }
 
-  // useEffect(() => {
-  //   if (shouldScroll) {
-  //     scrollToBottom(scrollRef)
-  //   }
-  // }, [shouldScroll])
-
-  // console.log(shouldScroll)
+  const scrollToBottom = (ref: React.RefObject<HTMLElement | null>) => {
+    if (ref.current) {
+      ref.current.scrollTo({
+        top: ref.current.scrollHeight,
+        behavior: "smooth"
+      })
+    }
+  }
 
   /* Characters */
 
@@ -82,6 +84,17 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
     }
     fetchSceneCharacters()
   }, [sceneId])
+
+  // Handle scrolling to bottom when new line is added
+  useEffect(() => {
+    if (shouldScroll) {
+      // 30ms for some extra safety. want to make sure line is added before scrolling
+      setTimeout(() => {
+        scrollToBottom(scrollRef)
+        setShouldScroll(false)
+      }, 10)
+    }
+  }, [shouldScroll])
 
   /* Editing line */
 

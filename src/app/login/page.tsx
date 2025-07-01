@@ -1,9 +1,11 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter, usePathname } from "next/navigation";
 import { login, signup } from './actions'
 import Navbar from '../components/layout/Navbar'
 import { createClient } from '@supabase/supabase-js'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useUserStore } from "@/app/stores/useUserStores";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,13 +13,17 @@ const supabase = createClient(
 )
 
 export default function LoginPage() {
+
   const [mode, setMode] = useState<'login' | 'signup'>('login')
+  const router = useRouter()
+  const pathname = usePathname()
 
   const signInWithGoogle = async () => {
+    console.log("sign in with google")
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/scenes-dashboard`
+        redirectTo: `${window.location.origin}/`
       }
     })
     if (error) console.error('Google sign-in error:', error.message)
@@ -73,7 +79,7 @@ export default function LoginPage() {
                     formAction={login}
                     className="w-full py-2 px-4 bg-[#f47c2c] hover:opacity-85 text-white font-semibold rounded-xl transition"
                   >
-                    Log in
+                    Login
                   </button>
                 ) : (
                   <button
@@ -105,7 +111,7 @@ export default function LoginPage() {
                       onClick={() => setMode('login')}
                       className="text-blue-500 underline"
                     >
-                      Log in
+                      
                     </button>
                   </>
                 )}

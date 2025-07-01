@@ -1,11 +1,12 @@
 "use client"
-import React from "react";
+import React, {use, useEffect} from "react";
 import ButtonLink from "../ui/ButtonLink";
 import Link from "next/link";
-import { createClient } from "../../../../utils/supabase/server";
+import { createClient } from '@supabase/supabase-js'
 import Image from "next/image";
 import localFont from "next/font/local";
 import { useUserStore } from "@/app/stores/useUserStores";
+import { useRouter, usePathname } from "next/navigation";
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
@@ -14,6 +15,35 @@ const sunsetSerialMediumFont = localFont({
 export default function Hero() {
 
     const user = useUserStore((s) => s.user)
+    console.log(user)
+    const router = useRouter()
+    const pathname = usePathname()
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+
+    useEffect(() => {
+        // Clean up the OAuth hash from the URL
+        if (window.location.hash) {
+            history.replaceState(null, '', window.location.pathname)
+        }
+    }, [])
+
+    useEffect(() => {
+        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+        const user = useUserStore.getState().user
+        if (session && !user) {
+            useUserStore.getState().setUser(session.user)
+            console.log("setting user....")
+            if (pathname === '/signin') {
+                router.push('/')
+            }
+        }
+        })
+        return () => authListener.subscription.unsubscribe()
+    }, [pathname])
 
     return (
         <section className="flex flex-grow flex-col items-center justify-center h-full w-full text-center">
@@ -29,13 +59,16 @@ export default function Hero() {
             </p>
 
             <div className="flex space-x-4 text-xl px-12 mb-7.5">
-                <Link href="/scenes-dashboard">
-                    <ButtonLink text="Go To Scenes Dashboard" className={"px-7 py-3 text-2xl"}/>
-                </Link>
-                {!user && 
-                <Link href="/signin">
-                    <ButtonLink text="Log In" className={"px-7 py-3 text-2xl"}/>
-                </Link>}
+                {
+                    user ?
+                    <Link href="/scenes-dashboard">
+                        <ButtonLink text="Go To Scenes Dashboard" className={"px-7 py-3 text-2xl"}/>
+                    </Link>
+                    :
+                    <Link href="/signin">
+                        <ButtonLink text="Login" className={"px-7 py-3 text-2xl"}/>
+                    </Link>
+                }
             </div>
 
             <div className='relative min-w-[600px] min-h-[300px]'>

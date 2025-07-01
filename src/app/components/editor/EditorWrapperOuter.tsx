@@ -34,7 +34,7 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setSceneIsPlaying
           <Navbar />
       
           {/* scrollable area */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-scroll max-h-full" ref={scrollRef}>
             <EditorWrapper>
               <div className="relative text-black py-6 border-b border-b-gray-300 min-h-20">
                 <Link href="/scenes-dashboard">
