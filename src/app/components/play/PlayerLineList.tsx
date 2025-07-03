@@ -3,6 +3,7 @@ import { Line, Character } from '@/app/types'
 import PlayerLine from './PlayerLine'
 import CountdownModal from './CountdownModal'
 import MicTranscriber from './MicTranscriber'
+// import MicTranscriberSimple from './MicTranscriberSimple' // For testing only
 
 type Props = {
   lineItems: Line[] | null,
@@ -106,6 +107,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
           }
           {sceneIsPlaying && countdown !== null && <CountdownModal countdown={countdown} />}
           {sceneHasStarted && <MicTranscriber line={currentLine} listening={currentCharacter.is_me} onLineSpoken={() => console.log("go to next line....")}/>}
+          {/* {sceneHasStarted && <MicTranscriberSimple />} */}
         </>
     )
 }
