@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@deepgram/sdk": "^4.1.1",
+    "@deepgram/sdk": "^4.7.0",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
@@ -18,10 +18,12 @@
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.1",
     "clsx": "^2.1.1",
-    "dotenv": "^16.5.0",
+    "cross-fetch": "^4.1.0",
+    "dotenv": "^16.6.1",
     "drizzle-orm": "^0.40.0",
     "elevenlabs": "^1.57.0",
     "framer-motion": "^12.12.1",
+    "microphone-stream": "^6.0.1",
     "next": "15.2.1",
     "pg": "^8.14.0",
     "postgres": "^3.4.5",

@@ -2,6 +2,7 @@ import React, {useState, useEffect, useRef} from 'react'
 import { Line, Character } from '@/app/types'
 import PlayerLine from './PlayerLine'
 import CountdownModal from './CountdownModal'
+import MicTranscriber from './MicTranscriber'
 
 type Props = {
   lineItems: Line[] | null,
@@ -23,7 +24,9 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
 
     var audio = useRef<HTMLAudioElement | null>(null)
     const lastLineIndex = sortedLines ? sortedLines.length - 1 : -1 // -1 = invalid index. Easier than using null
-    const currentLine = sortedLines ? sortedLines[currentLineIndex] : null
+    const currentLine = sortedLines && (-1 != currentLineIndex) ? sortedLines[currentLineIndex] : null
+    const currentCharacter = currentLine && (-1 != currentLineIndex) ? characters?.find(char => char.id === currentLine.character_id) : null
+    const sceneHasStarted = (-1 != currentLineIndex) && (null != currentCharacter)
 
     // Playing scene
     useEffect(() => {
@@ -32,8 +35,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
         return
       }
 
-      const character = characters?.find(char => char.id === currentLine.character_id)
-      if (!character) {
+      if (!currentCharacter) {
         console.error("Error: character is null")
         return
       }
@@ -41,7 +43,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
       const isLastLine = lastLineIndex === currentLineIndex
 
       // Handle my character speaking
-      if (character.is_me) {
+      if (currentCharacter.is_me) {
         
       // Handle other characters speaking
       } else {
@@ -56,6 +58,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
           if (isLastLine) {
             setSceneIsPlaying(false)
           } else {
+            console.log(currentLineIndex)
             setCurrentLineIndex(prev => prev + 1)
           }
         }
@@ -77,7 +80,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
         })
       }, 1000)
       return () => clearInterval(countdownInterval);
-    }, [sceneIsPlaying])
+    }, [])
 
     // Fetching characters
     useEffect(() => {
@@ -102,6 +105,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
             })
           }
           {sceneIsPlaying && countdown !== null && <CountdownModal countdown={countdown} />}
+          {sceneHasStarted && <MicTranscriber line={currentLine} listening={currentCharacter.is_me} onLineSpoken={() => console.log("go to next line....")}/>}
         </>
     )
 }
