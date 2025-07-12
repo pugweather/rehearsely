@@ -12,6 +12,7 @@ export async function GET() {
   // Get the current user from the Supabase session
   const supabase = await createClient(); // this must use cookies() internally
   const { data: { user }, error } = await supabase.auth.getUser();
+  console.log(user)
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -26,6 +27,8 @@ export async function POST(req: Request) {
 
     const supabase = await createClient();
     const { data: { user }, error } = await supabase.auth.getUser();
+
+    console.log("user: " + user)
 
     if (!user) {
         return NextResponse.json({error: "Unauthorized"}, {status: 401});
