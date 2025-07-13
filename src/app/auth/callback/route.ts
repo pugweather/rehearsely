@@ -38,8 +38,7 @@ export async function GET(request: Request) {
           created_at: user.created_at,
           name: user.user_metadata?.name ?? 'New User',
           email: user.email,
-        })
-        // .onConflictDoNothing()
+        }).onConflictDoNothing()
       }
 
       const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
