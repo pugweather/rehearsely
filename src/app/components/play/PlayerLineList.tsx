@@ -28,6 +28,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
     const currentLine = sortedLines && (-1 != currentLineIndex) ? sortedLines[currentLineIndex] : null
     const currentCharacter = currentLine && (-1 != currentLineIndex) ? characters?.find(char => char.id === currentLine.character_id) : null
     const sceneHasStarted = (-1 != currentLineIndex) && (null != currentCharacter)
+    const [spokenText, setSpokenText] = useState<string | null>(null)
 
     // Playing scene
     useEffect(() => {
@@ -45,6 +46,14 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
 
       // Handle my character speaking
       if (currentCharacter.is_me) {
+        if (currentLine.text === spokenText) {
+          if (isLastLine) {
+            setSceneIsPlaying(false)
+          } else {
+            console.log(currentLineIndex)
+            setCurrentLineIndex(prev => prev + 1)
+          }
+        }
         
       // Handle other characters speaking
       } else {
@@ -65,7 +74,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
         }
       }
       
-    }, [currentLineIndex])
+    }, [currentLineIndex, spokenText])
 
     // Countdown
     useEffect(() => {
@@ -106,8 +115,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
             })
           }
           {sceneIsPlaying && countdown !== null && <CountdownModal countdown={countdown} />}
-          {sceneHasStarted && <MicTranscriber line={currentLine} listening={currentCharacter.is_me} onLineSpoken={() => console.log("go to next line....")}/>}
-          {/* {sceneHasStarted && <MicTranscriberSimple />} */}
+          {sceneHasStarted && <MicTranscriber line={currentLine} listening={currentCharacter.is_me} setSpokenText={setSpokenText} onLineSpoken={() => console.log("go to next line....")}/>}
         </>
     )
 }

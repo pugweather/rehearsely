@@ -6,10 +6,11 @@ import { useEffect, useRef, useState } from 'react'
 interface MicTranscriberProps {
   line: Line | null
   listening: boolean
+  setSpokenText: React.Dispatch<React.SetStateAction<string | null>>;
   onLineSpoken: () => void
 }
 
-export default function MicTranscriber({ line, listening, onLineSpoken }: MicTranscriberProps) {
+export default function MicTranscriber({ line, listening, setSpokenText, onLineSpoken }: MicTranscriberProps) {
   const [transcript, setTranscript] = useState('')
   const [spokenWordCount, setSpokenWordCount] = useState(0)
   const [expectedWords, setExpectedWords] = useState<string[]>([])
@@ -20,6 +21,7 @@ export default function MicTranscriber({ line, listening, onLineSpoken }: MicTra
 
   // Setup socket + mic ONCE using legacy 'token' protocol
   useEffect(() => {
+    console.log("stujfgiewsgjnsrgjdsrfiugjndrgb")
     const setup = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -40,7 +42,8 @@ export default function MicTranscriber({ line, listening, onLineSpoken }: MicTra
           const transcriptText = data.channel?.alternatives?.[0]?.transcript || ''
           if (!transcriptText) return
 
-          console.log('🎙️ You said:', transcriptText)
+          // console.log('You said:', transcriptText)
+          setSpokenText(transcriptText)
           setTranscript(prev => (data.is_final ? prev + transcriptText + ' ' : transcriptText))
 
           const spokenWords = transcriptText.trim().split(/\s+/)
