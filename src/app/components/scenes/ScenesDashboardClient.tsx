@@ -71,7 +71,8 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
             closeDropdown()
             setSceneEditing(scene)
           }
-        }
+        },
+        className: "py-1.5 px-1.5 hover:bg-gray-100 transition-colors duration-200 ease-in-out"
       }, {
         label: "Delete",
         onClick: function() {
@@ -81,7 +82,7 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
             setSceneDeleting(scene)
           }
         },
-        className: "text-red-500",
+        className: "py-1.5 px-1.5 hover:bg-gray-100 text-red-500 transition-colors duration-200 ease-in-out",
       }
     ]
 
@@ -102,7 +103,7 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
           })}
         </div>
         {openedDropdownId && <Overlay closeDropdown={closeDropdown}/>}
-        {openedDropdownId && <Dropdown dropdownData={sceneCardDropdownData} dropdownPos={dropdownPos} closeDropdown={closeDropdown} className='z-20'/>}
+        {openedDropdownId && <Dropdown dropdownData={sceneCardDropdownData} dropdownPos={dropdownPos} closeDropdown={closeDropdown} className='z-20 px-1 py-1.5 border-b border-b-gray-100 w-35'/>}
         {sceneEditing && <ModalSceneName closeEditNameModal={closeEditNameModal} setSceneEditing={setSceneEditing} setScenes={setScenes} scene={sceneEditing}/>}
         {sceneDeleting && <ModalDeleteScene closeDeleteSceneModal={closeDeleteSceneModal} setSceneDeleting={setSceneDeleting} setScenes={setScenes} scene={sceneDeleting}/>}
     </>

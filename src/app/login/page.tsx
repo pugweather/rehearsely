@@ -30,7 +30,7 @@ export default function LoginPage() {
   // }
 
   async function handleSignIn() {
-    const { url } = await signInWithGoogle("/scenes-dashboard")
+    const { url } = await signInWithGoogle("/scenes")
     console.log(url)
     if (url) {
       window.location.href = url

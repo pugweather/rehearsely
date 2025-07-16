@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import Navbar from '../components/layout/Navbar'
 import ButtonLink from '../components/ui/ButtonLink'
 import localFont from 'next/font/local';
+import clsx from 'clsx'
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../public/fonts/sunsetSerialMedium.ttf",
@@ -14,6 +15,8 @@ const SceneNamePage = () => {
   const [sceneName, setSceneName] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const router = useRouter()
+
+  const saveDisabled = sceneName.length === 0
 
   const handleSubmit = async () => {
 
@@ -53,11 +56,19 @@ const SceneNamePage = () => {
                       className="relative w-125 h-12.5 pl-7.5 mr-4 text-lg border border-gray-300 rounded-3xl outline-none placeholder-gray-400 bg-white"
                       onChange={(e) => setSceneName(e.target.value)}
                   />
-                  <button onClick={handleSubmit} className='text-lg'>
+                  <button 
+                    onClick={handleSubmit} 
+                    className='text-lg'
+                    style={saveDisabled ? {cursor: "auto"} : undefined}
+                    disabled={saveDisabled}
+                  >
                     <ButtonLink 
                       text={isLoading ?  'Saving Changes...' : 'Save'}
                       bgColor={isLoading ? "#ccc" : undefined}
-                      className='px-4 py-2 text-xl'
+                      className={clsx(
+                        'px-4 py-2 text-xl',
+                        saveDisabled && "opacity-50 pointer-events-none"
+                      )}
                     />
                   </button>
               </div>

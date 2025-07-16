@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
 
   if (isPublicRoute && user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/scenes-dashboard'
+    url.pathname = '/scenes'
     return NextResponse.redirect(url)
   }
 

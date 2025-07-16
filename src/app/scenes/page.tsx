@@ -1,11 +1,11 @@
 import React from 'react';
 import Navbar from '../components/layout/Navbar';
-import SceneCard from '../components/scenes-dashboard/SceneCard';
+import SceneCard from '../components/scenes/SceneCard';
 import db from '../database';
 import { scenes } from '@/database/drizzle/schema';
 import { createClient } from '../../../utils/supabase/server';
 import { eq, desc } from 'drizzle-orm';
-import ScenesDashboardClient from '../components/scenes-dashboard/ScenesDashboardClient';
+import ScenesDashboardClient from '../components/scenes/ScenesDashboardClient';
 import { Scene } from '../types';
 
 const ScenesDashboardPage = async () => {

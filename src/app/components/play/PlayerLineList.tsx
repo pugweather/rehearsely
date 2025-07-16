@@ -3,6 +3,7 @@ import { Line, Character } from '@/app/types'
 import PlayerLine from './PlayerLine'
 import CountdownModal from './CountdownModal'
 import MicTranscriber from './MicTranscriber'
+import { isLineCloseEnough } from '@/app/utils/utils'
 // import MicTranscriberSimple from './MicTranscriberSimple' // For testing only
 
 type Props = {
@@ -43,10 +44,10 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
       }
 
       const isLastLine = lastLineIndex === currentLineIndex
-
+  
       // Handle my character speaking
       if (currentCharacter.is_me) {
-        if (currentLine.text === spokenText) {
+        if (isLineCloseEnough(currentLine.text, spokenText)) {
           if (isLastLine) {
             setSceneIsPlaying(false)
           } else {

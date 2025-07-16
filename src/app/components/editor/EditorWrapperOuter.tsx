@@ -37,7 +37,7 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setSceneIsPlaying
           <div className="flex-1 overflow-y-scroll max-h-full" ref={scrollRef}>
             <EditorWrapper>
               <div className="relative text-black py-6 border-b border-b-gray-300 min-h-20">
-                <Link href="/scenes-dashboard">
+                <Link href="/scenes">
                   <span className="p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 ease-in-out">
                     <FontAwesomeIcon icon={faArrowLeftLong} />
                     <span className={`ml-1 ${sunsetSerialMediumFont.className}`}>Back to Scenes</span>

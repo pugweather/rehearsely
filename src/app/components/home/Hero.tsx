@@ -61,7 +61,7 @@ export default function Hero() {
             <div className="flex space-x-4 text-xl px-12 mb-7.5">
                 {
                     user ?
-                    <Link href="/scenes-dashboard">
+                    <Link href="/scenes">
                         <ButtonLink text="Go To Scenes Dashboard" className={"px-7 py-3 text-2xl"}/>
                     </Link>
                     :

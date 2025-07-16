@@ -32,6 +32,8 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
     const saveCharBtnDisabled = (characterName.trim() === '')
     const playVoiceBtnDisabled = selectedVoiceId == null
 
+    console.log(lineBeingEditedData)
+
     const currentAudio = useRef<HTMLAudioElement | null>(null)
 
     const playSelectedVoiceAudio = async () => {
@@ -111,13 +113,13 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
 
     // Closing entire modal
     const closeCreateCharModal = () => {
-        // TODO: Delete this part. setLineBeingEditedData in handleAddNewCharacter is handling the data change
-        // setLineBeingEditedData(prev=> {
-        //     return {
-        //         ...prev,
-        //         voice: null
-        //     }
-        // })
+        // Unset selected voice
+        setLineBeingEditedData(prev=> {
+            return {
+                ...prev,
+                voice: null
+            }
+        })
         setIsCreateCharModalOpen(false)
     }
 
