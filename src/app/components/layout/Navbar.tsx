@@ -71,9 +71,12 @@ export default function Navbar() {
       <button onClick={handleLogout}>
         <ButtonLink text="Logout" className={`font-bold text-lg px-3.5 py-1.5 ${sunsetSerialMediumFont}`} />
       </button> : 
-      <button onClick={() => console.log("Login from navbar....")}>
-        <ButtonLink text="Login" className={`font-bold text-lg px-3.5 py-1.5 ${sunsetSerialMediumFont}`} />
-      </button>
+      <Link href={"/signin"} className="ml-auto">
+        <ButtonLink 
+            text="Login" 
+            className="pl-5 pr-6 py-2 text-lg rounded-lg" 
+        />
+      </Link>
       }
 
       {/* Profile or user bubble */}

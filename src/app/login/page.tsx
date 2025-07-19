@@ -6,6 +6,7 @@ import Navbar from '../components/layout/Navbar'
 import { createClient } from '@supabase/supabase-js'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUserStore } from "@/app/stores/useUserStores";
+import Image from 'next/image';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -58,9 +59,17 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={handleSignIn}
-                className="w-full py-2 px-4 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-100 transition"
+                className="w-full py-2 px-4 flex justify-center items-center border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-100 transition"
               >
-                Continue with Google
+                <div className='relative min-w-8 min-h-8 mr-3.5'>
+                  <Image
+                    src="/google-icon.png"
+                    alt="google icon"
+                    fill
+                    style={{objectFit: "contain"}}
+                  />
+                </div>
+                <span>Continue with Google</span>
               </button>
             </motion.form>
           </AnimatePresence>

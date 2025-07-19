@@ -38,7 +38,7 @@ export function scrollToBottom(ref: React.RefObject<HTMLElement | null>) {
 
 import Fuse from 'fuse.js'
 
-export function isLineCloseEnough(expected: string | null, spoken: string | null, threshold = 0.5): boolean {
+export function isLineCloseEnough(expected: string | null, spoken: string | null, threshold = 0.2): boolean {
 
   if (!expected || !spoken) {
     return false

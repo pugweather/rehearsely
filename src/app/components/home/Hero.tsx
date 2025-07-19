@@ -54,22 +54,19 @@ export default function Hero() {
                 <span className="text-black">Anytime, Anywhere.</span>
             </h1>
             
-            <p className="mt-12 mb-12 text-2xl font-semibold">
+            <p className="mt-12 mb-5 text-2xl font-semibold">
                 Less stress, more callbacks. Self-taping made easy.
             </p>
 
-            <div className="flex space-x-4 text-xl px-12 mb-7.5">
-                {
-                    user ?
+            {
+                user &&
+                <div className="flex space-x-4 text-xl px-12 mb-7.5">
+                    
                     <Link href="/scenes">
                         <ButtonLink text="Go To Scenes Dashboard" className={"px-7 py-3 text-2xl"}/>
-                    </Link>
-                    :
-                    <Link href="/signin">
-                        <ButtonLink text="Login" className={"px-7 py-3 text-2xl"}/>
-                    </Link>
-                }
-            </div>
+                    </Link>  
+                </div>
+            }
 
             <div className='relative min-w-[600px] min-h-[300px]'>
                 <Image
