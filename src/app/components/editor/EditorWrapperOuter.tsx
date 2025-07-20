@@ -43,7 +43,7 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setSceneIsPlaying
                     <span className={`ml-1 ${sunsetSerialMediumFont.className}`}>Back to Scenes</span>
                   </span>
                 </Link>
-                <div className={`absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-2xl font-medium text-gray-900 ${sunsetSerialMediumFont.className}`}>
+                <div className={`absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 line-clamp-1 w-[27.5rem] text-center text-2xl font-medium text-gray-900 ${sunsetSerialMediumFont.className}`}>
                   {scene.name}
                 </div>
               </div>

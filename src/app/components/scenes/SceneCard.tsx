@@ -38,9 +38,9 @@ const SceneCard = ({id, name, modified_at, openDropdown}: SceneCardProps) => {
 
   return (
     <div className='relative mt-6.5 cursor-pointer transition-shadow duration-200 ease-in-out hover:shadow-lg' onClick={handleCardClick}>
-      <div className="z-5 relative text-black shadow-[0_0_3px_1px_rgba(0,0,0,0.08)] p-6 bg-[#fffdf7] rounded-lg min-h-[8.5rem]">
-        <div className='flex items-center w-full justify-between mb-5'>
-          <div className={`font-bold text-2xl ${marlonProBold.className}`}>{name}</div>
+      <div className="z-5 h-full relative text-black shadow-[0_0_3px_1px_rgba(0,0,0,0.08)] p-6 bg-[#fffdf7] rounded-lg min-h-[8.5rem]">
+        <div className='flex items-center w-full justify-between mb-5 h-15'>
+          <div className={`font-bold text-2xl ${marlonProBold.className} line-clamp-2`}>{name}</div>
           <div ref={dropdownBtnRef} className='z-5 px-2 rounded-md font-bold tracking-wider cursor-pointer text-xl hover:bg-gray-200 transition-colors ease-in-out duration-200' 
             onClick={(e) => {
               e.stopPropagation()
