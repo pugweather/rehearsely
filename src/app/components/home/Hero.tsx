@@ -15,7 +15,6 @@ const sunsetSerialMediumFont = localFont({
 export default function Hero() {
 
     const user = useUserStore((s) => s.user)
-    console.log(user)
     const router = useRouter()
     const pathname = usePathname()
 
@@ -54,7 +53,7 @@ export default function Hero() {
                 <span className="text-black">Anytime, Anywhere.</span>
             </h1>
             
-            <p className="mt-12 mb-5 text-2xl font-semibold">
+            <p className={`mt-12 text-2xl font-semibold ${user ? "mb-10" : "mb-5"} ${sunsetSerialMediumFont.className}`}>
                 Less stress, more callbacks. Self-taping made easy.
             </p>
 

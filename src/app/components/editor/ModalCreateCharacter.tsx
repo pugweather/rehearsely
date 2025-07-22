@@ -14,12 +14,13 @@ import "dotenv/config";
 type Props =  {
   sceneId: number;
   lineBeingEditedData: LineBeingEditedData,
-  setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>,
+  setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>
   setCharacters: React.Dispatch<React.SetStateAction<Character[]| null>>
   setIsCreateCharModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  originalCharForOpenedLine: Character | null
 }
 
-const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData, setCharacters, lineBeingEditedData, sceneId}: Props) => {
+const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData, setCharacters, originalCharForOpenedLine, lineBeingEditedData, sceneId}: Props) => {
 
     const [characterName, setCharacterName] = useState<string>("")
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -117,7 +118,8 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
         setLineBeingEditedData(prev=> {
             return {
                 ...prev,
-                voice: null
+                voice: null,
+                character: originalCharForOpenedLine
             }
         })
         setIsCreateCharModalOpen(false)
@@ -143,7 +145,7 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
                             <div 
                                 className={clsx(
                                     'px-3 py-2.5 mt-2 mr-3 mb-2 w-25 bg-[#fff4d8] rounded-xl text-lg text-center cursor-pointer transition-all ease-in-out duration-200 hover:bg-green-100',
-                                    voice.voice_id === selectedVoiceId && "bg-green-100",
+                                    // voice.voice_id === selectedVoiceId && "bg-green-100", // Hmm, yeah we shouldn't ever be pre-selecting a voice since this modal is only for new characters
                                 )}
                                 onClick={() => handleSelectVoice(voice)}
                             >

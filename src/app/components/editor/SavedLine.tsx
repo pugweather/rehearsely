@@ -16,17 +16,20 @@ type Props = {
   setLines: React.Dispatch<React.SetStateAction<DraftLine[] | null>>,
   setLineBeingEdited: React.Dispatch<React.SetStateAction<DraftLine | null>>,
   setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>;
+  setShouldScroll: React.Dispatch<React.SetStateAction<boolean>>;
+  setOriginalCharForOpenedLine: React.Dispatch<React.SetStateAction<Character | null>>;
 }
 
-const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLineBeingEditedData}: Props) => {
+const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLineBeingEditedData, setShouldScroll, setOriginalCharForOpenedLine}: Props) => {
 
   const TEMP_LINE_ID = -999
-  const currCharacter = characters?.find(char => char.id === line?.character_id)
+  const currCharacter = characters?.find(char => char.id === line?.character_id) ||  null
   const voices = useVoicesStore((s) => s.voices)
 
   if (line == null) return
 
   const handleSetLineToEditMode = () => {
+    setShouldScroll(true)
     setLineBeingEdited(line)
     // Get voice object to pass into the edit mode line
     const voice = voices?.find(voice => String(voice.voice_id) == String(currCharacter?.voice_id)) // TODO: For some reason when i remove the string conversion it says one I can't compared nums and strs????
@@ -36,6 +39,7 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
       order: line.order,
       voice: voice || null
     })
+    setOriginalCharForOpenedLine(currCharacter)
     removeTempLine()
   }
 

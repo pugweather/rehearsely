@@ -12,6 +12,10 @@ const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
 })
 
+const marlonProBold = localFont({
+  src: "../../../../public/fonts/marlonProBold.ttf",
+})
+
 export default function Navbar() {
 
   const user = useUserStore((s) => s.user);
@@ -80,8 +84,8 @@ export default function Navbar() {
       }
 
       {/* Profile or user bubble */}
-      <div className="w-10 h-10 rounded-full flex justify-center items-center bg-blue-400 text-white text-base font-semibold hover:opacity-90 transition-opacity ml-5">
-        M
+      <div className={`w-10 h-10 rounded-full flex justify-center items-center bg-blue-400 text-white text-lg font-semibold ml-5 pt-1 ${marlonProBold.className}`}>
+        <span className="cursor-default">M</span>
       </div>
     </nav>
   );

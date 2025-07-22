@@ -13,6 +13,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DraftLine, Character, LineBeingEditedData } from "@/app/types";
+import localFont from "next/font/local";
 
 type Props = {
   line: DraftLine | null;
@@ -24,6 +25,10 @@ type Props = {
   openCharacterDropdown: (ref: React.RefObject<HTMLDivElement | null>) => void;
   setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>;
 };
+
+const certaSansMedium = localFont({
+    src: "../../../../public/fonts/certaSansMedium.otf",
+})
 
 const EditLine = ({
   line,
@@ -50,6 +55,8 @@ const EditLine = ({
 
     setIsLoading(true);
     let res;
+
+    console.log(lineBeingEditedData)
 
     const payload = {
       text: trimmed,
@@ -158,7 +165,7 @@ const EditLine = ({
         {/* Delete */}
         <button
           onClick={handleDelete}
-          className="bg-[#ff7875] hover:brightness-105 text-white text-sm px-4 py-2 rounded-md font-medium transition"
+          className={`bg-[#ff7875] hover:brightness-105 text-white text-md px-4 py-2 rounded-md font-medium transition ${certaSansMedium.className}`}
         >
           <FontAwesomeIcon icon={faTrash} className="mr-2" />
           Delete
@@ -168,9 +175,7 @@ const EditLine = ({
         <button
           onClick={handleSave}
           disabled={isLoading}
-          className={`bg-[#f47c2c] text-white text-sm px-4 py-2 rounded-md font-medium hover:brightness-105 transition ${
-            isLoading ? "opacity-60 cursor-not-allowed" : ""
-          }`}
+          className={`bg-[#f47c2c] text-white text-md px-4 py-2 rounded-md font-medium hover:brightness-105 transition ${certaSansMedium.className} ${isLoading ? "opacity-60 cursor-not-allowed" : ""}`}
         >
           <FontAwesomeIcon icon={faCheck} className="mr-2" />
           {isLoading ? "Saving..." : "Save Line"}
@@ -181,7 +186,7 @@ const EditLine = ({
 
   {/* Record Voice Button */}
   <button
-    className="w-full text-sm font-medium text-[#f47c2c] bg-white border border-transparent px-6 py-3 rounded-lg hover:bg-[#f47c2c] hover:text-white transition shadow-sm"
+    className={`w-full text-md font-medium text-[#f47c2c] bg-white border border-transparent px-6 py-3 rounded-lg hover:bg-[#f47c2c] hover:text-white transition shadow-sm ${certaSansMedium.className}`}
   >
     <FontAwesomeIcon icon={faMicrophone} className="mr-2" />
     Record Voice

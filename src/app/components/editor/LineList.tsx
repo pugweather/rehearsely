@@ -31,10 +31,13 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
   const [lineBeingEdited, setLineBeingEdited] = useState<DraftLine | null>(null)
   const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({voice: null, character: null, text: null, order: null}) // Tracks changes for line that is currently being edited
   const [characters, setCharacters] = useState<Character[] | null>(null)
+  const [originalCharForOpenedLine, setOriginalCharForOpenedLine] = useState<Character | null>(null) // When a line is opened, we track the original
   const [isCharDropdownOpen, setIsCharDropdownOpen] = useState<boolean>(false)
   const [isCreateCharModalOpen, setIsCreateCharModalOpen] = useState<boolean>(false)
   const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null) // Should this be global for all dropdowns?
   const [shouldScroll, setShouldScroll] = useState<boolean>(false)
+  
+  console.log(originalCharForOpenedLine)
 
   const TEMP_LINE_ID = -999
   const voices = useVoicesStore(s => s.voices)
@@ -43,7 +46,7 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
     const lineOrder = line.order ? line.order : -1
     return lineOrder > max ? lineOrder : max
   }, -Infinity)
-  const newLineOrder = highestLineOrder ? highestLineOrder + 1 : 1
+  const newLineOrder = highestLineOrder && Number.isFinite(highestLineOrder) ? highestLineOrder + 1 : 1
   // Unsetting state to "empty"", for clarity
   const LINE_BEING_EDITED_EMPTY: LineBeingEditedData = {
     voice: null,
@@ -100,14 +103,29 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
 
   // Opening dropdown for selecting characters
   const openCharacterDropdown = (ref: React.RefObject<HTMLDivElement | null>) => {
+
     if (!ref.current) {
       throw new Error("Dropdown button doesn't exist, but should")
     }
 
-    const dropdownBtn = ref.current?.getBoundingClientRect()
+    const dropdownRef = ref?.current
+
+    const MAX_HEIGHT_OF_DROPDOWN = 250
+    const DROPDOWN_OFFSET = 40 
+    const SAFETY_PADDING = 10
+
+    const containerBottom = scrollRef.current?.getBoundingClientRect().bottom;
+    const buttonBottom = dropdownRef.getBoundingClientRect().bottom;
+    const distanceFromBottomOfContainer = containerBottom ? containerBottom - buttonBottom : 0
+    const showDropdownBelow = distanceFromBottomOfContainer > MAX_HEIGHT_OF_DROPDOWN
+    
+    const top = showDropdownBelow
+      ? dropdownRef.getBoundingClientRect().top + window.scrollY + DROPDOWN_OFFSET
+      : dropdownRef.getBoundingClientRect().top + window.scrollY - MAX_HEIGHT_OF_DROPDOWN + SAFETY_PADDING;
+
     setDropdownPos({
-      top: dropdownBtn.top + window.scrollY + 40,
-      right: window.innerWidth - dropdownBtn.right
+      top: top,
+      right: window.innerWidth - dropdownRef.getBoundingClientRect().right
     })
 
     setIsCharDropdownOpen(true)
@@ -131,8 +149,9 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
       className: "hover:bg-gray-200 px-2 py-2 transition-colors duration-200 ease-in-out"
     },
     ...characters.map(char => {
+      const charName = char.is_me ? `${char.name} (me)` : char.name
       return {
-        label: char.name,
+        label: charName,
         onClick: function() {
           if (char) {
             const voice = voices?.find(v => v.voice_id === char.voice_id) || null
@@ -162,6 +181,7 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
       setLineBeingEdited(newLine)
       setLineBeingEditedData(LINE_BEING_EDITED_NEW)
       setLines(prev => prev == null ? [newLine] : [...prev, newLine])
+      setOriginalCharForOpenedLine(null)
       setShouldScroll(true)
     } else {
       console.log("Can only add one new line at a time")
@@ -206,7 +226,10 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
           characters={characters} 
           setLines={setLines}
           setLineBeingEdited={setLineBeingEdited} 
-          setLineBeingEditedData={setLineBeingEditedData} />
+          setLineBeingEditedData={setLineBeingEditedData} 
+          setShouldScroll={setShouldScroll}
+          setOriginalCharForOpenedLine={setOriginalCharForOpenedLine}
+          />
       }) :
       <div>
         <div className='font-semibold text-xl text-center font-pacifico mb-5'>Click the button below to add lines</div>
@@ -230,8 +253,8 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
       </button>
 
       {isCharDropdownOpen && <Overlay closeDropdown={closeCharDropdown}/>}
-      {isCharDropdownOpen && <Dropdown dropdownData={charsDropdownData} dropdownPos={dropdownPos} className={"w-50 z-20 px-1 py-1.5 border-b border-b-gray-100 "} closeDropdown={closeCharDropdown}/>}
-      {isCreateCharModalOpen && <ModalCreateCharacter setCharacters={setCharacters} setIsCreateCharModalOpen={setIsCreateCharModalOpen} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
+      {isCharDropdownOpen && <Dropdown dropdownData={charsDropdownData} dropdownPos={dropdownPos} className={"w-50 z-20 px-1 py-1.5 border-b border-b-gray-100 max-h-[275px]"} closeDropdown={closeCharDropdown}/>}
+      {isCreateCharModalOpen && <ModalCreateCharacter setCharacters={setCharacters} originalCharForOpenedLine={originalCharForOpenedLine} setIsCreateCharModalOpen={setIsCreateCharModalOpen} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
     </>
   )
 }
