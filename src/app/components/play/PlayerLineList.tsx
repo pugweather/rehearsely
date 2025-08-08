@@ -4,6 +4,7 @@ import PlayerLine from './PlayerLine'
 import CountdownModal from './CountdownModal'
 import MicTranscriber from './MicTranscriber'
 import { isLineCloseEnough } from '@/app/utils/utils'
+import { useCharacters } from '@/app/context/charactersContext';
 // import MicTranscriberSimple from './MicTranscriberSimple' // For testing only
 
 type Props = {
@@ -20,7 +21,8 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
     //   return a.order - b.order;
     // });
 
-    const [characters, setCharacters] = useState<Character[] | null>(null)
+    // const [characters, setCharacters] = useState<Character[] | null>(null)
+    const {characters, setCharacters} = useCharacters()
     const [countdown, setCountdown] = useState<number | null>(3); // Make custom
     const [currentLineIndex, setCurrentLineIndex] = useState<number>(-1) // Unless playing from a certain line
 

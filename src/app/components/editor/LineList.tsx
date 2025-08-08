@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { faChessKing, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SavedLine from './SavedLine'
@@ -12,6 +12,7 @@ import { Line, DraftLine, LineBeingEditedData, Character, DropdownData } from '@
 import Image from 'next/image';
 import { scrollToBottom } from '@/app/utils/utils';
 import { useVoicesStore } from '@/app/stores/useVoicesStores';
+import { useCharacters } from '@/app/context/charactersContext';
 
 type Props = {
   lineItems: DraftLine[] | null,
@@ -30,7 +31,8 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   // const [lines, setLines] = useState<DraftLine[] | null>(sortedLines || null)
   const [lineBeingEdited, setLineBeingEdited] = useState<DraftLine | null>(null)
   const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({voice: null, character: null, text: null, order: null}) // Tracks changes for line that is currently being edited
-  const [characters, setCharacters] = useState<Character[] | null>(null)
+  // const [characters, setCharacters] = useState<Character[] | null>(null)
+  const {characters, setCharacters} = useCharacters()
   const [originalCharForOpenedLine, setOriginalCharForOpenedLine] = useState<Character | null>(null) // When a line is opened, we track the original
   const [isCharDropdownOpen, setIsCharDropdownOpen] = useState<boolean>(false)
   const [isCreateCharModalOpen, setIsCreateCharModalOpen] = useState<boolean>(false)
@@ -72,21 +74,6 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   }
 
   /* Characters */
-
-  // Fetching characters
-  useEffect(() => {
-    const fetchSceneCharacters = async () => {
-      try {
-        const res = await fetch(`/api/private/scenes/${sceneId}/characters`)
-        const charactersJson = await res.json()
-
-        setCharacters(charactersJson)
-      } catch (err) {
-        console.error("Failed to catch characters for scene", err)
-      }
-    }
-    fetchSceneCharacters()
-  }, [sceneId])
 
   // Handle scrolling to bottom when new line is added
   useEffect(() => {
