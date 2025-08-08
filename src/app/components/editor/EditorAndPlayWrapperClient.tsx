@@ -1,18 +1,23 @@
 "use client"
 import React, { useState } from 'react'
 import { Scene } from '@/app/types'
-import { Line } from '@/app/types'
+import { DraftLine } from '@/app/types'
 import EditorWrapperOuter from './EditorWrapperOuter'
 import PlaySceneWrapperOuter from '../play/PlayerSceneWrapperOuter'
 
 type Props = {
     scene: Scene,
-    lineItems: Line[] | null
+    lineItems: DraftLine[] | null
 }
 
 const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
 
     const [sceneIsPlaying, setSceneIsPlaying] = useState<boolean>(false)
+    const [lines, setLines] = useState<DraftLine[] | null>(
+        lineItems
+          ? [...lineItems].sort((a, b) => (a?.order ?? Infinity) - (b?.order ?? Infinity))
+          : null
+    );
 
     return (
         <div>
@@ -20,7 +25,8 @@ const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
                 sceneIsPlaying ? 
                 <PlaySceneWrapperOuter
                     scene={scene}
-                    lineItems={lineItems}
+                    lineItems={lines}
+                    setLines={setLines}
                     setSceneIsPlaying={setSceneIsPlaying}
                     sceneIsPlaying={sceneIsPlaying}
                 >
@@ -28,7 +34,8 @@ const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
                 :
                 <EditorWrapperOuter
                     scene={scene}
-                    lineItems={lineItems}
+                    lineItems={lines}
+                    setLines={setLines}
                     setSceneIsPlaying={setSceneIsPlaying}
                     sceneIsPlaying={sceneIsPlaying}
                 >

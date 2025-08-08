@@ -1,5 +1,5 @@
 import React from 'react'
-import { Character, Line} from '@/app/types';
+import { Character, DraftLine, Line} from '@/app/types';
 import { useVoicesStore } from '@/app/stores/useVoicesStores'
 import clsx from 'clsx';
 import localFont from "next/font/local";
@@ -11,7 +11,7 @@ const courierPrimeRegular = localFont({
 // TODO: How to deal with adding voice to this. Feels inefficient to import all voices and select voice by character voice_id and add to linebeingediteddata
 
 type Props = {
-  line: Line | null,
+  line: DraftLine | null,
   characters: Character[] | null,
   isCurrentLine: boolean
   lineIndex: number,

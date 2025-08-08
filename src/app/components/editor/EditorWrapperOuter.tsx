@@ -8,7 +8,7 @@ import LineList from "@/app/components/editor/LineList";
 import ButtonLink from '../ui/ButtonLink';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeftLong, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { Line } from '@/app/types';
+import { DraftLine, Line } from '@/app/types';
 import { Scene } from '@/app/types';
 import PlaySceneButtonsWrapper from './PlaySceneButtonsWrapper';
 import localFont from 'next/font/local';
@@ -19,12 +19,13 @@ const sunsetSerialMediumFont = localFont({
 
 type Props = {
     scene: Scene,
-    lineItems: Line[] | null,
+    lineItems: DraftLine[] | null,
     setSceneIsPlaying: React.Dispatch<React.SetStateAction<boolean>>,
-    sceneIsPlaying: boolean
+    sceneIsPlaying: boolean,
+    setLines: React.Dispatch<React.SetStateAction<DraftLine[] | null>>
 }
 
-const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setSceneIsPlaying}: Props) => {
+const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setSceneIsPlaying}: Props) => {
 
     const scrollRef = useRef<HTMLDivElement | null>(null)
     
@@ -56,6 +57,7 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setSceneIsPlaying
                     lineItems={lineItems}
                     sceneId={scene.id}
                     scrollRef={scrollRef}
+                    setLines={setLines}
                   />
                 </div>
               </div>

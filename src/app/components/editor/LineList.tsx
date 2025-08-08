@@ -12,22 +12,22 @@ import { Line, DraftLine, LineBeingEditedData, Character, DropdownData } from '@
 import Image from 'next/image';
 import { scrollToBottom } from '@/app/utils/utils';
 import { useVoicesStore } from '@/app/stores/useVoicesStores';
-import { Reem_Kufi_Fun } from 'next/font/google';
 
 type Props = {
   lineItems: DraftLine[] | null,
   scrollRef: React.RefObject<HTMLElement | null>,
-  sceneId: number
+  sceneId: number,
+  setLines: React.Dispatch<React.SetStateAction<DraftLine[] | null>>
 }
 
-const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
+const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
 
-  const sortedLines = lineItems?.slice().sort((a, b) => {
-    if (!a || !b || a.order == null || b.order == null) return 0;
-    return a.order - b.order;
-  });
+  // const sortedLines = lineItems?.slice().sort((a, b) => {
+  //   if (!a || !b || a.order == null || b.order == null) return 0;
+  //   return a.order - b.order;
+  // });
 
-  const [lines, setLines] = useState<DraftLine[] | null>(sortedLines || null)
+  // const [lines, setLines] = useState<DraftLine[] | null>(sortedLines || null)
   const [lineBeingEdited, setLineBeingEdited] = useState<DraftLine | null>(null)
   const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({voice: null, character: null, text: null, order: null}) // Tracks changes for line that is currently being edited
   const [characters, setCharacters] = useState<Character[] | null>(null)
@@ -42,7 +42,7 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
   const TEMP_LINE_ID = -999
   const voices = useVoicesStore(s => s.voices)
 
-  const highestLineOrder = lines?.reduce((max, line) => {
+  const highestLineOrder = lineItems?.reduce((max, line) => {
     const lineOrder = line.order ? line.order : -1
     return lineOrder > max ? lineOrder : max
   }, -Infinity)
@@ -170,13 +170,14 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
   const handleAddLine = () => {
     const newLineOrderNumber = lineItems ? lineItems.length : 1
     // Add temp line with negative id to avoid possibl collisions
-    if (lines && !lines.find(l => l.text == null)) {
+    if (lineItems && !lineItems.find(l => l.text == null)) {
       const newLine: DraftLine = {
         id: TEMP_LINE_ID,
         character_id: null,
         order: newLineOrderNumber,
         scene_id: sceneId,
-        text: null
+        text: null,
+        audio_url: undefined
       }
       setLineBeingEdited(newLine)
       setLineBeingEditedData(LINE_BEING_EDITED_NEW)
@@ -190,7 +191,7 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
 
   const closeEditLine = () => {
     // Remove temp line from lines array. Line isn't in db so no need to hit delete endpoint
-    if (lines?.find(l => Number(l.id) == TEMP_LINE_ID)) {
+    if (lineItems?.find(l => Number(l.id) == TEMP_LINE_ID)) {
       setLines(prev => {
         if (!prev) return null
         return prev.filter(l => l.id != TEMP_LINE_ID)
@@ -204,8 +205,8 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
   return (
     <>
       { 
-      lines?.length ?
-      lines?.map(line => {
+      lineItems?.length ?
+      lineItems?.map(line => {
         return line.id == lineBeingEdited?.id ? 
         <EditLine 
           key={line.id}
@@ -222,7 +223,7 @@ const LineList = ({lineItems, scrollRef, sceneId}: Props) => {
         <SavedLine 
           key={line.id}
           line={line} 
-          lines={lines} 
+          lines={lineItems} 
           characters={characters} 
           setLines={setLines}
           setLineBeingEdited={setLineBeingEdited} 

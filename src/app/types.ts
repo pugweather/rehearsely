@@ -16,6 +16,7 @@ export type DraftLine = {
     order: number | null,
     scene_id: number | null,
     text: string | null,
+    audio_url: string | undefined, // null?
     isNew?: boolean
 };
 

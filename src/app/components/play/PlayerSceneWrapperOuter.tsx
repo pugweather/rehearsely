@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Navbar from '../layout/Navbar'
 import PlayerLineList from './PlayerLineList'
 import PlaySceneButtonsWrapper from '../editor/PlaySceneButtonsWrapper'
-import { Scene, Line } from '@/app/types'
+import { Scene, Line, DraftLine } from '@/app/types'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeftLong } from "@fortawesome/free-solid-svg-icons"
 import EditorWrapper from '../editor/EditorWrapper'
@@ -16,9 +16,10 @@ const sunsetSerialMediumFont = localFont({
 
 type Props = {
   scene: Scene,
-  lineItems: Line[] | null,
+  lineItems: DraftLine[] | null,
   setSceneIsPlaying: React.Dispatch<React.SetStateAction<boolean>>,
-  sceneIsPlaying: boolean
+  sceneIsPlaying: boolean,
+  setLines: React.Dispatch<React.SetStateAction<DraftLine[] | null>>
 }
 
 const PlaySceneWrapperOuter = ({ scene, lineItems, sceneIsPlaying, setSceneIsPlaying }: Props) => {

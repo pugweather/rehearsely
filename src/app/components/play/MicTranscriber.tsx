@@ -1,10 +1,10 @@
 'use client'
 
-import { Line } from '@/app/types'
+import { DraftLine, Line } from '@/app/types'
 import { useEffect, useRef, useState } from 'react'
 
 interface MicTranscriberProps {
-  line: Line | null
+  line: DraftLine | null
   listening: boolean
   setSpokenText: React.Dispatch<React.SetStateAction<string | null>>;
   onLineSpoken: () => void
