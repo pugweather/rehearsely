@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import Modal from '../ui/Modal'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClose, faCircleCheck } from '@fortawesome/free-solid-svg-icons'
@@ -18,10 +18,13 @@ const ModalSceneName = ({closeEditNameModal, setSceneEditing, setScenes, scene}:
 
   const [sceneName, setSceneName] = useState<string | null>(scene.name)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+
   const disabled = (sceneName === null || sceneName.trim() === '')
 
   const handleSubmit = async () => {
 
+    if (isLoading) return
+    
     setIsLoading(true)
 
     const res = await fetch("/api/private/scenes", {

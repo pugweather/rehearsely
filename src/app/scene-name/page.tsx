@@ -20,6 +20,8 @@ const SceneNamePage = () => {
 
   const handleSubmit = async () => {
 
+    if (isLoading) return true
+
     setIsLoading(true)
 
     const res = await fetch("/api/private/scenes", {
@@ -34,7 +36,6 @@ const SceneNamePage = () => {
     })
 
     if (res.ok) {
-      setIsLoading(false)
       const result = await res.json()
       const {sceneId} = result
       router.push(`/editor/${sceneId}`);

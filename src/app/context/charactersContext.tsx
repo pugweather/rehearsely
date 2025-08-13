@@ -17,7 +17,7 @@ export const CharactersProvider = ({
   setCharacters,
 }: ContextType) => {
   return (
-    <charactersContext.Provider value={{children, characters, setCharacters }}>
+    <charactersContext.Provider value={{children, characters, setCharacters}}>
       {children}
     </charactersContext.Provider>
   )

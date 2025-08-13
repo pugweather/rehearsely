@@ -10,20 +10,23 @@ import { useVoicesStore } from '@/app/stores/useVoicesStores'
 import { LineBeingEditedData, Voice } from '@/app/types'
 import { Character } from '@/app/types'
 import "dotenv/config";
+import { useCharacters } from '@/app/context/charactersContext'
 
 type Props =  {
   sceneId: number;
   lineBeingEditedData: LineBeingEditedData,
   setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>
-  setCharacters: React.Dispatch<React.SetStateAction<Character[]| null>>
   setIsCreateCharModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   originalCharForOpenedLine: Character | null
 }
 
-const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData, setCharacters, originalCharForOpenedLine, lineBeingEditedData, sceneId}: Props) => {
+const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData, originalCharForOpenedLine, lineBeingEditedData, sceneId}: Props) => {
 
+    const {characters, setCharacters} = useCharacters()
     const [characterName, setCharacterName] = useState<string>("")
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    
+    const [errorText, setErrorText] = useState<string | null>(null)
     const [audioIsPlaying, setAudioIsPlaying] = useState<boolean>(false)
 
     const voices = useVoicesStore(s => s.voices)
@@ -69,46 +72,61 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
             setAudioIsPlaying(false)
         }
     };
+    
+    const handleTypingInInputBox = (str: string) => {
+        setErrorText(null)
+        setCharacterName(str)
+    }
 
     const handleAddNewCharacter = async () => {
 
-        setIsLoading(true)
-
-        const res = await fetch(`/api/private/scenes/${sceneId}/characters`, {
-            method: "POST",
-            headers:{
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name: characterName,
-                sceneId: sceneId,
-                voiceId: selectedVoiceId
-            })
-        })
-
-        if (res.ok) {
-
-        setIsLoading(false)
-
-        const newCharacterRes = await res.json()
-        const newCharacter = newCharacterRes.insertedCharacter
-        const newCharacterVoice = voices?.find(voice => voice.voice_id === newCharacter.voice_id) || null
-
-        // Append to characters,
-        setCharacters(prev => {
-            return prev == null ? [newCharacter] : [...prev, newCharacter]
-        })
-        // Attach character & voice to current line
-        setLineBeingEditedData(prev => {
-            const updated = {...prev, character: newCharacter, voice: newCharacterVoice}
-            console.log("updated lineBeingEditedData:", updated)
-            return updated
-        })
-
-        closeCreateCharModal()
-
+        let isDupeName = characters?.find(char => char.name.toLowerCase().trim() === characterName)
+        let noVoiceSelected = lineBeingEditedData?.voice === null
+        console.log(isDupeName)
+        if (isDupeName) {
+            setErrorText("* Error: A character already has this name")
+        } else if (noVoiceSelected) {
+            setErrorText("* Error: You must select a voice")
         } else {
-            setIsLoading(false)
+
+            setIsLoading(true)
+
+            const res = await fetch(`/api/private/scenes/${sceneId}/characters`, {
+                method: "POST",
+                headers:{
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: characterName,
+                    sceneId: sceneId,
+                    voiceId: selectedVoiceId
+                })
+            })
+
+            if (res.ok) {
+
+                setIsLoading(false)
+
+                const newCharacterRes = await res.json()
+                const newCharacter = newCharacterRes.insertedCharacter
+                const newCharacterVoice = voices?.find(voice => voice.voice_id === newCharacter.voice_id) || null
+
+                // Append to characters,
+                setCharacters(prev => {
+                    return prev == null ? [newCharacter] : [...prev, newCharacter]
+                })
+                // Attach character & voice to current line
+                setLineBeingEditedData(prev => {
+                    const updated = {...prev, character: newCharacter, voice: newCharacterVoice}
+                    console.log("updated lineBeingEditedData:", updated)
+                    return updated
+                })
+
+                closeCreateCharModal()
+
+            } else {
+                setIsLoading(false)
+            }
         }
     }
 
@@ -126,12 +144,26 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
     }
 
     const handleSelectVoice = (voice: Voice) => {
-        setLineBeingEditedData(prev => {
-            return {
-                ...prev,
-                voice: voice
-            }
-        })
+
+        const isAlreadySelected = voice.voice_id === lineBeingEditedData?.voice?.voice_id
+
+        // Deselect if it was selected
+        if (isAlreadySelected) {
+            setLineBeingEditedData(prev => {
+                return {
+                    ...prev,
+                    voice: null
+                }
+            })
+        // Otherwise select
+        } else {
+            setLineBeingEditedData(prev => {
+                return {
+                    ...prev,
+                    voice: voice
+                }
+            })
+        }   
     }
 
     const getVoicesJSX = (gender: "male" | "female") =>{
@@ -145,7 +177,7 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
                             <div 
                                 className={clsx(
                                     'px-3 py-2.5 mt-2 mr-3 mb-2 w-25 bg-[#fff4d8] rounded-xl text-lg text-center cursor-pointer transition-all ease-in-out duration-200 hover:bg-green-100',
-                                    // voice.voice_id === selectedVoiceId && "bg-green-100", // Hmm, yeah we shouldn't ever be pre-selecting a voice since this modal is only for new characters
+                                    voice.voice_id === selectedVoiceId && "bg-green-100", // Hmm, yeah we shouldn't ever be pre-selecting a voice since this modal is only for new characters
                                 )}
                                 onClick={() => handleSelectVoice(voice)}
                             >
@@ -166,8 +198,16 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
             <div onClick={closeCreateCharModal}>
                 <FontAwesomeIcon icon={faClose} className="absolute top-5 right-5 text-3xl text-gray-800 cursor-pointer" />
             </div>
-            <div className='text-2xl pl-2 mb-5 font-semibold'>Character Name</div>
-            <Input placeholder={'Enter character name...'} value={characterName || ''} onChange={setCharacterName}/> 
+            <div className='flex items-center pl-2 mb-5'>
+                <div className='text-2xl font-semibold mr-5'>Character Name</div>
+                <div className={clsx(
+                    'text-[#ff7875]',
+                    !errorText ? "hidden" : ""
+                )}>
+                    {errorText ? errorText : ""}
+                </div>
+            </div>
+            <Input placeholder={'Enter character name...'} value={characterName || ''} onChange={handleTypingInInputBox}/> 
             <div className='text-2xl pl-2 mb-5 mt-5 font-semibold'>Select Voice</div>
             <div className='flex justify-between font-semibold ml-2 overflow-y-auto'>
                 <div className='w-[50%] mr-2'>

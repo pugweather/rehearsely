@@ -13,7 +13,7 @@ import Image from 'next/image';
 import { scrollToBottom } from '@/app/utils/utils';
 import { useVoicesStore } from '@/app/stores/useVoicesStores';
 import { useCharacters } from '@/app/context/charactersContext';
-
+0
 type Props = {
   lineItems: DraftLine[] | null,
   scrollRef: React.RefObject<HTMLElement | null>,
@@ -31,7 +31,6 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   // const [lines, setLines] = useState<DraftLine[] | null>(sortedLines || null)
   const [lineBeingEdited, setLineBeingEdited] = useState<DraftLine | null>(null)
   const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({voice: null, character: null, text: null, order: null}) // Tracks changes for line that is currently being edited
-  // const [characters, setCharacters] = useState<Character[] | null>(null)
   const {characters, setCharacters} = useCharacters()
   const [originalCharForOpenedLine, setOriginalCharForOpenedLine] = useState<Character | null>(null) // When a line is opened, we track the original
   const [isCharDropdownOpen, setIsCharDropdownOpen] = useState<boolean>(false)
@@ -129,9 +128,12 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
     {
       label: "+ New Character",
       onClick: function() {
-        setLineBeingEditedData(prev => ({...prev, character: null}))
-        setIsCreateCharModalOpen(true)
-        setIsCharDropdownOpen(false)
+        let maxCharsForScene = 5
+        if (characters.length < maxCharsForScene) {
+          setLineBeingEditedData(prev => ({...prev, character: null}))
+          setIsCreateCharModalOpen(true)
+          setIsCharDropdownOpen(false)
+        }
       },
       className: "hover:bg-gray-200 px-2 py-2 transition-colors duration-200 ease-in-out"
     },
@@ -242,7 +244,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
 
       {isCharDropdownOpen && <Overlay closeDropdown={closeCharDropdown}/>}
       {isCharDropdownOpen && <Dropdown dropdownData={charsDropdownData} dropdownPos={dropdownPos} className={"w-50 z-20 px-1 py-1.5 border-b border-b-gray-100 max-h-[275px]"} closeDropdown={closeCharDropdown}/>}
-      {isCreateCharModalOpen && <ModalCreateCharacter setCharacters={setCharacters} originalCharForOpenedLine={originalCharForOpenedLine} setIsCreateCharModalOpen={setIsCreateCharModalOpen} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
+      {isCreateCharModalOpen && <ModalCreateCharacter originalCharForOpenedLine={originalCharForOpenedLine} setIsCreateCharModalOpen={setIsCreateCharModalOpen} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
     </>
   )
 }
