@@ -152,20 +152,22 @@ return (
     />
 
     {/* Action Buttons (icon-only) */}
-    {character && (
-      <div className="flex items-center justify-between">
-        <div className="flex gap-2">
-          {[faScissors, faPersonRunning, faHand].map((icon, i) => (
-            <button
-              key={i}
-              className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#fef5ec] hover:bg-[#f47c2c] text-[#f47c2c] hover:text-white font-medium transition duration-150 shadow-sm hover:shadow-md"
-            >
-              <FontAwesomeIcon icon={icon} className="text-sm" />
-            </button>
-          ))}
-        </div>
+    <div className="flex items-center justify-between">
+      {
+      character && !character.is_me &&
+      <div className="flex gap-2">
+        {[faScissors, faPersonRunning, faHand].map((icon, i) => (
+          <button
+            key={i}
+            className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#fef5ec] hover:bg-[#f47c2c] text-[#f47c2c] hover:text-white font-medium transition duration-150 shadow-sm hover:shadow-md"
+          >
+            <FontAwesomeIcon icon={icon} className="text-sm" />
+          </button>
+        ))}
+      </div>
+      }
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 ml-auto">
           {/* Delete */}
           <button
             onClick={handleDelete}
@@ -186,15 +188,19 @@ return (
           </button>
         </div>
       </div>
-    )}
 
-    {/* Record Voice Button */}
+    {/* Record Voice Button (Only show if it's not your character) */}
+    
+    {
+    character && !character.is_me && 
     <button
       className={`w-full text-md font-medium text-[#f47c2c] bg-white border border-transparent px-6 py-3 rounded-lg hover:bg-[#f47c2c] hover:text-white transition shadow-sm ${certaSansMedium.className}`}
     >
       <FontAwesomeIcon icon={faMicrophone} className="mr-2" />
       Record Voice
     </button>
+    }
+
   </div>
   );
 };
