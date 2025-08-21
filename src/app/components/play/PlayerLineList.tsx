@@ -24,7 +24,9 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
 
     // const [characters, setCharacters] = useState<Character[] | null>(null)
     const {characters, setCharacters} = useCharacters()
-    const {countdown, setCountdown} = useSceneDelay(); // Make custom
+    const {countdown, setCountdown} = useSceneDelay();
+    // Not sure how to set initial value of countdown since it's context so I'll create state and initialize to the value from context
+    const [delayCountdown, setDelayCountdown] = useState<number | null>(countdown)
     const [currentLineIndex, setCurrentLineIndex] = useState<number>(-1) // Unless playing from a certain line
 
     var audio = useRef<HTMLAudioElement | null>(null)
@@ -83,7 +85,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
     // Countdown
     useEffect(() => {
       const countdownInterval = setInterval(function() {
-        setCountdown(prev => {
+        setDelayCountdown(prev => {
           if (prev === null || prev === 1) { // Technically end countdown on 1 lol
             const firstLineIndex = 0
             setCurrentLineIndex(firstLineIndex)
@@ -118,7 +120,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
               return <PlayerLine key={line.id} line={line} characters={characters} isCurrentLine={isCurrentLine} lineIndex={idx} currentLineIndex={currentLineIndex}/>
             })
           }
-          {sceneIsPlaying && countdown !== null && <CountdownModal countdown={countdown} />}
+          {sceneIsPlaying && delayCountdown !== null && <CountdownModal countdown={delayCountdown} />}
           {sceneHasStarted && <MicTranscriber line={currentLine} listening={currentCharacter.is_me} setSpokenText={setSpokenText} onLineSpoken={() => console.log("go to next line....")}/>}
         </>
     )

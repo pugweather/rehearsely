@@ -30,15 +30,13 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
 
   // const [lines, setLines] = useState<DraftLine[] | null>(sortedLines || null)
   const [lineBeingEdited, setLineBeingEdited] = useState<DraftLine | null>(null)
-  const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({voice: null, character: null, text: null, order: null}) // Tracks changes for line that is currently being edited
+  const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({voice: null, character: null, text: null, speed: 1, delay: 1, order: null}) // Tracks changes for line that is currently being edited
   const {characters, setCharacters} = useCharacters()
   const [originalCharForOpenedLine, setOriginalCharForOpenedLine] = useState<Character | null>(null) // When a line is opened, we track the original
   const [isCharDropdownOpen, setIsCharDropdownOpen] = useState<boolean>(false)
   const [isCreateCharModalOpen, setIsCreateCharModalOpen] = useState<boolean>(false)
   const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null) // Should this be global for all dropdowns?
   const [shouldScroll, setShouldScroll] = useState<boolean>(false)
-  
-  console.log(originalCharForOpenedLine)
 
   const TEMP_LINE_ID = -999
   const voices = useVoicesStore(s => s.voices)
@@ -53,6 +51,8 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
     voice: null,
     character: null,
     text: null,
+    speed: 1,
+    delay: 1,
     order: null
   }
   // Newly added line (line is placed at end)
@@ -60,6 +60,8 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
     voice:  null,
     character: null,
     text: null,
+    speed: 1,
+    delay: 1,
     order: newLineOrder
   }
 
@@ -166,6 +168,8 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
         order: newLineOrderNumber,
         scene_id: sceneId,
         text: null,
+        speed: 1,
+        delay: 1,
         audio_url: undefined
       }
       setLineBeingEdited(newLine)

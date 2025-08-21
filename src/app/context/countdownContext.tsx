@@ -1,8 +1,7 @@
 "use client"
-import React, { createContext, useContext, useState } from "react"
+import React, { createContext, useContext, useMemo, useState } from "react"
 
 type ContextType = {
-  children: React.ReactNode
   countdown: number
   setCountdown: React.Dispatch<React.SetStateAction<number>>
 }
@@ -10,13 +9,11 @@ type ContextType = {
 const COUNTDOWN_DELAY = 10
 export const countdownContext = createContext<ContextType | null>(null)
 
-export const CountdownProvider = ({
-  children,
-  countdown = COUNTDOWN_DELAY,
-  setCountdown,
-}: ContextType) => {
+export const CountdownProvider = ({children}: {children: React.ReactNode}) => {
+  const [countdown, setCountdown] = useState<number>(COUNTDOWN_DELAY)
+  const value = useMemo(() => ({countdown, setCountdown}), [countdown])
   return (
-    <countdownContext.Provider value={{children, countdown, setCountdown}}>
+    <countdownContext.Provider value={{countdown, setCountdown}}>
       {children}
     </countdownContext.Provider>
   )

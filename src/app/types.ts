@@ -17,6 +17,8 @@ export type DraftLine = {
     scene_id: number | null,
     text: string | null,
     audio_url: string | undefined, // null?
+    speed: number,
+    delay: number,
     isNew?: boolean
 };
 
@@ -33,8 +35,12 @@ export type LineBeingEditedData = {
     voice: Voice | null
     character: Character | null,
     text: string | null,
+    speed: number,
+    delay: number,
     order: number | null
 }
+
+export type EditLineMode = "default" | "trim" | "delay" | "speed"
 
 // Dropdowns
 export type DropdownData = {

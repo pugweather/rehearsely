@@ -37,6 +37,8 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
       character: currCharacter || null,
       text: line.text,
       order: line.order,
+      speed: line.speed,
+      delay: line.delay,
       voice: voice || null
     })
     setOriginalCharForOpenedLine(currCharacter)

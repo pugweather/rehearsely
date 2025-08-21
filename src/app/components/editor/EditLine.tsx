@@ -9,12 +9,19 @@ import {
   faTrash,
   faUser,
   faXmark,
-  faChevronDown
+  faChevronDown,
+  faH
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { DraftLine, Character, LineBeingEditedData } from "@/app/types";
+import { DraftLine, Character, LineBeingEditedData, EditLineMode } from "@/app/types";
+import Waveform from "./Waveform";
 import localFont from "next/font/local";
 import clsx from "clsx";
+import { waveform } from "elevenlabs/api/resources/voices/resources/pvc/resources/samples";
+import WaveformTrim from "./WaveformTrim";
+import { cn } from "@/lib/utils"
+import { Slider } from "../ui/Slider";
+import { lines } from "@/database/drizzle/schema";
 
 type Props = {
   line: DraftLine | null;
@@ -48,7 +55,12 @@ const EditLine = ({
   const { character, text } = lineBeingEditedData;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [lineMode, setLineMode] = useState<EditLineMode>("default"); // default | trim | delay | speed
+  const [lineSpeed, setLineSpeed] = useState<number[]>([1.0]); // 1.0x is the default
+  const [lineDelay, setLineDelay] = useState<number[]>([1]); // 1 second is the default
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  console.log(lineBeingEditedData)
 
   const handleSave = async () => {
     const trimmed = text?.trim();
@@ -116,6 +128,24 @@ const EditLine = ({
       closeEditLine();
     }
   };
+  
+  const handleSaveLineSpeed = () => {
+    setLineBeingEditedData(prev => ({...prev, speed: lineSpeed[0]}))
+    setLineMode("default")
+  }
+
+  const handleSaveLineDelay = () => {
+    setLineBeingEditedData(prev => ({...prev, delay: lineDelay[0]}))
+    setLineMode("default")
+  }
+
+  const toggleLineMode = (btnMode: EditLineMode) => {
+    if (lineMode === btnMode) {
+      setLineMode("default")
+    } else if (btnMode) {
+      setLineMode(btnMode)
+    }
+  }
 
 return (
   <div className={clsx(
@@ -151,17 +181,83 @@ return (
       className="w-full min-h-[100px] px-4 py-3 rounded-lg bg-white text-sm text-gray-800 placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-[#f47c2c] focus:outline-none"
     />
 
+    {/* Default Waveform to show when not in edit mode for other characters */}
+    {lineMode === "default" && line?.audio_url && <Waveform src={line.audio_url}/>}
+
+    {/* Action Buttons UI */}
+    {lineMode === "trim" && line?.audio_url && <WaveformTrim line={line} setLineMode={setLineMode}/>}
+
+    {lineMode === "speed" && 
+
+      <div className="flex items-center">
+        <Slider 
+          min={0.5}
+          max={2}
+          value={lineSpeed}
+          step={0.1}
+          onValueChange={setLineSpeed}
+          className={"flex-1"}
+        />
+        <div className="ml-2">{lineSpeed}x</div>
+        <button
+          onClick={handleSaveLineSpeed}
+          className="w-8 h-8 ml-2 rounded-full bg-black text-white flex items-center justify-center disabled:opacity-50"
+        >
+        <FontAwesomeIcon icon={faCheck} className="text-white text-sm" />
+        </button>
+      </div>
+    }
+
+    {lineMode === "delay" && 
+
+      <div className="flex items-center">
+        <Slider 
+          min={0}
+          max={10}
+          value={lineDelay}
+          step={1}
+          onValueChange={setLineDelay}
+          className={"flex-1"}
+        />
+        <div className="ml-2">{lineDelay}s</div>
+        <button
+          onClick={handleSaveLineDelay}
+          className="w-8 h-8 ml-2 rounded-full bg-black text-white flex items-center justify-center disabled:opacity-50"
+        >
+        <FontAwesomeIcon icon={faCheck} className="text-white text-sm" />
+        </button>
+      </div>
+    }
+
     {/* Action Buttons (icon-only) */}
     <div className="flex items-center justify-between">
       {
       character && !character.is_me &&
       <div className="flex gap-2">
-        {[faScissors, faPersonRunning, faHand].map((icon, i) => (
+        {
+        [
+          {
+            img: faScissors, 
+            mode: "trim"
+          }, 
+          {
+            img: faPersonRunning, 
+            mode: "speed"
+          }, 
+          {
+            img: faHand, 
+            mode: "delay"
+          }
+        ].map((item, i) => (
           <button
             key={i}
-            className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#fef5ec] hover:bg-[#f47c2c] text-[#f47c2c] hover:text-white font-medium transition duration-150 shadow-sm hover:shadow-md"
+            className={clsx(
+              "w-10 h-10 flex items-center justify-center rounded-lg bg-[#fef5ec] hover:bg-[#f47c2c] text-[#f47c2c] hover:text-white font-medium transition duration-150 shadow-sm hover:shadow-md",
+              lineMode === item.mode && "bg-orange-400 text-white" // Change this to actual orange color
+            )}
+            onClick={() => toggleLineMode(item.mode as EditLineMode)}
           >
-            <FontAwesomeIcon icon={icon} className="text-sm" />
+            <FontAwesomeIcon icon={item.img} className="text-sm" />
           </button>
         ))}
       </div>

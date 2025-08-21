@@ -16,7 +16,7 @@ const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
 
     const DEFAULT_DELAY_SECONDS = 10
     const [characters, setCharacters] = useState<Character[] | null>(null)
-    const [sceneDelay, setSceneDelay] = useState<number>(DEFAULT_DELAY_SECONDS)
+    // const [sceneDelay, setSceneDelay] = useState<number | null>(DEFAULT_DELAY_SECONDS)
     const [sceneIsPlaying, setSceneIsPlaying] = useState<boolean>(false)
     const [lines, setLines] = useState<DraftLine[] | null>(
         lineItems
@@ -41,7 +41,7 @@ const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
 
     return (
         <CharactersProvider characters={characters} setCharacters={setCharacters}>
-            <CountdownProvider countdown={sceneDelay} setCountdown={setSceneDelay}>
+            <CountdownProvider>
             <div>
                 {
                     sceneIsPlaying ? 
