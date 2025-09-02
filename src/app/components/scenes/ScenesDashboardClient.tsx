@@ -89,7 +89,7 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
   return (
     <>
         <ScenesDashboardHeader onChange={setQuery}/>
-        <div className='p-5 grid grid-cols-3 gap-4'>
+        <div className='p-5 grid grid-cols-3 gap-6'>
           {filteredScenes.map(scene => {
             return <SceneCard 
               key={scene.id} 

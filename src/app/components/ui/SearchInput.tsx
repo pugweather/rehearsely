@@ -10,15 +10,21 @@ type Props = {
 
 const SearchInput = ({onChange, placeholder}: Props) => {
   return (
-    <div className='relative'>
-        <FontAwesomeIcon icon={faMagnifyingGlass} className="absolute top-5.75 -translate-y-1/2 left-3 text-gray-300" />
-        <input 
-            type="text" 
-            placeholder={placeholder || "Search..."}
-            className="relative w-100 h-12 pl-8.5 border text-xl border-gray-300 bg-white rounded-3xl outline-none placeholder-gray-400"
-            onChange={(e) => onChange(e.target.value)}
-        />
-    </div>
+  <label className="input input-lg">
+    <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <g
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        strokeWidth="2.5"
+        fill="none"
+        stroke="currentColor"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.3-4.3"></path>
+      </g>
+    </svg>
+    <input type="search" required placeholder={placeholder || "Search..."} onChange={(e) => onChange(e.target.value)} />
+  </label>
   )
 }
 

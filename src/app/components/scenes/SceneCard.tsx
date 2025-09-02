@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock} from '@fortawesome/free-regular-svg-icons';
@@ -32,29 +32,60 @@ const SceneCard = ({id, name, modified_at, openDropdown}: SceneCardProps) => {
   const router = useRouter()
   const dropdownBtnRef = useRef<HTMLDivElement | null>(null);
 
+  // New solution. Set global opened id. if it's null then nothing is opened so continue otherwise if there is an opened dropdown id return
+  const [openedDropdownId, setOpenedDropdownId] = useState<number | null>(null)
+
   const handleCardClick = () => {
     router.push(`/editor/${id}`)
   }
 
   return (
-    <div className='relative mt-6.5 cursor-pointer transition-shadow duration-200 ease-in-out hover:shadow-lg' onClick={handleCardClick}>
-      <div className="z-5 h-full relative text-black shadow-[0_0_3px_1px_rgba(0,0,0,0.08)] p-6 bg-[#fffdf7] rounded-lg min-h-[8.5rem]">
-        <div className='flex items-center w-full justify-between mb-5 h-15'>
-          <div className={`font-bold text-2xl ${marlonProBold.className} line-clamp-2`}>{name}</div>
-          <div ref={dropdownBtnRef} className='z-5 px-2 rounded-md font-bold tracking-wider cursor-pointer text-xl hover:bg-gray-200 transition-colors ease-in-out duration-200' 
-            onClick={(e) => {
-              e.stopPropagation()
-              openDropdown(id, dropdownBtnRef)
-            }}>
-            <FontAwesomeIcon icon={faEllipsis} className='z-5'/>
-          </div>
+    <div
+  className="group relative mt-6.5 cursor-pointer transition-transform duration-200 ease-in-out"
+  onClick={handleCardClick}
+>
+  {/* offset layer */}
+  <div className="absolute inset-0 translate-x-2 translate-y-2 rounded-lg border-4 border-black bg-[#72a4f2] group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-200 ease-in-out"></div>
+
+  {/* main card */}
+  <div className="relative z-10 h-full p-6 bg-[#e9dfd2] rounded-lg min-h-[8.5rem] border-4 border-black">
+    <div className="flex items-center w-full justify-between mb-5 h-15">
+      <div
+        className={`font-bold text-2xl ${marlonProBold.className} line-clamp-2`}
+      >
+        {name}
+      </div>
+      <div
+        className="dropdown dropdown-end"
+      >
+        <div
+          tabIndex={0}
+          role="button"
+          className="btn m-1"
+        >
+          Click
         </div>
-        <div className={`flex items-center text-black text-xl ${noyhSlimMedium.className}`}>
-          <FontAwesomeIcon icon={faClock} className="mr-1.75 mb-0.5" />
-          <span>{timeAgo(modified_at)}</span>
-        </div>
+
+        <ul
+          tabIndex={0}
+          className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow"
+        >
+          <li><a>Item 1</a></li>
+          <li><a>Item 2</a></li>
+        </ul>
       </div>
     </div>
+
+    <div
+      className={`flex items-center text-black text-xl ${noyhSlimMedium.className}`}
+    >
+      <FontAwesomeIcon icon={faClock} className="mr-1.75 mb-0.5" />
+      <span>{timeAgo(modified_at)}</span>
+    </div>
+  </div>
+</div>
+
+  
   )
 }
 

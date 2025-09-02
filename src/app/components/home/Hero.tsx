@@ -12,6 +12,14 @@ const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
 })
 
+const nunito = localFont({
+    src: "../../../../public/fonts/Nunito-Variable.ttf",
+})
+
+const bogue = localFont({
+    src: "../../../../public/fonts/bogue-black.ttf",
+})
+
 export default function Hero() {
 
     const user = useUserStore((s) => s.user)
@@ -47,24 +55,41 @@ export default function Hero() {
     return (
         <section className="flex flex-grow flex-col items-center justify-center h-full w-full text-center">
 
-            <h1 className={`text-7xl font-bold ${sunsetSerialMediumFont.className}`}>
-                Your Digital Scene Partner—
+            <h1 className={`text-7xl font-bold ${bogue.className}`}>
+                Your Digital Scene Partner.
                 <br></br>
                 <span className="text-black">Anytime, Anywhere.</span>
             </h1>
             
-            <p className={`mt-12 text-2xl font-semibold ${user ? "mb-10" : "mb-5"} ${sunsetSerialMediumFont.className}`}>
+            <p className={`mt-12 text-3xl font-semibold ${user ? "mb-10" : "mb-5"} ${nunito.className}`}>
                 Less stress, more callbacks. Self-taping made easy.
             </p>
 
             {
                 user &&
-                <div className="flex space-x-4 text-xl px-12 mb-7.5">
-                    
-                    <Link href="/scenes">
-                        <ButtonLink text="Go To Scenes Dashboard" className={"px-7 py-3 text-2xl"}/>
-                    </Link>  
-                </div>
+                <Link href="/scenes">
+                    <div className="group relative inline-block">
+                        {/* blue offset layer BEHIND the button */}
+                        <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 translate-x-2 translate-y-2
+                                    rounded-lg border-4 border-black bg-[#72a4f2]
+                                    transition-transform duration-200 ease-out
+                                    group-hover:translate-x-3 group-hover:translate-y-3"
+                        />
+
+                        {/* the button on TOP */}
+                        <button
+                        className="relative z-10 inline-flex items-center justify-center
+                                    px-6 py-3 font-bold text-xl rounded-lg
+                                    border-4 border-black bg-[#e9dfd2] text-black
+                                    transition-transform duration-200 ease-out
+                                    hover:-translate-y-0.5 active:translate-y-0"
+                        >
+                        Go To Scenes
+                        </button>
+                    </div>
+                </Link>
             }
 
             <div className='relative min-w-[600px] min-h-[300px]'>
