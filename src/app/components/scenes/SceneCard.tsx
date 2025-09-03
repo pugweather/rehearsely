@@ -7,6 +7,7 @@ import { timeAgo } from '@/app/utils/utils';
 import localFont from 'next/font/local';
 import Modal from '../ui/Modal';
 import Dropdown from '../ui/Dropdown';
+import { dropdown } from '@heroui/react';
 
 // TODO: limit character count to 50 chars
 
@@ -35,8 +36,14 @@ const SceneCard = ({id, name, modified_at, openDropdown}: SceneCardProps) => {
   // New solution. Set global opened id. if it's null then nothing is opened so continue otherwise if there is an opened dropdown id return
   const [openedDropdownId, setOpenedDropdownId] = useState<number | null>(null)
 
-  const handleCardClick = () => {
+  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLDivElement).closest(".dropdown")) return
     router.push(`/editor/${id}`)
+  }
+
+  const handleDropdownClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    console.log('test')
+    e.stopPropagation()
   }
 
   return (
@@ -56,12 +63,16 @@ const SceneCard = ({id, name, modified_at, openDropdown}: SceneCardProps) => {
         {name}
       </div>
       <div
+        ref={dropdownBtnRef}
         className="dropdown dropdown-end"
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         <div
           tabIndex={0}
           role="button"
           className="btn m-1"
+          onClick={handleDropdownClick}
         >
           Click
         </div>
