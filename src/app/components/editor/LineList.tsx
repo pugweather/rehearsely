@@ -1,6 +1,6 @@
 "use client"
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { faChessKing, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faChessKing, faPlus, faEllipsis } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SavedLine from './SavedLine'
 import EditLine from './EditLine'
@@ -198,7 +198,6 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   return (
     <>
       { 
-      lineItems?.length ?
       lineItems?.map(line => {
         return line.id == lineBeingEdited?.id ? 
         <EditLine 
@@ -224,18 +223,18 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
           setShouldScroll={setShouldScroll}
           setOriginalCharForOpenedLine={setOriginalCharForOpenedLine}
           />
-      }) :
-      <div>
-        <div className='font-semibold text-xl text-center font-pacifico mb-5'>Click the button below to add lines</div>
-        <div className='relative min-w-50 min-h-50 mb-10'>
-          <Image
-            src="/add-line.png"
-            alt="add line"
-            fill
-            style={{objectFit: "contain"}}
-          />
-        </div>
-      </div>
+      }) 
+      // <div>
+      //   <div className='font-semibold text-xl text-center font-pacifico mb-5'>Click the button below to add lines</div>
+      //   <div className='relative min-w-50 min-h-50 mb-10'>
+      //     <Image
+      //       src="/add-line.png"
+      //       alt="add line"
+      //       fill
+      //       style={{objectFit: "contain"}}
+      //     />
+      //   </div>
+      // </div>
       
       }
       <button 

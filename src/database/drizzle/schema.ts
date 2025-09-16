@@ -1,7 +1,34 @@
-import { pgTable, foreignKey, unique, bigint, text, boolean, uuid, timestamp, smallint } from "drizzle-orm/pg-core"
+import { pgTable, foreignKey, unique, bigint, text, smallint, numeric, boolean, uuid, timestamp } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 
+
+export const lines = pgTable("lines", {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity({ name: "lines_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
+	text: text(),
+	order: smallint().notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	character_id: bigint({ mode: "number" }).notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	scene_id: bigint({ mode: "number" }).notNull(),
+	audio_url: text(),
+	speed: numeric().notNull(),
+	delay: numeric().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.character_id],
+			foreignColumns: [characters.id],
+			name: "lines_character_id_fkey"
+		}),
+	foreignKey({
+			columns: [table.scene_id],
+			foreignColumns: [scenes.id],
+			name: "lines_scene_id_fkey"
+		}),
+	unique("lines_order_key").on(table.order),
+	unique("lines_audio_url_key").on(table.audio_url),
+]);
 
 export const characters = pgTable("characters", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
@@ -23,7 +50,7 @@ export const characters = pgTable("characters", {
 export const users = pgTable("users", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	name: text(),
-	email: text().notNull(),
+	email: text(),
 	created_at: timestamp({ withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	user_id: uuid(),
 }, (table) => [
@@ -53,29 +80,4 @@ export const scenes = pgTable("scenes", {
 			name: "scenes_user_id_fkey"
 		}),
 	unique("scenes_id_key").on(table.id),
-]);
-
-export const lines = pgTable("lines", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity({ name: "lines_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
-	text: text(),
-	order: smallint().notNull(),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	character_id: bigint({ mode: "number" }).notNull(),
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	scene_id: bigint({ mode: "number" }).notNull(),
-	audio_url: text(),
-}, (table) => [
-	foreignKey({
-			columns: [table.character_id],
-			foreignColumns: [characters.id],
-			name: "lines_character_id_fkey"
-		}),
-	foreignKey({
-			columns: [table.scene_id],
-			foreignColumns: [scenes.id],
-			name: "lines_scene_id_fkey"
-		}),
-	unique("lines_order_key").on(table.order),
-	unique("lines_audio_url_key").on(table.audio_url),
 ]);

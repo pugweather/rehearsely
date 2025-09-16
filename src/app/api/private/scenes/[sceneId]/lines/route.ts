@@ -18,7 +18,7 @@ export async function POST(
     }
 
     const body = await req.json()
-    const {text, characterId, order, voiceId} = body
+    const {text, characterId, order, speed, delay, voiceId} = body
 
     if (!text || !order || !characterId) {
         return NextResponse.json({error: "Must pass in text, order, and characterId"}, {status: 400})
@@ -55,6 +55,8 @@ export async function POST(
         ...(publicUrl ? {audio_url: publicUrl} : {audio_url: null}),
         text,
         order,
+        speed,
+        delay,
         character_id: characterId,
         scene_id: Number(params.sceneId)
     }).returning()

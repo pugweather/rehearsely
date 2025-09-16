@@ -56,8 +56,8 @@ const EditLine = ({
 
   const [isLoading, setIsLoading] = useState(false);
   const [lineMode, setLineMode] = useState<EditLineMode>("default"); // default | trim | delay | speed
-  const [lineSpeed, setLineSpeed] = useState<number[]>([1.0]); // 1.0x is the default
-  const [lineDelay, setLineDelay] = useState<number[]>([1]); // 1 second is the default
+  const [lineSpeed, setLineSpeed] = useState<number>(lineBeingEditedData.speed); // 1.0x is the default
+  const [lineDelay, setLineDelay] = useState<number>(lineBeingEditedData.delay); // 1 second is the default
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   console.log(lineBeingEditedData)
@@ -69,12 +69,12 @@ const EditLine = ({
     setIsLoading(true);
     let res;
 
-    console.log(lineBeingEditedData)
-
     const payload = {
       text: trimmed,
       characterId: character.id,
       order: lineBeingEditedData.order,
+      delay: lineBeingEditedData.delay,
+      speed: lineBeingEditedData.speed,
       ...(character.is_me === false ? { voiceId: lineBeingEditedData.voice?.voice_id } : {}),
     };
 
@@ -98,6 +98,7 @@ const EditLine = ({
 
     if (res.ok) {
       const result = await res.json();
+      console.log(result)
       if (isNewLine) {
         const insertedLine = result.insertedLine[0];
         setLines((prev) => (prev ? [...prev, insertedLine] : [insertedLine]));
@@ -109,6 +110,7 @@ const EditLine = ({
       }
       closeEditLine();
     } else {
+      console.log(payload)
       console.error("Save failed");
     }
     setIsLoading(false);
@@ -130,12 +132,13 @@ const EditLine = ({
   };
   
   const handleSaveLineSpeed = () => {
-    setLineBeingEditedData(prev => ({...prev, speed: lineSpeed[0]}))
+    console.log(lineSpeed)
+    setLineBeingEditedData(prev => ({...prev, speed: lineSpeed}))
     setLineMode("default")
   }
 
   const handleSaveLineDelay = () => {
-    setLineBeingEditedData(prev => ({...prev, delay: lineDelay[0]}))
+    setLineBeingEditedData(prev => ({...prev, delay: lineDelay}))
     setLineMode("default")
   }
 
@@ -190,14 +193,7 @@ return (
     {lineMode === "speed" && 
 
       <div className="flex items-center">
-        <Slider 
-          min={0.5}
-          max={2}
-          value={lineSpeed}
-          step={0.1}
-          onValueChange={setLineSpeed}
-          className={"flex-1"}
-        />
+        <input type="range" min={0} max={2} step={0.1} value={lineSpeed} className="range range-neutral" onChange={(e) => setLineSpeed(Number(e.target.value))}/>
         <div className="ml-2">{lineSpeed}x</div>
         <button
           onClick={handleSaveLineSpeed}
@@ -211,14 +207,7 @@ return (
     {lineMode === "delay" && 
 
       <div className="flex items-center">
-        <Slider 
-          min={0}
-          max={10}
-          value={lineDelay}
-          step={1}
-          onValueChange={setLineDelay}
-          className={"flex-1"}
-        />
+        <input type="range" min={0} max={2} step={0.1} value={lineDelay} className="range range-neutral" onChange={(e) => setLineDelay(Number(e.target.value))}/>
         <div className="ml-2">{lineDelay}s</div>
         <button
           onClick={handleSaveLineDelay}

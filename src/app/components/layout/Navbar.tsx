@@ -53,6 +53,10 @@ export default function Navbar2() {
     }, 300);
   };
 
+  const goToLogin = () => {
+    router.push("/login")
+  }
+
 {/* <Link
         href="/"
         className="relative mr-auto"
@@ -88,7 +92,7 @@ const AcmeLogo = () => {
       <div className="navbar-end">
          {user ? 
          <a className="btn btn-lg default-btn black grow-on-hover">Log out</a>:
-         <a className="btn btn-lg default-btn black">Log in</a>
+         <Link href="/login" className="btn btn-lg default-btn black">Log in</Link>
         }
       </div>
     </div>

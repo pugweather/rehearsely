@@ -48,6 +48,7 @@
 
 :root {
   --bg-page: #f4efe8;
+  --soft-red: #ff7875;
 }
 
 body {
@@ -192,6 +193,10 @@ button {
 
 .grow-on-hover:active {
   transform: scale(0.95);
+}
+
+.color-red {
+  color: var(--soft-red)
 }
 
 @layer base {

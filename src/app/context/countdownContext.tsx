@@ -6,7 +6,7 @@ type ContextType = {
   setCountdown: React.Dispatch<React.SetStateAction<number>>
 }
 
-const COUNTDOWN_DELAY = 10
+const COUNTDOWN_DELAY = 3 // TODO: Change this to whatever
 export const countdownContext = createContext<ContextType | null>(null)
 
 export const CountdownProvider = ({children}: {children: React.ReactNode}) => {

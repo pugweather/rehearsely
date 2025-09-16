@@ -25,20 +25,23 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
     // Delete scene modal state
     const [sceneDeleting, setSceneDeleting] = useState<Scene  | null>(null)
 
+    console.log(openedDropdownId)
+
     // Pass to SceneCard component
     const openDropdown = (sceneId: number, ref: React.RefObject<HTMLDivElement | null>) => {
 
-      if (!ref.current) {
-        throw new Error("Dropdown button doesn't exist, but should")
-      }
+      // if (!ref.current) {
+      //   throw new Error("Dropdown button doesn't exist, but should")
+      // }
 
-      // Position of the dropdown to open
-      const dropdownBtn = ref.current?.getBoundingClientRect()
-      setDropdownPos({
-        top: dropdownBtn.top + window.scrollY + 25,
-        right: window.innerWidth - dropdownBtn.right
-      })
-      // Open the correct dopdown using scene id
+      // // Position of the dropdown to open
+      // const dropdownBtn = ref.current?.getBoundingClientRect()
+      // setDropdownPos({
+      //   top: dropdownBtn.top + window.scrollY + 25,
+      //   right: window.innerWidth - dropdownBtn.right
+      // })
+
+      // Open the correct dropdown using scene id
       setOpenedDropdownId(sceneId)
     }
 
@@ -67,12 +70,13 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
         label: "Edit Name",
         onClick: function() {
           const scene = filteredScenes.find(s => s.id == openedDropdownId)
+          console.log(scene)
           if (scene) {
             closeDropdown()
             setSceneEditing(scene)
           }
         },
-        className: "py-1.5 px-1.5 hover:bg-gray-100 transition-colors duration-200 ease-in-out"
+        className: ""
       }, {
         label: "Delete",
         onClick: function() {
@@ -82,7 +86,7 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
             setSceneDeleting(scene)
           }
         },
-        className: "py-1.5 px-1.5 hover:bg-gray-100 text-red-500 transition-colors duration-200 ease-in-out",
+        className: "color-red",
       }
     ]
 
@@ -99,11 +103,13 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
               user_id={scene.user_id} 
               openDropdown={openDropdown}
               closeDropdown={closeDropdown}
+              dropdownData={sceneCardDropdownData}
+              setOpenedDropdownId={setOpenedDropdownId}
               />
           })}
         </div>
-        {openedDropdownId && <Overlay closeDropdown={closeDropdown}/>}
-        {openedDropdownId && <Dropdown dropdownData={sceneCardDropdownData} dropdownPos={dropdownPos} closeDropdown={closeDropdown} className='z-20 px-1 py-1.5 border-b border-b-gray-100 w-35'/>}
+        {/* {openedDropdownId && <Overlay closeDropdown={closeDropdown}/>} */}
+        {/* {openedDropdownId && <Dropdown dropdownData={sceneCardDropdownData} dropdownPos={dropdownPos} closeDropdown={closeDropdown} className='z-20 px-1 py-1.5 border-b border-b-gray-100 w-35'/>} */}
         {sceneEditing && <ModalSceneName closeEditNameModal={closeEditNameModal} setSceneEditing={setSceneEditing} setScenes={setScenes} scene={sceneEditing}/>}
         {sceneDeleting && <ModalDeleteScene closeDeleteSceneModal={closeDeleteSceneModal} setSceneDeleting={setSceneDeleting} setScenes={setScenes} scene={sceneDeleting}/>}
     </>

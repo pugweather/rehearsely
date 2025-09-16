@@ -8,6 +8,7 @@ import localFont from 'next/font/local';
 import Modal from '../ui/Modal';
 import Dropdown from '../ui/Dropdown';
 import { dropdown } from '@heroui/react';
+import { DropdownData } from '@/app/types';
 
 // TODO: limit character count to 50 chars
 
@@ -24,26 +25,25 @@ interface SceneCardProps {
     name: string | null;
     modified_at: string;
     user_id: string;
+    dropdownData: DropdownData[];
+    setOpenedDropdownId: React.Dispatch<React.SetStateAction<number | null>> // ID of scene
     openDropdown: (sceneId: number, ref: React.RefObject<HTMLDivElement | null>) => void;
     closeDropdown: () => void;
 }
   
-const SceneCard = ({id, name, modified_at, openDropdown}: SceneCardProps) => {
+const SceneCard = ({id, name, modified_at, dropdownData, setOpenedDropdownId, openDropdown}: SceneCardProps) => {
 
   const router = useRouter()
   const dropdownBtnRef = useRef<HTMLDivElement | null>(null);
-
-  // New solution. Set global opened id. if it's null then nothing is opened so continue otherwise if there is an opened dropdown id return
-  const [openedDropdownId, setOpenedDropdownId] = useState<number | null>(null)
 
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if ((e.target as HTMLDivElement).closest(".dropdown")) return
     router.push(`/editor/${id}`)
   }
 
+  // Set dropdownid so that we can use it to launch modals
   const handleDropdownClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    console.log('test')
-    e.stopPropagation()
+    setOpenedDropdownId(id)
   }
 
   return (
@@ -51,6 +51,7 @@ const SceneCard = ({id, name, modified_at, openDropdown}: SceneCardProps) => {
   className="group relative mt-6.5 cursor-pointer transition-transform duration-200 ease-in-out"
   onClick={handleCardClick}
 >
+  
   {/* offset layer */}
   <div className="absolute inset-0 translate-x-2 translate-y-2 rounded-lg border-4 border-black bg-[#72a4f2] group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-200 ease-in-out"></div>
 
@@ -62,29 +63,32 @@ const SceneCard = ({id, name, modified_at, openDropdown}: SceneCardProps) => {
       >
         {name}
       </div>
-      <div
-        ref={dropdownBtnRef}
-        className="dropdown dropdown-end"
-        onClick={(e) => e.stopPropagation()}
-        onPointerDown={(e) => e.stopPropagation()}
-      >
         <div
-          tabIndex={0}
-          role="button"
-          className="btn m-1"
+          ref={dropdownBtnRef}
+          className="dropdown dropdown-end"
           onClick={handleDropdownClick}
+          // onClick={(e) => e.stopPropagation()}
+          // onPointerDown={(e) => e.stopPropagation()}
         >
-          Click
-        </div>
+          <div
+            tabIndex={0}
+            role="button"
+            className="btn btn-ghost m-1"
+          >
+            <FontAwesomeIcon icon={faEllipsis} />
+          </div>
 
-        <ul
-          tabIndex={0}
-          className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow"
-        >
-          <li><a>Item 1</a></li>
-          <li><a>Item 2</a></li>
-        </ul>
-      </div>
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow"
+          >
+            {
+              dropdownData.map(item => {
+                return <li onClick={item.onClick}><a className={item.className}>{item.label}</a></li>
+              })
+            }
+          </ul>
+        </div>
     </div>
 
     <div

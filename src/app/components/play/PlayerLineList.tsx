@@ -56,14 +56,13 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
           if (isLastLine) {
             setSceneIsPlaying(false)
           } else {
-            console.log(currentLineIndex)
             setCurrentLineIndex(prev => prev + 1)
           }
         }
         
       // Handle other characters speaking
       } else {
-        
+        console.log(currentLine)
         const characterAudioUrl = currentLine.audio_url
         const currAudio = new Audio(characterAudioUrl)
         audio.current = currAudio

@@ -21,7 +21,6 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
 
   // Setup socket + mic ONCE using legacy 'token' protocol
   useEffect(() => {
-    console.log("stujfgiewsgjnsrgjdsrfiugjndrgb")
     const setup = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -118,7 +117,8 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
 
   return (
     <div className="p-4 border rounded max-w-lg">
-      <h2 className="text-lg font-semibold mb-3">🎤 Speak Your Line</h2>
+      <h2 className="text-lg font-semibold mb-3">🎤 Speak Your Line</h2> 
+      
       <p className="text-gray-600 mb-1">Your line:</p>
       <p className="text-lg">
         {expectedWords.map((word, i) => (

@@ -2,6 +2,9 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Navbar from '../components/layout/Navbar'
+import Link from 'next/link'
+import { faArrowLeftLong } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ButtonLink from '../components/ui/ButtonLink'
 import localFont from 'next/font/local';
 import clsx from 'clsx'
@@ -51,6 +54,12 @@ const SceneNamePage = () => {
           <div className='flex flex-col items-center mt-[10rem]'>
               <h1 className={`text-4xl mb-5 font-semibold ${sunsetSerialMediumFont.className}`}>Enter the name for your scene</h1>
               <div className='flex items-center'>
+                  <Link href="/scenes">
+                    <span className="p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 ease-in-out text-2xl mr-2">
+                      <FontAwesomeIcon icon={faArrowLeftLong} />
+                      <span className={`ml-2 ${sunsetSerialMediumFont.className}`}>Back</span>
+                    </span>
+                  </Link>
                   <input 
                     type="text" 
                     placeholder="Enter scene name" 
