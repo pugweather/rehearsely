@@ -83,8 +83,28 @@ const SceneCard = ({id, name, modified_at, dropdownData, setOpenedDropdownId, op
             className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow"
           >
             {
-              dropdownData.map(item => {
-                return <li onClick={item.onClick}><a className={item.className}>{item.label}</a></li>
+              dropdownData.map((item, index) => {
+                return (
+                  <li key={index}>
+                    <a 
+                      className={item.className} 
+                      onClick={(e) => {
+                        item.onClick();
+                        // Close dropdown by removing focus from all elements
+                        const activeElement = document.activeElement as HTMLElement;
+                        if (activeElement) {
+                          activeElement.blur();
+                        }
+                        // Force close by clicking outside
+                        setTimeout(() => {
+                          document.body.click();
+                        }, 10);
+                      }}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                )
               })
             }
           </ul>

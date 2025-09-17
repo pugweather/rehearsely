@@ -52,16 +52,34 @@ export default function Waveform({ src }: { src: string }) {
     <button
       onClick={() => wsRef.current?.playPause()}
       aria-label="Play/Pause"
-      className="w-8 h-8 rounded-full bg-black flex items-center justify-center"
+      className="px-3 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 hover:shadow-md"
+      style={{backgroundColor: 'rgba(244,239,232,0.8)', color: '#FFA05A', border: '1px solid rgba(255,160,90,0.3)'}}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = 'rgba(255,160,90,0.1)'
+        e.currentTarget.style.borderColor = 'rgba(255,160,90,0.4)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
+        e.currentTarget.style.borderColor = 'rgba(255,160,90,0.3)'
+      }}
     >
-      <FontAwesomeIcon icon={isPlaying ? faSquare : faPlay} className="text-white text-sm" />
+      <FontAwesomeIcon icon={isPlaying ? faSquare : faPlay} className="text-sm" />
     </button>
 
     <button
       aria-label="Delete"
-      className="w-8 h-8 rounded-full bg-[#ff7875] flex items-center justify-center"
+      className="px-3 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 hover:shadow-md"
+      style={{backgroundColor: 'rgba(220,38,38,0.1)', color: '#dc2626', border: '1px solid rgba(220,38,38,0.2)'}}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = 'rgba(220,38,38,0.15)'
+        e.currentTarget.style.borderColor = 'rgba(220,38,38,0.3)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = 'rgba(220,38,38,0.1)'
+        e.currentTarget.style.borderColor = 'rgba(220,38,38,0.2)'
+      }}
     >
-      <FontAwesomeIcon icon={faTrash} className="text-white text-sm" />
+      <FontAwesomeIcon icon={faTrash} className="text-sm" />
     </button>
   </div>
 </div>

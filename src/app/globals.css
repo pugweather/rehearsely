@@ -199,6 +199,26 @@ button {
   color: var(--soft-red)
 }
 
+.arrow-slide-on-hover {
+  transition: all 0.3s ease-in-out;
+}
+
+.arrow-slide-on-hover:hover .arrow-icon {
+  animation: arrow-sway 2s ease-in-out infinite;
+}
+
+.arrow-icon {
+  display: inline-block;
+  will-change: transform;
+  transform: translateX(0px);
+}
+
+@keyframes arrow-sway {
+  0% { transform: translateX(-2px); }
+  50% { transform: translateX(2px); }
+  100% { transform: translateX(-2px); }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

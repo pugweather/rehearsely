@@ -1,5 +1,5 @@
 "use client"
-import React, {use, useEffect} from "react";
+import React, {use, useEffect, useState} from "react";
 import ButtonLink from "../ui/ButtonLink";
 import Link from "next/link";
 import { createClient } from '@supabase/supabase-js'
@@ -25,6 +25,13 @@ export default function Hero() {
     const user = useUserStore((s) => s.user)
     const router = useRouter()
     const pathname = usePathname()
+    const [isLoaded, setIsLoaded] = useState(false)
+    const [showElements, setShowElements] = useState({
+        title: false,
+        subtitle: false,
+        button: false,
+        image: false
+    })
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -52,23 +59,51 @@ export default function Hero() {
         return () => authListener.subscription.unsubscribe()
     }, [pathname])
 
+    // Animation sequence
+    useEffect(() => {
+        // Wait for everything to load first
+        const timer = setTimeout(() => {
+            setIsLoaded(true)
+            
+            // Staggered animation sequence
+            setTimeout(() => setShowElements(prev => ({...prev, title: true})), 100)
+            setTimeout(() => setShowElements(prev => ({...prev, subtitle: true})), 300)
+            setTimeout(() => setShowElements(prev => ({...prev, button: true})), 500)
+            setTimeout(() => setShowElements(prev => ({...prev, image: true})), 700)
+        }, 200)
+        
+        return () => clearTimeout(timer)
+    }, [])
+
     return (
         <section className="flex flex-grow flex-col items-center justify-center h-full w-full text-center">
 
-            <h1 className={`text-7xl font-bold ${bogue.className}`}>
+            <h1 className={`text-7xl font-bold transition-all duration-700 ease-out ${bogue.className} ${
+                showElements.title 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-8'
+            }`}>
                 Your Digital Scene Partner.
                 <br></br>
                 <span className="text-black">Anytime, Anywhere.</span>
             </h1>
             
-            <p className={`mt-12 text-3xl font-semibold ${user ? "mb-10" : "mb-5"} ${nunito.className}`}>
+            <p className={`mt-12 text-3xl font-semibold transition-all duration-700 ease-out ${user ? "mb-10" : "mb-5"} ${nunito.className} ${
+                showElements.subtitle 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-8'
+            }`}>
                 Less stress, more callbacks. Self-taping made easy.
             </p>
 
             {
                 user &&
                 <Link href="/scenes">
-                    <div className="group relative inline-block">
+                    <div className={`group relative inline-block transition-all duration-700 ease-out ${
+                        showElements.button 
+                            ? 'opacity-100 translate-y-0 scale-100' 
+                            : 'opacity-0 translate-y-8 scale-95'
+                    }`}>
                         {/* blue offset layer BEHIND the button */}
                         <span
                         aria-hidden="true"
@@ -92,7 +127,11 @@ export default function Hero() {
                 </Link>
             }
 
-            <div className='relative min-w-[600px] min-h-[300px]'>
+            <div className={`relative min-w-[600px] min-h-[300px] transition-all duration-700 ease-out ${
+                showElements.image 
+                    ? 'opacity-100 translate-y-0 scale-100' 
+                    : 'opacity-0 translate-y-12 scale-95'
+            }`}>
                 <Image
                     src="/hero-image.png"
                     alt="add line"

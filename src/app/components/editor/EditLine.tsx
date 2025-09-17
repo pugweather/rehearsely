@@ -13,7 +13,7 @@ import {
   faH
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { DraftLine, Character, LineBeingEditedData, EditLineMode } from "@/app/types";
+import { DraftLine, Character, LineBeingEditedData, EditLineMode, DropdownData } from "@/app/types";
 import Waveform from "./Waveform";
 import localFont from "next/font/local";
 import clsx from "clsx";
@@ -30,7 +30,7 @@ type Props = {
   newLineOrder: number;
   setLines: React.Dispatch<React.SetStateAction<DraftLine[] | null>>;
   closeEditLine: () => void;
-  openCharacterDropdown: (ref: React.RefObject<HTMLDivElement | null>) => void;
+  charsDropdownData: DropdownData[] | undefined;
   setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>;
 };
 
@@ -45,7 +45,7 @@ const EditLine = ({
   newLineOrder,
   setLines,
   closeEditLine,
-  openCharacterDropdown,
+  charsDropdownData,
   setLineBeingEditedData,
 }: Props) => {
   const TEMP_LINE_ID = -999;
@@ -152,27 +152,59 @@ const EditLine = ({
 
 return (
   <div className={clsx(
-    "bg-[#fffbf2] shadow-lg rounded-2xl w-full max-w-3xl px-6 py-6 space-y-6 relative",
-    isLoading ? "pointer-none:" : ""
-    )}>
+    "rounded-2xl w-full max-w-3xl px-6 py-6 space-y-6 relative shadow-md transition-all duration-200 hover:shadow-lg mb-8",
+    isLoading ? "pointer-events-none opacity-75" : ""
+    )} style={{backgroundColor: '#E3D6C6', border: '1px solid rgba(32,32,32,0.1)'}}>
     {/* Close Button (X) */}
     <button
       onClick={closeEditLine}
-      className="absolute top-4 right-4 w-9 h-9 rounded-md hover:bg-[#f3e9d8] flex items-center justify-center text-gray-500 hover:text-gray-700 transition"
+      className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200"
+      style={{color: '#202020', backgroundColor: 'rgba(255,255,255,0.2)'}} 
+      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.3)'}
+      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'}
     >
       <FontAwesomeIcon icon={faXmark} />
     </button>
 
     {/* Character Dropdown */}
     <div className="flex justify-between pr-12">
-      <div
-        ref={dropdownRef}
-        onClick={() => openCharacterDropdown(dropdownRef)}
-        className="text-sm bg-white hover:bg-[#f5eee2] transition px-3 py-1.5 rounded-full cursor-pointer inline-flex items-center gap-2 shadow-sm"
-      >
-        <FontAwesomeIcon icon={faUser} className="text-gray-500" />
-        {character ? `${character.name}${character.is_me ? " (me)" : ""}` : "Select Character"}
-        <FontAwesomeIcon icon={faChevronDown} className="text-gray-400" />
+      <div className="dropdown">
+        <div
+          tabIndex={0}
+          role="button"
+          className="btn btn-outline px-4 py-2 rounded-lg inline-flex items-center gap-2 text-sm"
+          style={{backgroundColor: 'rgba(244,239,232,0.8)', color: '#202020', border: '1px solid rgba(32,32,32,0.1)'}}
+        >
+          <FontAwesomeIcon icon={faUser} style={{color: '#FFA05A'}} />
+          {character ? `${character.name}${character.is_me ? " (me)" : ""}` : "Select Character"}
+          <FontAwesomeIcon icon={faChevronDown} style={{color: '#202020', opacity: 0.6}} />
+        </div>
+        <ul
+          tabIndex={0}
+          className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow"
+        >
+          {charsDropdownData?.map((item, index) => (
+            <li key={index}>
+              <a 
+                className={item.className} 
+                onClick={(e) => {
+                  item.onClick();
+                  // Close dropdown by removing focus from all elements
+                  const activeElement = document.activeElement as HTMLElement;
+                  if (activeElement) {
+                    activeElement.blur();
+                  }
+                  // Force close by clicking outside
+                  setTimeout(() => {
+                    document.body.click();
+                  }, 10);
+                }}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
 
@@ -181,7 +213,22 @@ return (
       placeholder="Type the line..."
       value={text || ""}
       onChange={(e) => setLineBeingEditedData((prev) => ({ ...prev, text: e.target.value }))}
-      className="w-full min-h-[100px] px-4 py-3 rounded-lg bg-white text-sm text-gray-800 placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-[#f47c2c] focus:outline-none"
+      className="w-full min-h-[100px] px-4 py-3 rounded-lg text-base resize-none border-0 focus:outline-none transition-all duration-200"
+      style={{
+        backgroundColor: 'rgba(244,239,232,0.9)',
+        color: '#202020',
+        border: '1px solid rgba(32,32,32,0.1)'
+      }}
+      onFocus={(e) => {
+        e.currentTarget.style.backgroundColor = '#ffffff'
+        e.currentTarget.style.boxShadow = `0 0 0 2px #72A5F2`
+        e.currentTarget.style.borderColor = '#72A5F2'
+      }}
+      onBlur={(e) => {
+        e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.9)'
+        e.currentTarget.style.boxShadow = 'none'
+        e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
+      }}
     />
 
     {/* Default Waveform to show when not in edit mode for other characters */}
@@ -191,37 +238,84 @@ return (
     {lineMode === "trim" && line?.audio_url && <WaveformTrim line={line} setLineMode={setLineMode}/>}
 
     {lineMode === "speed" && 
-
-      <div className="flex items-center">
-        <input type="range" min={0} max={2} step={0.1} value={lineSpeed} className="range range-neutral" onChange={(e) => setLineSpeed(Number(e.target.value))}/>
-        <div className="ml-2">{lineSpeed}x</div>
-        <button
-          onClick={handleSaveLineSpeed}
-          className="w-8 h-8 ml-2 rounded-full bg-black text-white flex items-center justify-center disabled:opacity-50"
-        >
-        <FontAwesomeIcon icon={faCheck} className="text-white text-sm" />
-        </button>
+      <div className="p-4 rounded-xl border-2" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
+            <label className="text-sm font-semibold mb-2 block" style={{color: '#CC7A00'}}>Playback Speed</label>
+            <input 
+              type="range" 
+              min={0} 
+              max={2} 
+              step={0.1} 
+              value={lineSpeed} 
+              className="w-full h-3 rounded-lg appearance-none cursor-pointer" 
+              style={{backgroundColor: '#ffffff', border: '2px solid #FFA05A'}}
+              onChange={(e) => setLineSpeed(Number(e.target.value))}
+            />
+          </div>
+          <div className="px-4 py-2 rounded-lg text-sm font-mono font-bold w-16 text-center" style={{backgroundColor: '#FFA05A', color: '#ffffff', border: '2px solid #FF8A3A'}}>
+            {lineSpeed}x
+          </div>
+          <button
+            onClick={handleSaveLineSpeed}
+            className="w-10 h-10 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
+            style={{backgroundColor: '#FFA05A'}}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#FF8A3A'
+              e.currentTarget.style.transform = 'scale(1.05)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#FFA05A'
+              e.currentTarget.style.transform = 'scale(1)'
+            }}
+          >
+            <FontAwesomeIcon icon={faCheck} className="text-sm" />
+          </button>
+        </div>
       </div>
     }
 
     {lineMode === "delay" && 
-
-      <div className="flex items-center">
-        <input type="range" min={0} max={2} step={0.1} value={lineDelay} className="range range-neutral" onChange={(e) => setLineDelay(Number(e.target.value))}/>
-        <div className="ml-2">{lineDelay}s</div>
-        <button
-          onClick={handleSaveLineDelay}
-          className="w-8 h-8 ml-2 rounded-full bg-black text-white flex items-center justify-center disabled:opacity-50"
-        >
-        <FontAwesomeIcon icon={faCheck} className="text-white text-sm" />
-        </button>
+      <div className="p-4 rounded-xl border-2" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
+            <label className="text-sm font-semibold mb-2 block" style={{color: '#CC7A00'}}>Delay Time</label>
+            <input 
+              type="range" 
+              min={0} 
+              max={2} 
+              step={0.1} 
+              value={lineDelay} 
+              className="w-full h-3 rounded-lg appearance-none cursor-pointer" 
+              style={{backgroundColor: '#ffffff', border: '2px solid #FFA05A'}}
+              onChange={(e) => setLineDelay(Number(e.target.value))}
+            />
+          </div>
+          <div className="px-4 py-2 rounded-lg text-sm font-mono font-bold w-16 text-center" style={{backgroundColor: '#FFA05A', color: '#ffffff', border: '2px solid #FF8A3A'}}>
+            {lineDelay}s
+          </div>
+          <button
+            onClick={handleSaveLineDelay}
+            className="w-10 h-10 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
+            style={{backgroundColor: '#FFA05A'}}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#FF8A3A'
+              e.currentTarget.style.transform = 'scale(1.05)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#FFA05A'
+              e.currentTarget.style.transform = 'scale(1)'
+            }}
+          >
+            <FontAwesomeIcon icon={faCheck} className="text-sm" />
+          </button>
+        </div>
       </div>
     }
 
     {/* Action Buttons (icon-only) */}
     <div className="flex items-center justify-between">
-      {
-      character && !character.is_me &&
+      {character && !character.is_me &&
       <div className="flex gap-2">
         {
         [
@@ -240,13 +334,27 @@ return (
         ].map((item, i) => (
           <button
             key={i}
-            className={clsx(
-              "w-10 h-10 flex items-center justify-center rounded-lg bg-[#fef5ec] hover:bg-[#f47c2c] text-[#f47c2c] hover:text-white font-medium transition duration-150 shadow-sm hover:shadow-md",
-              lineMode === item.mode && "bg-orange-400 text-white" // Change this to actual orange color
-            )}
+            className="w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-200"
+            style={{
+              backgroundColor: lineMode === item.mode ? '#72A5F2' : 'rgba(244,239,232,0.8)',
+              color: lineMode === item.mode ? '#ffffff' : '#202020',
+              border: '1px solid rgba(32,32,32,0.1)'
+            }}
+            onMouseEnter={(e) => {
+              if (lineMode !== item.mode) {
+                e.currentTarget.style.backgroundColor = '#ffffff'
+                e.currentTarget.style.borderColor = 'rgba(32,32,32,0.2)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (lineMode !== item.mode) {
+                e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
+                e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
+              }
+            }}
             onClick={() => toggleLineMode(item.mode as EditLineMode)}
           >
-            <FontAwesomeIcon icon={item.img} className="text-sm" />
+            <FontAwesomeIcon icon={item.img} />
           </button>
         ))}
       </div>
@@ -256,9 +364,20 @@ return (
           {/* Delete */}
           <button
             onClick={handleDelete}
-            className={`bg-[#ff7875] hover:brightness-105 text-white text-md px-4 py-2 rounded-md font-medium transition ${certaSansMedium.className}`}
+            className="px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2"
+            style={{backgroundColor: 'rgba(220,38,38,0.1)', color: '#dc2626', border: '1px solid rgba(220,38,38,0.2)'}}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(220,38,38,0.2)'
+              e.currentTarget.style.color = '#b91c1c'
+              e.currentTarget.style.borderColor = 'rgba(220,38,38,0.4)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(220,38,38,0.1)'
+              e.currentTarget.style.color = '#dc2626'
+              e.currentTarget.style.borderColor = 'rgba(220,38,38,0.2)'
+            }}
           >
-            <FontAwesomeIcon icon={faTrash} className="mr-2" />
+            <FontAwesomeIcon icon={faTrash} />
             Delete
           </button>
 
@@ -266,22 +385,39 @@ return (
           <button
             onClick={handleSave}
             disabled={isLoading}
-            className={`bg-[#f47c2c] text-white text-md px-4 py-2 rounded-md font-medium hover:brightness-105 transition ${certaSansMedium.className} ${isLoading ? "opacity-60 cursor-not-allowed" : ""}`}
+            className={`px-6 py-2 rounded-lg text-white transition-colors duration-200 flex items-center gap-2 ${isLoading ? "opacity-75 cursor-not-allowed" : ""}`}
+            style={{backgroundColor: '#FFA05A'}}
+            onMouseEnter={(e) => {
+              if (!isLoading) e.currentTarget.style.backgroundColor = '#FF8A3A'
+            }}
+            onMouseLeave={(e) => {
+              if (!isLoading) e.currentTarget.style.backgroundColor = '#FFA05A'
+            }}
           >
-            <FontAwesomeIcon icon={faCheck} className="mr-2" />
+            {!isLoading && <FontAwesomeIcon icon={faCheck} />}
             {isLoading ? "Saving..." : "Save Line"}
           </button>
         </div>
       </div>
 
     {/* Record Voice Button (Only show if it's not your character) */}
-    
     {
     character && !character.is_me && 
     <button
-      className={`w-full text-md font-medium text-[#f47c2c] bg-white border border-transparent px-6 py-3 rounded-lg hover:bg-[#f47c2c] hover:text-white transition shadow-sm ${certaSansMedium.className}`}
+      className="w-full px-6 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-medium"
+      style={{backgroundColor: 'rgba(244,239,232,0.8)', color: '#202020', border: '1px solid rgba(32,32,32,0.1)'}}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = '#FFA05A'
+        e.currentTarget.style.color = '#ffffff'
+        e.currentTarget.style.borderColor = '#FFA05A'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
+        e.currentTarget.style.color = '#202020'
+        e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
+      }}
     >
-      <FontAwesomeIcon icon={faMicrophone} className="mr-2" />
+      <FontAwesomeIcon icon={faMicrophone} />
       Record Voice
     </button>
     }

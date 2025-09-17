@@ -70,16 +70,29 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
 
   return (
     <div
-      className={`w-full text-center mb-10 rounded-xl pl-10 pr-10 py-4 cursor-pointer hover:bg-gray-100 transition-colors duration-200 ease-in-out font-medium ${courierPrimeRegular.className}`}
+      className={`w-full text-center mb-8 px-8 py-6 cursor-pointer rounded-xl transition-all duration-300 ease-in-out font-medium border border-transparent ${courierPrimeRegular.className}`}
+      style={{
+        border: '1px solid transparent'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = 'rgba(255,160,90,0.08)'
+        e.currentTarget.style.borderColor = 'rgba(255,160,90,0.2)'
+        e.currentTarget.style.borderRadius = '12px'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = 'transparent'
+        e.currentTarget.style.borderColor = 'transparent'
+        e.currentTarget.style.borderRadius = '12px'
+      }}
       onClick={handleSetLineToEditMode}
     >
       {/* Character Name */}
-      <div className="text-lg tracking-wider uppercase text-gray-700 mb-2 font-semibold">
+      <div className="text-sm tracking-widest uppercase text-gray-600 mb-3 font-semibold">
         {displaySelectedCharacterName()}
       </div>
   
       {/* Line Text */}
-      <div className="text-xl leading-relaxed text-black whitespace-pre-wrap">
+      <div className="text-lg leading-relaxed text-gray-900 whitespace-pre-wrap">
         {line.text}
       </div>
     </div>

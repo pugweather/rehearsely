@@ -39,9 +39,9 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
             <EditorWrapper>
               <div className="relative text-black py-6 border-b border-b-gray-300 min-h-20">
                 <Link href="/scenes">
-                  <span className="p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 ease-in-out">
-                    <FontAwesomeIcon icon={faArrowLeftLong} />
-                    <span className={`ml-1 ${sunsetSerialMediumFont.className}`}>Back to Scenes</span>
+                  <span className="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium shadow-sm hover:shadow-md transition-all duration-200 ease-in-out arrow-slide-on-hover inline-flex items-center gap-2 text-sm">
+                    <span className="arrow-icon text-base leading-none flex items-center justify-center" style={{height: '1em', lineHeight: '1'}}>←</span>
+                    <span className={`${sunsetSerialMediumFont.className}`}>Back to Scenes</span>
                   </span>
                 </Link>
                 <div className={`absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 line-clamp-1 w-[27.5rem] text-center text-2xl font-medium text-gray-900 ${sunsetSerialMediumFont.className}`}>

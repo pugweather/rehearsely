@@ -33,9 +33,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   const [lineBeingEditedData, setLineBeingEditedData] = useState<LineBeingEditedData>({voice: null, character: null, text: null, speed: 1, delay: 1, order: null}) // Tracks changes for line that is currently being edited
   const {characters, setCharacters} = useCharacters()
   const [originalCharForOpenedLine, setOriginalCharForOpenedLine] = useState<Character | null>(null) // When a line is opened, we track the original
-  const [isCharDropdownOpen, setIsCharDropdownOpen] = useState<boolean>(false)
   const [isCreateCharModalOpen, setIsCreateCharModalOpen] = useState<boolean>(false)
-  const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null) // Should this be global for all dropdowns?
   const [shouldScroll, setShouldScroll] = useState<boolean>(false)
 
   const TEMP_LINE_ID = -999
@@ -89,42 +87,8 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
 
   /* Editing line */
 
-  // Opening dropdown for selecting characters
-  const openCharacterDropdown = (ref: React.RefObject<HTMLDivElement | null>) => {
 
-    if (!ref.current) {
-      throw new Error("Dropdown button doesn't exist, but should")
-    }
-
-    const dropdownRef = ref?.current
-
-    const MAX_HEIGHT_OF_DROPDOWN = 250
-    const DROPDOWN_OFFSET = 40 
-    const SAFETY_PADDING = 10
-
-    const containerBottom = scrollRef.current?.getBoundingClientRect().bottom;
-    const buttonBottom = dropdownRef.getBoundingClientRect().bottom;
-    const distanceFromBottomOfContainer = containerBottom ? containerBottom - buttonBottom : 0
-    const showDropdownBelow = distanceFromBottomOfContainer > MAX_HEIGHT_OF_DROPDOWN
-    
-    const top = showDropdownBelow
-      ? dropdownRef.getBoundingClientRect().top + window.scrollY + DROPDOWN_OFFSET
-      : dropdownRef.getBoundingClientRect().top + window.scrollY - MAX_HEIGHT_OF_DROPDOWN + SAFETY_PADDING;
-
-    setDropdownPos({
-      top: top,
-      right: window.innerWidth - dropdownRef.getBoundingClientRect().right
-    })
-
-    setIsCharDropdownOpen(true)
-  }
-
-  const closeCharDropdown = () => {
-    setIsCharDropdownOpen(false)
-    setDropdownPos(null)
-  }
-
-  // Character dropdown data {label, onClick, className (optional)}
+  // Character dropdown data for DaisyUI dropdown
   const charsDropdownData: DropdownData[] | undefined = characters ? 
   [
     {
@@ -134,10 +98,9 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
         if (characters.length < maxCharsForScene) {
           setLineBeingEditedData(prev => ({...prev, character: null}))
           setIsCreateCharModalOpen(true)
-          setIsCharDropdownOpen(false)
         }
       },
-      className: "hover:bg-gray-200 px-2 py-2 transition-colors duration-200 ease-in-out"
+      className: ""
     },
     ...characters.map(char => {
       const charName = char.is_me ? `${char.name} (me)` : char.name
@@ -147,10 +110,9 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
           if (char) {
             const voice = voices?.find(v => v.voice_id === char.voice_id) || null
             setLineBeingEditedData(prev => ({...prev, character: char, voice: voice}))
-            setIsCharDropdownOpen(false)
           }
         },
-        className: "hover:bg-gray-200 px-2 py-2 transition-colors duration-200 ease-in-out"
+        className: ""
       } 
     })
   ] : undefined
@@ -208,7 +170,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
           newLineOrder={newLineOrder}
           setLines={setLines}
           setLineBeingEditedData={setLineBeingEditedData}
-          openCharacterDropdown={openCharacterDropdown}
+          charsDropdownData={charsDropdownData}
           closeEditLine={closeEditLine}
           />
           : 
@@ -224,29 +186,34 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
           setOriginalCharForOpenedLine={setOriginalCharForOpenedLine}
           />
       }) 
-      // <div>
-      //   <div className='font-semibold text-xl text-center font-pacifico mb-5'>Click the button below to add lines</div>
-      //   <div className='relative min-w-50 min-h-50 mb-10'>
-      //     <Image
-      //       src="/add-line.png"
-      //       alt="add line"
-      //       fill
-      //       style={{objectFit: "contain"}}
-      //     />
-      //   </div>
-      // </div>
-      
       }
       <button 
-        className="mt-5 px-5 py-2 text-lg font-semibold text-black bg-transparent border-3 border-black rounded-full flex items-center hover:bg-black hover:text-white transition-colors duration-200 ease-in-out"
+        className="w-full px-6 py-4 mt-8 rounded-xl font-medium text-sm transition-all duration-300 ease-in-out flex items-center justify-center gap-3 shadow-sm hover:shadow-md"
+        style={{
+          backgroundColor: '#FFF4E6',
+          color: '#CC7A00',
+          border: '2px dashed #FFA05A'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = '#FFA05A'
+          e.currentTarget.style.color = '#ffffff'
+          e.currentTarget.style.borderColor = '#FFA05A'
+          e.currentTarget.style.borderStyle = 'solid'
+          e.currentTarget.style.transform = 'translateY(-1px)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = '#FFF4E6'
+          e.currentTarget.style.color = '#CC7A00'
+          e.currentTarget.style.borderColor = '#FFA05A'
+          e.currentTarget.style.borderStyle = 'dashed'
+          e.currentTarget.style.transform = 'translateY(0px)'
+        }}
         onClick={handleAddLine}
       >
-        <FontAwesomeIcon icon={faPlus} />
-        <span className="ml-2">Add Line</span>
+        <FontAwesomeIcon icon={faPlus} className="text-lg" />
+        Add New Line
       </button>
 
-      {isCharDropdownOpen && <Overlay closeDropdown={closeCharDropdown}/>}
-      {isCharDropdownOpen && <Dropdown dropdownData={charsDropdownData} dropdownPos={dropdownPos} className={"w-50 z-20 px-1 py-1.5 border-b border-b-gray-100 max-h-[275px]"} closeDropdown={closeCharDropdown}/>}
       {isCreateCharModalOpen && <ModalCreateCharacter originalCharForOpenedLine={originalCharForOpenedLine} setIsCreateCharModalOpen={setIsCreateCharModalOpen} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
     </>
   )

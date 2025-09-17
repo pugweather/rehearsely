@@ -4,12 +4,14 @@ import Switch from '../ui/Switch'
 
 const SceneSettings = () => {
   return (
-    <div className='flex justify-end w-full py-6'>
+    <div className='flex justify-end w-full py-8'>
+      <div className='flex items-center gap-8'>
         <DelayDropdown />
-        <div className='flex ml-4'>
-            <div className='mr-2'>Teleprompter</div>
-            <Switch />
+        <div className='flex items-center gap-3'>
+          <label className='text-sm font-medium' style={{color: '#202020'}}>Teleprompter</label>
+          <Switch />
         </div>
+      </div>
     </div>  
   )
 }
