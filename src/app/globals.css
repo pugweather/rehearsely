@@ -203,14 +203,16 @@ button {
   transition: all 0.3s ease-in-out;
 }
 
-.arrow-slide-on-hover:hover .arrow-icon {
-  animation: arrow-sway 2s ease-in-out infinite;
-}
-
-.arrow-icon {
+.arrow-slide-on-hover .arrow-icon {
   display: inline-block;
   will-change: transform;
-  transform: translateX(0px);
+  transform: translateX(-2px);
+  animation: arrow-sway 2s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+.arrow-slide-on-hover:hover .arrow-icon {
+  animation-play-state: running;
 }
 
 @keyframes arrow-sway {

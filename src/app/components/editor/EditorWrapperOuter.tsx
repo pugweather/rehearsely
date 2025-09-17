@@ -40,7 +40,9 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
               <div className="relative text-black py-6 border-b border-b-gray-300 min-h-20">
                 <Link href="/scenes">
                   <span className="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium shadow-sm hover:shadow-md transition-all duration-200 ease-in-out arrow-slide-on-hover inline-flex items-center gap-2 text-sm">
-                    <span className="arrow-icon text-base leading-none flex items-center justify-center" style={{height: '1em', lineHeight: '1'}}>←</span>
+                    <svg className="arrow-icon w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                      <path fillRule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                    </svg>
                     <span className={`${sunsetSerialMediumFont.className}`}>Back to Scenes</span>
                   </span>
                 </Link>

@@ -87,7 +87,7 @@ const AcmeLogo = () => {
   return (
     <div className="navbar fixed top-0 left-0 right-0 max-w-[1440px] mx-auto h-[75px] pb-50px backdrop-blur-lg z-10">
       <div className="navbar-start">
-        <Link href="/" className="btn btn-ghost text-2xl text-bold">Rehearsely</Link>
+        <Link href="/" className="btn btn-ghost text-2xl text-bold hover:bg-transparent">Rehearsely</Link>
       </div>
       <div className="navbar-end">
          {user ? 
