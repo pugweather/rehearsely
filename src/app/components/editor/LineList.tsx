@@ -13,7 +13,8 @@ import Image from 'next/image';
 import { scrollToBottom } from '@/app/utils/utils';
 import { useVoicesStore } from '@/app/stores/useVoicesStores';
 import { useCharacters } from '@/app/context/charactersContext';
-0
+import { DragDropContext, Droppable, DropResult, DroppableProvided } from '@hello-pangea/dnd';
+
 type Props = {
   lineItems: DraftLine[] | null,
   scrollRef: React.RefObject<HTMLElement | null>,
@@ -157,36 +158,105 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
     setLineBeingEdited(null) // TODO: we'll keep this for now. Maybe we can put all data into lineBeingEditedData....
   }
 
+  // Handle drag and drop reordering
+  const handleOnDragEnd = async (result: DropResult) => {
+    if (!result.destination || !lineItems) return;
+
+    const { source, destination } = result;
+    
+    // If dropped in the same position, do nothing
+    if (source.index === destination.index) return;
+
+    // Swap-only behavior: swap positions of the two items and swap their `order` fields
+    const newLines = Array.from(lineItems);
+    const sourceItem = newLines[source.index];
+    const destItem = newLines[destination.index];
+
+    if (!sourceItem || !destItem || sourceItem.id == null || destItem.id == null) return;
+
+    // Swap in the array
+    newLines[source.index] = destItem;
+    newLines[destination.index] = sourceItem;
+
+    // Swap their order values
+    const tempOrder = sourceItem.order;
+    sourceItem.order = destItem.order;
+    destItem.order = tempOrder;
+
+    // Optimistically update UI
+    setLines(newLines);
+
+    // Send a full-scene reorder so DB exactly matches current UI ordering
+    const lineUpdates = newLines
+      .filter(l => l.id != null)
+      .map((l, idx) => ({ id: l.id as number, order: idx + 1 }));
+
+    try {
+      const response = await fetch(`/api/private/scenes/${sceneId}/lines/reorder`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ lineUpdates }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to update line order');
+        setLines(lineItems);
+      }
+    } catch (error) {
+      console.error('Error updating line order:', error);
+      setLines(lineItems);
+    }
+  };
+
+  // Check if drag is disabled (when a line is being edited)
+  const isDragDisabled = lineBeingEdited !== null;
+
   return (
     <>
-      { 
-      lineItems?.map(line => {
-        return line.id == lineBeingEdited?.id ? 
-        <EditLine 
-          key={line.id}
-          line={line} 
-          characters={characters} 
-          lineBeingEditedData={lineBeingEditedData}
-          newLineOrder={newLineOrder}
-          setLines={setLines}
-          setLineBeingEditedData={setLineBeingEditedData}
-          charsDropdownData={charsDropdownData}
-          closeEditLine={closeEditLine}
-          />
-          : 
-        <SavedLine 
-          key={line.id}
-          line={line} 
-          lines={lineItems} 
-          characters={characters} 
-          setLines={setLines}
-          setLineBeingEdited={setLineBeingEdited} 
-          setLineBeingEditedData={setLineBeingEditedData} 
-          setShouldScroll={setShouldScroll}
-          setOriginalCharForOpenedLine={setOriginalCharForOpenedLine}
-          />
-      }) 
-      }
+      <DragDropContext onDragEnd={handleOnDragEnd}>
+        <Droppable droppableId="lines-list">
+          {(provided: DroppableProvided) => (
+            <div
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
+              { 
+              lineItems?.map((line, index) => {
+                return line.id == lineBeingEdited?.id ? 
+                <EditLine 
+                  key={line.id}
+                  line={line} 
+                  characters={characters} 
+                  lineBeingEditedData={lineBeingEditedData}
+                  newLineOrder={newLineOrder}
+                  setLines={setLines}
+                  setLineBeingEditedData={setLineBeingEditedData}
+                  charsDropdownData={charsDropdownData}
+                  closeEditLine={closeEditLine}
+                  />
+                  : 
+                <SavedLine 
+                  key={line.id}
+                  line={line} 
+                  lines={lineItems} 
+                  characters={characters} 
+                  setLines={setLines}
+                  setLineBeingEdited={setLineBeingEdited} 
+                  setLineBeingEditedData={setLineBeingEditedData} 
+                  setShouldScroll={setShouldScroll}
+                  setOriginalCharForOpenedLine={setOriginalCharForOpenedLine}
+                  index={index}
+                  isDragDisabled={isDragDisabled}
+                  />
+              }) 
+              }
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
       <button 
         className="w-full px-6 py-4 mt-8 rounded-xl font-medium text-sm transition-all duration-300 ease-in-out flex items-center justify-center gap-3 shadow-sm hover:shadow-md"
         style={{

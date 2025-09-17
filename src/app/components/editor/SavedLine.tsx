@@ -2,6 +2,7 @@ import React from 'react'
 import { Character, DraftLine, LineBeingEditedData } from '@/app/types';
 import { useVoicesStore } from '@/app/stores/useVoicesStores'
 import localFont from "next/font/local";
+import { Draggable, DraggableProvided, DraggableStateSnapshot } from '@hello-pangea/dnd';
 
 const courierPrimeRegular = localFont({
     src: "../../../../public/fonts/courierPrimeRegular.ttf",
@@ -18,9 +19,11 @@ type Props = {
   setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>;
   setShouldScroll: React.Dispatch<React.SetStateAction<boolean>>;
   setOriginalCharForOpenedLine: React.Dispatch<React.SetStateAction<Character | null>>;
+  index: number;
+  isDragDisabled: boolean;
 }
 
-const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLineBeingEditedData, setShouldScroll, setOriginalCharForOpenedLine}: Props) => {
+const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLineBeingEditedData, setShouldScroll, setOriginalCharForOpenedLine, index, isDragDisabled}: Props) => {
 
   const TEMP_LINE_ID = -999
   const currCharacter = characters?.find(char => char.id === line?.character_id) ||  null
@@ -53,6 +56,10 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
   }
 
   const displaySelectedCharacterName = () => {
+    // Show loading state while characters are being fetched
+    if (!characters) {
+      return "Loading..."
+    }
 
     let res = ""
 
@@ -65,37 +72,62 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
         res += ' ' + meText
     }
 
+    // If no character found but characters are loaded, show placeholder
+    if (!res && characters.length > 0) {
+      return "No character"
+    }
+
     return res
   }
 
   return (
-    <div
-      className={`w-full text-center mb-8 px-8 py-6 cursor-pointer rounded-xl transition-all duration-300 ease-in-out font-medium border border-transparent ${courierPrimeRegular.className}`}
-      style={{
-        border: '1px solid transparent'
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = 'rgba(255,160,90,0.08)'
-        e.currentTarget.style.borderColor = 'rgba(255,160,90,0.2)'
-        e.currentTarget.style.borderRadius = '12px'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = 'transparent'
-        e.currentTarget.style.borderColor = 'transparent'
-        e.currentTarget.style.borderRadius = '12px'
-      }}
-      onClick={handleSetLineToEditMode}
+    <Draggable 
+      draggableId={String(line?.id)} 
+      index={index}
+      isDragDisabled={isDragDisabled}
     >
-      {/* Character Name */}
-      <div className="text-sm tracking-widest uppercase text-gray-600 mb-3 font-semibold">
-        {displaySelectedCharacterName()}
-      </div>
-  
-      {/* Line Text */}
-      <div className="text-lg leading-relaxed text-gray-900 whitespace-pre-wrap">
-        {line.text}
-      </div>
-    </div>
+      {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          className={`w-full text-center mb-8 px-8 py-6 cursor-pointer rounded-xl transition-all duration-300 ease-in-out font-medium border border-transparent ${courierPrimeRegular.className} ${
+            snapshot.isDragging ? 'shadow-lg scale-105' : ''
+          } ${
+            isDragDisabled ? 'cursor-default' : 'cursor-grab'
+          }`}
+          style={{
+            border: '1px solid transparent',
+            ...provided.draggableProps.style
+          }}
+          onMouseEnter={(e) => {
+            if (!isDragDisabled) {
+              e.currentTarget.style.backgroundColor = 'rgba(255,160,90,0.08)'
+              e.currentTarget.style.borderColor = 'rgba(255,160,90,0.2)'
+              e.currentTarget.style.borderRadius = '12px'
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isDragDisabled) {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.borderColor = 'transparent'
+              e.currentTarget.style.borderRadius = '12px'
+            }
+          }}
+          onClick={handleSetLineToEditMode}
+        >
+          {/* Character Name */}
+          <div className="text-sm tracking-widest uppercase text-gray-600 mb-3 font-semibold transition-opacity duration-300 ease-in-out">
+            {displaySelectedCharacterName()}
+          </div>
+      
+          {/* Line Text */}
+          <div className="text-lg leading-relaxed text-gray-900 whitespace-pre-wrap">
+            {line.text}
+          </div>
+        </div>
+      )}
+    </Draggable>
   );
   
 }
