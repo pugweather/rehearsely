@@ -61,28 +61,39 @@ const ModalSceneName = ({closeEditNameModal, setSceneEditing, setScenes, scene}:
   }
 
   return (
-    <Modal width={500} height={250}>
-        <div className='flex flex-col pt-10 pl-5 pr-5 h-[90%]'>
-          <div onClick={closeEditNameModal}>
-            <FontAwesomeIcon icon={faClose} className="absolute top-5 right-5 text-3xl text-gray-800 cursor-pointer" />
+    <Modal width={560} height={280}>
+        <div className='flex flex-col h-full rounded-2xl' style={{backgroundColor: '#E3D6C6', border: '1px solid rgba(32,32,32,0.1)'}}>
+          <div className='relative px-6 py-5'>
+            <div className='text-xl font-semibold' style={{color: '#202020'}}>Edit Scene Name</div>
+            <button onClick={closeEditNameModal} className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center" style={{backgroundColor: 'rgba(255,255,255,0.2)', color: '#202020'}}>
+              <FontAwesomeIcon icon={faClose} />
+            </button>
           </div>
-          <div className='text-2xl pl-2 mb-2.5 font-semibold'>Edit Name</div>
-          <Input placeholder={'Enter scene name...'} value={sceneName || ''} onChange={setSceneName}/>
-          <button 
-            className={clsx(
-              'ml-auto mt-auto',
-              disabled && 'opacity-50 pointer-events-none',
-            )}
-            disabled={disabled}
-            onClick={handleSubmit}
-          >
-            <ButtonLink 
-              icon={faCircleCheck} 
-              text={isLoading ?  'Saving Changes...' : 'Save'}
-              bgColor={isLoading ? "#ccc" : undefined}
-              className='px-3 py-1 text-lg'
-            />
-          </button>
+
+          <div className='flex flex-col gap-3 px-6'>
+            <label className='text-sm font-medium' style={{color: '#202020'}}>Scene name</label>
+            <Input placeholder={'Enter scene name...'} value={sceneName || ''} onChange={setSceneName}/>
+          </div>
+
+          <div className='mt-auto px-6 py-4 flex items-center justify-end gap-3'>
+            <button onClick={closeEditNameModal}>
+              <ButtonLink text={'Cancel'} textColor='#CC7A00' bgColor='#FFF4E6' className='px-4 py-2' />
+            </button>
+            <button 
+              className={clsx(
+                disabled && 'opacity-60 pointer-events-none',
+              )}
+              disabled={disabled}
+              onClick={handleSubmit}
+            >
+              <ButtonLink 
+                icon={faCircleCheck} 
+                text={isLoading ?  'Saving...' : 'Save'}
+                bgColor={'#FFA05A'}
+                className='px-4 py-2'
+              />
+            </button>
+          </div>
         </div>
     </Modal>
   )

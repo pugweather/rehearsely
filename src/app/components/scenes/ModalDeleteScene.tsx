@@ -16,6 +16,8 @@ type Props =  {
 
 const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, scene}: Props) => {
 
+  console.log(scene.id)
+
   const handleDelete = async () => {
     const res = await fetch("/api/private/scenes", {
       method: "DELETE",
@@ -42,34 +44,31 @@ const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, s
   
 
   return (
-    <Modal width={500} height={300}>
-        <div className='flex flex-col h-[90%]'>
-          <div onClick={closeDeleteSceneModal}>
-            <FontAwesomeIcon icon={faClose} className="absolute top-5 right-5 text-3xl text-white cursor-pointer" />
+    <Modal width={560} height={260}>
+        <div className='flex flex-col h-full rounded-2xl' style={{backgroundColor: '#E3D6C6', border: '1px solid rgba(32,32,32,0.1)'}}>
+          <div className='relative px-6 py-5'>
+            <div className='text-xl font-semibold' style={{color: '#202020'}}>Confirm Deletion</div>
+            <button onClick={closeDeleteSceneModal} className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center" style={{backgroundColor: 'rgba(255,255,255,0.2)', color: '#202020'}}>
+              <FontAwesomeIcon icon={faClose} />
+            </button>
           </div>
-          <div className='text-2xl pl-5 pt-5 pb-5 mb-2.5 font-semibold text-white' style={{backgroundColor: "#ff7875"}}>Confirm Deletion</div>
-          <div className='pl-5 pr-5'>
-            <div className='text-xl pl-2 mt-7.5 mb-2.5 font-semibold text-center'>Are you sure you want to delete <span className="italic">{scene.name}</span>?</div>
-            <div className='flex justify-center mt-12'>
-                <button  onClick={closeDeleteSceneModal}>
-                    <ButtonLink 
-                      icon={faClose} 
-                      textColor='#000' 
-                      bgColor='#ebecee' 
-                      text='Cancel'
-                      className='px-3 py-1 text-lg'
-                    />
-                </button>
-                <button className='ml-10' onClick={handleDelete}>
-                    <ButtonLink 
-                      icon={faTrashCan} 
-                      textColor='#fff' 
-                      bgColor='#ff7875' 
-                      text='Delete'
-                      className='px-3 py-1 text-lg'
-                    />
-                </button>
+
+          {/* Body */}
+          <div className='px-6 py-4 flex items-start gap-3'>
+            <FontAwesomeIcon icon={faTriangleExclamation} className='text-xl' style={{color: '#CC7A00'}} />
+            <div className='text-base' style={{color: '#202020'}}>
+              Are you sure you want to delete <span className="font-semibold">{scene.name}</span>? This action cannot be undone.
             </div>
+          </div>
+
+          {/* Footer */}
+          <div className='mt-auto px-6 py-4 flex items-center justify-end gap-3'>
+            <button onClick={closeDeleteSceneModal}>
+              <ButtonLink text={'Cancel'} textColor='#CC7A00' bgColor='#FFF4E6' className='px-4 py-2' />
+            </button>
+            <button onClick={handleDelete}>
+              <ButtonLink icon={faTrashCan} text={'Delete'} bgColor={'#FFA05A'} className='px-4 py-2' />
+            </button>
           </div>
         </div>
     </Modal>
