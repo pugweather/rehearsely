@@ -27,29 +27,36 @@ const PlaySceneWrapperOuter = ({ scene, lineItems, sceneIsPlaying, setSceneIsPla
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
   return (
-    <div className="flex flex-col h-screen bg-main">
-
-      <Navbar />
-
-      {/* Scrollable Content Area */}
-      <div className="flex-1 overflow-y-auto" ref={scrollRef}>
-        <EditorWrapper>
-
-          <div className="flex flex-col items-center py-8">
-            <div className="max-w-md w-full flex flex-col items-center pb-20">
-              <PlayerLineList
-                lineItems={lineItems}
-                sceneId={scene.id}
-                sceneIsPlaying={sceneIsPlaying}
-                setSceneIsPlaying={setSceneIsPlaying}
-              />
-            </div>
-          </div>
-        </EditorWrapper>
+    <div className="relative h-screen overflow-hidden">
+      
+      {/* ENDLESS WHITE BACKGROUND - covers entire screen */}
+      <div className="fixed inset-0 flex justify-center">
+        <div className="w-full max-w-4xl bg-gradient-to-br from-slate-50 to-gray-100 shadow-sm border-x border-gray-200"></div>
       </div>
+      
+      {/* Main layout container */}
+      <div className="relative z-10 flex flex-col h-screen">
 
-      {/* Fixed Play Button */}
-      <div className="shrink-0 p-4 border-t border-gray-300 bg-main z-9999999">
+        <Navbar />
+
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto" ref={scrollRef}>
+          <EditorWrapper>
+
+            <div className="flex flex-col items-center py-8">
+              <div className="max-w-md w-full flex flex-col items-center pb-20">
+                <PlayerLineList
+                  lineItems={lineItems}
+                  sceneId={scene.id}
+                  sceneIsPlaying={sceneIsPlaying}
+                  setSceneIsPlaying={setSceneIsPlaying}
+                />
+              </div>
+            </div>
+          </EditorWrapper>
+        </div>
+
+        {/* Fixed Play Button - transparent background so white shows through */}
         <PlaySceneButtonsWrapper
           setSceneIsPlaying={setSceneIsPlaying}
           sceneIsPlaying={sceneIsPlaying}

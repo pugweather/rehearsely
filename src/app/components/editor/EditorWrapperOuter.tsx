@@ -30,45 +30,52 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
     const scrollRef = useRef<HTMLDivElement | null>(null)
     
     return (
-        <div className="flex flex-col h-screen bg-main">
+        <div className="relative h-screen overflow-hidden">
           
-          <Navbar />
-      
-          {/* scrollable area */}
-          <div className="flex-1 overflow-y-scroll max-h-full" ref={scrollRef}>
-            <EditorWrapper>
-              <div className="relative text-black py-6 border-b border-b-gray-300 min-h-20">
-                <Link href="/scenes">
-                  <span className="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium shadow-sm hover:shadow-md transition-all duration-200 ease-in-out arrow-slide-on-hover inline-flex items-center gap-2 text-sm">
-                    <svg className="arrow-icon w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
-                      <path fillRule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-                    </svg>
-                    <span className={`${sunsetSerialMediumFont.className}`}>Back to Scenes</span>
-                  </span>
-                </Link>
-                <div className={`absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 line-clamp-1 w-[27.5rem] text-center text-2xl font-medium text-gray-900 ${sunsetSerialMediumFont.className}`}>
-                  {scene.name}
-                </div>
-              </div>
-      
-              <SceneSettings />
-      
-              <div className="flex flex-col items-center py-8">
-                <div className="max-w-md w-full flex flex-col items-center pb-20">
-                  <LineList
-                    lineItems={lineItems}
-                    sceneId={scene.id}
-                    scrollRef={scrollRef}
-                    setLines={setLines}
-                  />
-                </div>
-              </div>
-            </EditorWrapper>
+          {/* ENDLESS WHITE BACKGROUND - covers entire screen */}
+          <div className="fixed inset-0 flex justify-center">
+            <div className="w-full max-w-4xl bg-gradient-to-br from-slate-50 to-gray-100 shadow-sm border-x border-gray-200"></div>
           </div>
-      
-          {/* Fixed play button */}
-          <div className="shrink-0 p-4 border-t border-gray-300 bg-main z-9999999">
-            <PlaySceneButtonsWrapper setSceneIsPlaying={setSceneIsPlaying} sceneIsPlaying={sceneIsPlaying}/>
+          
+          {/* Main layout container */}
+          <div className="relative z-10 flex flex-col h-screen">
+            
+            <Navbar />
+        
+            {/* scrollable area */}
+            <div className="flex-1 overflow-y-scroll" ref={scrollRef}>
+              <EditorWrapper>
+                <div className="relative text-black py-6 border-b border-b-gray-300 min-h-20">
+                  <Link href="/scenes">
+                    <span className="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium shadow-sm hover:shadow-md transition-all duration-200 ease-in-out arrow-slide-on-hover inline-flex items-center gap-2 text-sm">
+                      <svg className="arrow-icon w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                        <path fillRule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                      </svg>
+                      <span className={`${sunsetSerialMediumFont.className}`}>Back to Scenes</span>
+                    </span>
+                  </Link>
+                  <div className={`absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 line-clamp-1 w-[27.5rem] text-center text-2xl font-medium text-gray-900 ${sunsetSerialMediumFont.className}`}>
+                    {scene.name}
+                  </div>
+                </div>
+        
+                <SceneSettings />
+        
+                <div className="flex flex-col items-center py-8">
+                  <div className="max-w-md w-full flex flex-col items-center pb-20">
+                    <LineList
+                      lineItems={lineItems}
+                      sceneId={scene.id}
+                      scrollRef={scrollRef}
+                      setLines={setLines}
+                    />
+                  </div>
+                </div>
+              </EditorWrapper>
+            </div>
+        
+              {/* Fixed play button - transparent background so white shows through */}
+              <PlaySceneButtonsWrapper setSceneIsPlaying={setSceneIsPlaying} sceneIsPlaying={sceneIsPlaying}/>
           </div>
         </div>
       )
