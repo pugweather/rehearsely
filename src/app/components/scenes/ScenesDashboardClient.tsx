@@ -106,18 +106,31 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
     ]
 
   return (
-    <>
+    <div className="relative min-h-screen">
+      {/* Subtle background accents - very understated */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Large, very subtle gradient blobs */}
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-[#72a4f2]/3 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute top-1/3 -right-40 w-96 h-96 bg-gradient-to-bl from-[#ffa05a]/2 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 left-1/3 w-72 h-72 bg-gradient-to-tr from-[#FFD96E]/2 to-transparent rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative z-10">
         <ScenesDashboardHeader onChange={setQuery}/>
-        <div className='p-5 grid grid-cols-3 gap-6'>
-          {filteredScenes.map(scene => {
+        
+        <div className='p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto'>
+          {filteredScenes.map((scene, index) => {
             const isVisible = visibleScenes.has(scene.id)
             return <div
               key={scene.id}
-              className={`transition-all duration-500 ease-out ${
+              className={`transition-all duration-600 ease-out ${
                 isVisible 
-                  ? 'opacity-100 translate-y-0 scale-100' 
-                  : 'opacity-0 translate-y-4 scale-95'
+                  ? 'opacity-100 translate-y-0' 
+                  : 'opacity-0 translate-y-6'
               }`}
+              style={{
+                transitionDelay: `${index * 100}ms`
+              }}
             >
               <SceneCard 
                 id={scene.id} 
@@ -132,11 +145,20 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
             </div>
           })}
         </div>
-        {/* {openedDropdownId && <Overlay closeDropdown={closeDropdown}/>} */}
-        {/* {openedDropdownId && <Dropdown dropdownData={sceneCardDropdownData} dropdownPos={dropdownPos} closeDropdown={closeDropdown} className='z-20 px-1 py-1.5 border-b border-b-gray-100 w-35'/>} */}
-        {sceneEditing && <ModalSceneName closeEditNameModal={closeEditNameModal} setSceneEditing={setSceneEditing} setScenes={setScenes} scene={sceneEditing}/>}
-        {sceneDeleting && <ModalDeleteScene closeDeleteSceneModal={closeDeleteSceneModal} setSceneDeleting={setSceneDeleting} setScenes={setScenes} scene={sceneDeleting}/>}
-    </>
+
+        {/* Clean empty state */}
+        {filteredScenes.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 px-8">
+            <div className="text-4xl mb-3 opacity-60">🎭</div>
+            <div className="text-xl font-medium text-gray-600 mb-1">No scenes found</div>
+            <div className="text-gray-500">Create your first scene to get started</div>
+          </div>
+        )}
+      </div>
+
+      {sceneEditing && <ModalSceneName closeEditNameModal={closeEditNameModal} setSceneEditing={setSceneEditing} setScenes={setScenes} scene={sceneEditing}/>}
+      {sceneDeleting && <ModalDeleteScene closeDeleteSceneModal={closeDeleteSceneModal} setSceneDeleting={setSceneDeleting} setScenes={setScenes} scene={sceneDeleting}/>}
+    </div>
   )
 }
 
