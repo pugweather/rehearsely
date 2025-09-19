@@ -13,7 +13,22 @@ import Image from 'next/image';
 import { scrollToBottom } from '@/app/utils/utils';
 import { useVoicesStore } from '@/app/stores/useVoicesStores';
 import { useCharacters } from '@/app/context/charactersContext';
-import { DragDropContext, Droppable, DropResult, DroppableProvided } from '@hello-pangea/dnd';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragOverEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 
 type Props = {
   lineItems: DraftLine[] | null,
@@ -158,38 +173,62 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
     setLineBeingEdited(null) // TODO: we'll keep this for now. Maybe we can put all data into lineBeingEditedData....
   }
 
-  // Handle drag and drop reordering
-  const handleOnDragEnd = async (result: DropResult) => {
-    if (!result.destination || !lineItems) return;
+  // Configure sensors for drag and drop - SUPER RESPONSIVE
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      // No activation constraint - drag starts immediately on mouse down
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
-    const { source, destination } = result;
+  // Track if we made any swaps during drag
+  const [hasMadeSwap, setHasMadeSwap] = useState(false);
+
+  // Handle drag start
+  const handleDragStart = () => {
+    setHasMadeSwap(false);
+    console.log('Drag started');
+  };
+
+  // Handle drag over for smart swapping when items overlap significantly
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
     
-    // If dropped in the same position, do nothing
-    if (source.index === destination.index) return;
+    if (!over || !lineItems || active.id === over.id) return;
 
-    // Swap-only behavior: swap positions of the two items and swap their `order` fields
-    const newLines = Array.from(lineItems);
-    const sourceItem = newLines[source.index];
-    const destItem = newLines[destination.index];
+    const activeIndex = lineItems.findIndex(item => item.id === active.id);
+    const overIndex = lineItems.findIndex(item => item.id === over.id);
 
-    if (!sourceItem || !destItem || sourceItem.id == null || destItem.id == null) return;
+    if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
+      // Swap immediately when dragged item overlaps with another
+      const newLines = arrayMove(lineItems, activeIndex, overIndex);
+      setLines(newLines);
+      setHasMadeSwap(true);
+      console.log('Swapped items during drag');
+    }
+  };
 
-    // Swap in the array
-    newLines[source.index] = destItem;
-    newLines[destination.index] = sourceItem;
+  // Handle drag end for backend update
+  const handleDragEnd = async (event: DragEndEvent) => {
+    console.log('Drag ended, hasMadeSwap:', hasMadeSwap);
+    
+    // Only update backend if we actually made a swap
+    if (!hasMadeSwap || !lineItems) {
+      console.log('No swap made or no line items, skipping backend update');
+      return;
+    }
 
-    // Swap their order values
-    const tempOrder = sourceItem.order;
-    sourceItem.order = destItem.order;
-    destItem.order = tempOrder;
-
-    // Optimistically update UI
-    setLines(newLines);
-
-    // Send a full-scene reorder so DB exactly matches current UI ordering
-    const lineUpdates = newLines
+    // Use current lineItems state (which has already been updated by handleDragOver)
+    const currentLines = lineItems;
+    
+    // Update backend with current order
+    const lineUpdates = currentLines
       .filter(l => l.id != null)
       .map((l, idx) => ({ id: l.id as number, order: idx + 1 }));
+
+    console.log('Updating backend with line order:', lineUpdates);
 
     try {
       const response = await fetch(`/api/private/scenes/${sceneId}/lines/reorder`, {
@@ -202,11 +241,14 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
 
       if (!response.ok) {
         console.error('Failed to update line order');
-        setLines(lineItems);
+        console.error('Response status:', response.status);
+        const responseText = await response.text();
+        console.error('Response text:', responseText);
+      } else {
+        console.log('Successfully updated line order in backend');
       }
     } catch (error) {
       console.error('Error updating line order:', error);
-      setLines(lineItems);
     }
   };
 
@@ -215,48 +257,51 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
 
   return (
     <>
-      <DragDropContext onDragEnd={handleOnDragEnd}>
-        <Droppable droppableId="lines-list">
-          {(provided: DroppableProvided) => (
-            <div
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-            >
-              { 
-              lineItems?.map((line, index) => {
-                return line.id == lineBeingEdited?.id ? 
-                <EditLine 
-                  key={line.id}
-                  line={line} 
-                  characters={characters} 
-                  lineBeingEditedData={lineBeingEditedData}
-                  newLineOrder={newLineOrder}
-                  setLines={setLines}
-                  setLineBeingEditedData={setLineBeingEditedData}
-                  charsDropdownData={charsDropdownData}
-                  closeEditLine={closeEditLine}
-                  />
-                  : 
-                <SavedLine 
-                  key={line.id}
-                  line={line} 
-                  lines={lineItems} 
-                  characters={characters} 
-                  setLines={setLines}
-                  setLineBeingEdited={setLineBeingEdited} 
-                  setLineBeingEditedData={setLineBeingEditedData} 
-                  setShouldScroll={setShouldScroll}
-                  setOriginalCharForOpenedLine={setOriginalCharForOpenedLine}
-                  index={index}
-                  isDragDisabled={isDragDisabled}
-                  />
-              }) 
-              }
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+      <DndContext 
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
+      >
+        <SortableContext 
+          items={lineItems?.filter(line => line.id !== null).map(line => line.id!) || []} 
+          strategy={verticalListSortingStrategy}
+        >
+          <div>
+            { 
+            lineItems?.map((line, index) => {
+              return line.id == lineBeingEdited?.id ? 
+              <EditLine 
+                key={line.id}
+                line={line} 
+                characters={characters} 
+                lineBeingEditedData={lineBeingEditedData}
+                newLineOrder={newLineOrder}
+                setLines={setLines}
+                setLineBeingEditedData={setLineBeingEditedData}
+                charsDropdownData={charsDropdownData}
+                closeEditLine={closeEditLine}
+                />
+                : 
+              <SavedLine 
+                key={line.id}
+                line={line} 
+                lines={lineItems} 
+                characters={characters} 
+                setLines={setLines}
+                setLineBeingEdited={setLineBeingEdited} 
+                setLineBeingEditedData={setLineBeingEditedData} 
+                setShouldScroll={setShouldScroll}
+                setOriginalCharForOpenedLine={setOriginalCharForOpenedLine}
+                index={index}
+                isDragDisabled={isDragDisabled}
+                />
+            }) 
+            }
+          </div>
+        </SortableContext>
+      </DndContext>
       <button 
         className="w-full px-6 py-4 mt-8 rounded-xl font-medium text-sm transition-all duration-300 ease-in-out flex items-center justify-center gap-3 shadow-sm hover:shadow-md"
         style={{
