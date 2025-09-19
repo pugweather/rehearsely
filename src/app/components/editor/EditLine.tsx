@@ -364,7 +364,7 @@ return (
           {/* Delete */}
           <button
             onClick={handleDelete}
-            className="px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2"
+            className="px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 ml-2"
             style={{backgroundColor: 'rgba(220,38,38,0.1)', color: '#dc2626', border: '1px solid rgba(220,38,38,0.2)'}}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = 'rgba(220,38,38,0.2)'
@@ -395,7 +395,7 @@ return (
             }}
           >
             {!isLoading && <FontAwesomeIcon icon={faCheck} />}
-            {isLoading ? "Saving..." : "Save Line"}
+            {isLoading ? "Saving..." : "Save"}
           </button>
         </div>
       </div>
