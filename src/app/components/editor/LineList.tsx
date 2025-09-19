@@ -176,7 +176,9 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   // Configure sensors for drag and drop - SUPER RESPONSIVE
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      // No activation constraint - drag starts immediately on mouse down
+      activationConstraint: {
+        distance: 8, // Only start drag after 8px movement
+      },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,

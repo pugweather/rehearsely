@@ -29,6 +29,9 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
   const TEMP_LINE_ID = -999
   const currCharacter = characters?.find(char => char.id === line?.character_id) ||  null
   const voices = useVoicesStore((s) => s.voices)
+  
+  // Track mouse position for click vs drag detection
+  const [mouseDownPos, setMouseDownPos] = React.useState<{x: number, y: number} | null>(null)
 
   if (line == null) return
 
@@ -81,6 +84,25 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
     return res
   }
 
+  // Handle mouse down to track initial position
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setMouseDownPos({ x: e.clientX, y: e.clientY })
+  }
+
+  // Handle mouse up to detect if it was a click (no significant movement)
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (mouseDownPos && !isDragging) {
+      const deltaX = Math.abs(e.clientX - mouseDownPos.x)
+      const deltaY = Math.abs(e.clientY - mouseDownPos.y)
+      
+      // If mouse didn't move much, treat as click
+      if (deltaX < 5 && deltaY < 5) {
+        handleSetLineToEditMode()
+      }
+    }
+    setMouseDownPos(null)
+  }
+
   const {
     attributes,
     listeners,
@@ -129,7 +151,8 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
           e.currentTarget.style.borderRadius = '12px'
         }
       }}
-      onClick={handleSetLineToEditMode}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
     >
       {/* Character Name */}
       <div className="text-sm tracking-widest uppercase text-gray-600 mb-3 font-semibold transition-opacity duration-300 ease-in-out">
