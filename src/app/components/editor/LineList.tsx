@@ -51,6 +51,8 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   const [originalCharForOpenedLine, setOriginalCharForOpenedLine] = useState<Character | null>(null) // When a line is opened, we track the original
   const [isCreateCharModalOpen, setIsCreateCharModalOpen] = useState<boolean>(false)
   const [shouldScroll, setShouldScroll] = useState<boolean>(false)
+  
+  console.log("isCreateCharModalOpen:", isCreateCharModalOpen)
 
   const TEMP_LINE_ID = -999
   const voices = useVoicesStore(s => s.voices)
@@ -105,18 +107,21 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
 
 
   // Character dropdown data for DaisyUI dropdown
+  const maxCharsForScene = 5
+  const canAddNewCharacter = characters && characters.length < maxCharsForScene
+  
   const charsDropdownData: DropdownData[] | undefined = characters ? 
   [
     {
       label: "+ New Character",
       onClick: function() {
-        let maxCharsForScene = 5
-        if (characters.length < maxCharsForScene) {
+        if (canAddNewCharacter) {
           setLineBeingEditedData(prev => ({...prev, character: null}))
           setIsCreateCharModalOpen(true)
         }
+        // Do nothing if max characters reached
       },
-      className: ""
+      className: canAddNewCharacter ? "" : "opacity-50 cursor-not-allowed pointer-events-none"
     },
     ...characters.map(char => {
       const charName = char.is_me ? `${char.name} (me)` : char.name
@@ -132,6 +137,8 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
       } 
     })
   ] : undefined
+
+  console.log("charsDropdownData:", charsDropdownData)
 
   /* Lines */ 
 

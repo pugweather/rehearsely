@@ -33,7 +33,7 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
     const voicesCategorized = useVoicesStore(s => s.voicesCategorized)
     
     const selectedVoiceId = lineBeingEditedData.voice?.voice_id
-    const saveCharBtnDisabled = (characterName.trim() === '')
+    const saveCharBtnDisabled = (characterName.trim() === '' || selectedVoiceId == null)
     const playVoiceBtnDisabled = selectedVoiceId == null
 
     console.log(lineBeingEditedData)
@@ -168,24 +168,58 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
 
     const getVoicesJSX = (gender: "male" | "female") =>{
         if (voicesCategorized === null) return null
-        return Object.entries(voicesCategorized).map(([category, voices]) => {
+        return Object.entries(voicesCategorized).map(([category, voices], categoryIndex) => {
+            const hasVoices = voices[gender] && voices[gender].length > 0;
             return (
-                <>
-                    <div className='w-full text-lg'>{category}</div>
-                    {voices[gender].map(voice => {
-                        return  (
-                            <div 
-                                className={clsx(
-                                    'px-3 py-2.5 mt-2 mr-3 mb-2 w-25 bg-[#fff4d8] rounded-xl text-lg text-center cursor-pointer transition-all ease-in-out duration-200 hover:bg-green-100',
-                                    voice.voice_id === selectedVoiceId && "bg-green-100", // Hmm, yeah we shouldn't ever be pre-selecting a voice since this modal is only for new characters
-                                )}
-                                onClick={() => handleSelectVoice(voice)}
-                            >
-                                {voice.name}
-                            </div>
-                        )
-                    })}
-                </>
+                <div key={categoryIndex} className="mb-6">
+                    <h5 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 border-l-4 border-orange-300 pl-3">
+                        {category}
+                    </h5>
+                    {hasVoices ? (
+                        <div className="grid grid-cols-2 gap-2 min-h-[44px]">
+                            {voices[gender].map((voice, voiceIndex) => {
+                                return (
+                                    <button
+                                        key={voiceIndex}
+                                        className="px-3 py-2 rounded-lg text-sm font-medium text-center cursor-pointer transition-all duration-200 border"
+                                        style={{
+                                            backgroundColor: voice.voice_id === selectedVoiceId 
+                                                ? '#FFA05A' 
+                                                : 'rgba(244,239,232,0.8)',
+                                            borderColor: voice.voice_id === selectedVoiceId 
+                                                ? '#FFA05A' 
+                                                : 'rgba(32,32,32,0.1)',
+                                            color: voice.voice_id === selectedVoiceId 
+                                                ? '#ffffff' 
+                                                : '#202020'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (voice.voice_id !== selectedVoiceId) {
+                                                e.currentTarget.style.backgroundColor = '#ffffff'
+                                                e.currentTarget.style.borderColor = '#FFA05A'
+                                                e.currentTarget.style.color = '#FFA05A'
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (voice.voice_id !== selectedVoiceId) {
+                                                e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
+                                                e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
+                                                e.currentTarget.style.color = '#202020'
+                                            }
+                                        }}
+                                        onClick={() => handleSelectVoice(voice)}
+                                    >
+                                        {voice.name}
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    ) : (
+                        <div className="flex items-center h-11 text-xs text-gray-500 italic">
+                            <span className="opacity-60">— No {category.toLowerCase()} voices —</span>
+                        </div>
+                    )}
+                </div>
             )
         })
     }
@@ -193,73 +227,143 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
     const femaleCharBtns = getVoicesJSX("female")
 
     return (
-        <Modal width={800} height={750}>
-            <div className='flex flex-col pt-10 pl-5 pr-5 h-[95%]'>
-            <div onClick={closeCreateCharModal}>
-                <FontAwesomeIcon icon={faClose} className="absolute top-5 right-5 text-3xl text-gray-800 cursor-pointer" />
-            </div>
-            <div className='flex items-center pl-2 mb-5'>
-                <div className='text-2xl font-semibold mr-5'>Character Name</div>
-                <div className={clsx(
-                    'text-[#ff7875]',
-                    !errorText ? "hidden" : ""
-                )}>
-                    {errorText ? errorText : ""}
+        <Modal width={700} height={750}>
+            <div className='flex flex-col h-full rounded-2xl' style={{backgroundColor: '#E3D6C6', border: '1px solid rgba(32,32,32,0.1)'}}>
+                {/* Header */}
+                <div className='relative px-6 py-5 border-b' style={{borderColor: 'rgba(32,32,32,0.1)'}}>
+                    <div className='text-xl font-semibold' style={{color: '#202020'}}>Create New Character</div>
+                    <button 
+                        onClick={closeCreateCharModal} 
+                        className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200" 
+                        style={{backgroundColor: 'rgba(255,255,255,0.2)', color: '#202020'}}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.3)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'}
+                    >
+                        <FontAwesomeIcon icon={faXmark} />
+                    </button>
                 </div>
-            </div>
-            <Input placeholder={'Enter character name...'} value={characterName || ''} onChange={handleTypingInInputBox}/> 
-            <div className='text-2xl pl-2 mb-5 mt-5 font-semibold'>Select Voice</div>
-            <div className='flex justify-between font-semibold ml-2 overflow-y-auto'>
-                <div className='w-[50%] mr-2'>
-                    <div className='mb-4 text-xl' style={{color: "#f47c2c"}}>MALE</div>
-                    <div className='flex flex-wrap justify-start'>
-                        {maleCharBtns}
+
+                {/* Content */}
+                <div className="flex-1 px-6 py-4 overflow-y-auto">
+                    {/* Character Name Section */}
+                    <div className="mb-6">
+                        <label className="block text-lg font-semibold mb-3" style={{color: '#202020'}}>
+                            Character Name
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Enter character name..."
+                            value={characterName || ''}
+                            onChange={(e) => handleTypingInInputBox(e.target.value)}
+                            className="w-full px-4 py-3 rounded-lg text-base border-0 focus:outline-none transition-all duration-200"
+                            style={{
+                                backgroundColor: 'rgba(244,239,232,0.9)',
+                                color: '#202020',
+                                border: '1px solid rgba(32,32,32,0.1)'
+                            }}
+                            onFocus={(e) => {
+                                e.currentTarget.style.backgroundColor = '#ffffff'
+                                e.currentTarget.style.boxShadow = `0 0 0 2px #FFA05A`
+                                e.currentTarget.style.borderColor = '#FFA05A'
+                            }}
+                            onBlur={(e) => {
+                                e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.9)'
+                                e.currentTarget.style.boxShadow = 'none'
+                                e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
+                            }}
+                        />
+                        {errorText && (
+                            <p className="mt-2 text-sm" style={{color: '#dc2626'}}>{errorText}</p>
+                        )}
+                    </div>
+
+                    {/* Voice Selection Section */}
+                    <div className="mb-4">
+                        <h3 className="text-lg font-semibold mb-4" style={{color: '#202020'}}>Select Voice</h3>
+                        <div className="grid grid-cols-2 gap-6">
+                            {/* Male Voices */}
+                            <div className="space-y-3">
+                                <h4 className="text-base font-bold pb-2 border-b" style={{color: '#f47c2c', borderColor: 'rgba(244,124,44,0.3)'}}>
+                                    MALE VOICES
+                                </h4>
+                                <div className="space-y-3">
+                                    {maleCharBtns && maleCharBtns.length > 0 ? (
+                                        maleCharBtns
+                                    ) : (
+                                        <div className="flex items-center justify-center h-20 text-sm rounded-lg border-2 border-dashed" style={{color: '#999', backgroundColor: 'rgba(244,239,232,0.5)', borderColor: 'rgba(32,32,32,0.2)'}}>
+                                            <p className="text-center">No male voices available</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Female Voices */}
+                            <div className="space-y-3">
+                                <h4 className="text-base font-bold pb-2 border-b" style={{color: '#f7a954', borderColor: 'rgba(247,169,84,0.3)'}}>
+                                    FEMALE VOICES
+                                </h4>
+                                <div className="space-y-3">
+                                    {femaleCharBtns && femaleCharBtns.length > 0 ? (
+                                        femaleCharBtns
+                                    ) : (
+                                        <div className="flex items-center justify-center h-20 text-sm rounded-lg border-2 border-dashed" style={{color: '#999', backgroundColor: 'rgba(244,239,232,0.5)', borderColor: 'rgba(32,32,32,0.2)'}}>
+                                            <p className="text-center">No female voices available</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div className='w-[50%] ml-2'>
-                    <div className='mb-4 text-xl' style={{color: "#f7a954"}}>FEMALE</div>
-                    <div className='flex flex-wrap justify-start'>
-                        {femaleCharBtns}
-                    </div>
+
+                {/* Footer */}
+                <div className='mt-auto px-6 py-4 flex items-center justify-between gap-3 border-t' style={{borderColor: 'rgba(32,32,32,0.1)'}}>
+                    <button
+                        className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                            playVoiceBtnDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        disabled={playVoiceBtnDisabled}
+                        onClick={audioIsPlaying ? stopSelectedVoiceAudio : playSelectedVoiceAudio}
+                        style={{
+                            backgroundColor: playVoiceBtnDisabled ? '#ccc' : '#FFA05A',
+                            color: '#ffffff'
+                        }}
+                        onMouseEnter={(e) => {
+                            if (!playVoiceBtnDisabled) e.currentTarget.style.backgroundColor = '#FF8A3A'
+                        }}
+                        onMouseLeave={(e) => {
+                            if (!playVoiceBtnDisabled) e.currentTarget.style.backgroundColor = '#FFA05A'
+                        }}
+                    >
+                        <FontAwesomeIcon icon={audioIsPlaying ? faXmark : faPlay} />
+                        {audioIsPlaying ? 'Stop' : 'Play Voice'}
+                    </button>
+
+                    <button
+                        className={`px-6 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                            saveCharBtnDisabled || isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        disabled={saveCharBtnDisabled || isLoading}
+                        onClick={handleAddNewCharacter}
+                        style={{
+                            backgroundColor: (saveCharBtnDisabled || isLoading) ? '#ccc' : '#FFA05A',
+                            color: '#ffffff'
+                        }}
+                        onMouseEnter={(e) => {
+                            if (!saveCharBtnDisabled && !isLoading) e.currentTarget.style.backgroundColor = '#FF8A3A'
+                        }}
+                        onMouseLeave={(e) => {
+                            if (!saveCharBtnDisabled && !isLoading) e.currentTarget.style.backgroundColor = '#FFA05A'
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faCircleCheck} />
+                        {isLoading ? 'Saving...' : 'Save Character'}
+                    </button>
                 </div>
-            </div>
-            <div className='ml-auto mr-4 mt-auto'>
-                {/* Playing / Stopping voices */}
-                <button 
-                    className={clsx(
-                        'ml-auto mt-auto',
-                        playVoiceBtnDisabled && 'opacity-50 pointer-events-none',
-                    )}
-                    disabled={playVoiceBtnDisabled}
-                    onClick={audioIsPlaying ? stopSelectedVoiceAudio : playSelectedVoiceAudio}
-                >
-                    <ButtonLink 
-                        icon={audioIsPlaying ? faXmark : faPlay} 
-                        text={audioIsPlaying ?  'Stop playing' : 'Play selected voice'}
-                        bgColor="#f47c2c"
-                        className='px-3 py-1 text-lg'
-                    />
-                </button>
-                {/* Saving character */}
-                <button 
-                    className={clsx(
-                        'ml-5 mt-auto',
-                        saveCharBtnDisabled && 'opacity-50 pointer-events-none',
-                    )}
-                    disabled={saveCharBtnDisabled}
-                    onClick={handleAddNewCharacter}
-                >   
-                    <ButtonLink 
-                        icon={faCircleCheck} 
-                        text={isLoading ?  'Saving Character...' : 'Save Character'}
-                        bgColor={isLoading ? "#ccc" : undefined}
-                        className='px-3 py-1 text-lg'
-                    />
-                </button>
-            </div>
             </div>
         </Modal>
     )
+
 }
 
 export default ModalCreateCharacter

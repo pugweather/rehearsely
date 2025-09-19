@@ -188,16 +188,16 @@ return (
               <a 
                 className={item.className} 
                 onClick={(e) => {
+                  e.preventDefault();
                   item.onClick();
-                  // Close dropdown by removing focus from all elements
-                  const activeElement = document.activeElement as HTMLElement;
-                  if (activeElement) {
-                    activeElement.blur();
-                  }
-                  // Force close by clicking outside
+                  // Only close dropdown after a delay to allow modal to open
                   setTimeout(() => {
+                    const activeElement = document.activeElement as HTMLElement;
+                    if (activeElement) {
+                      activeElement.blur();
+                    }
                     document.body.click();
-                  }, 10);
+                  }, 100);
                 }}
               >
                 {item.label}
