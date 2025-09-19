@@ -17,6 +17,16 @@ type Props =  {
 const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, scene}: Props) => {
 
   console.log(scene.id)
+  const [isOpen, setIsOpen] = useState<boolean>(true)
+
+  const handleClose = () => {
+    setIsOpen(false)
+    // Wait for animation to complete before calling parent close function
+    setTimeout(() => {
+      closeDeleteSceneModal()
+      setSceneDeleting(null)
+    }, 200)
+  }
 
   const handleDelete = async () => {
     const res = await fetch("/api/private/scenes", {
@@ -37,18 +47,17 @@ const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, s
             })
         })
 
-        closeDeleteSceneModal()
-        setSceneDeleting(null)
+        handleClose()
     }
   }
   
 
   return (
-    <Modal width={560} height={260}>
+    <Modal width={560} height={260} isOpen={isOpen} onClose={handleClose}>
         <div className='flex flex-col h-full rounded-2xl' style={{backgroundColor: '#E3D6C6', border: '1px solid rgba(32,32,32,0.1)'}}>
           <div className='relative px-6 py-5'>
             <div className='text-xl font-semibold' style={{color: '#202020'}}>Confirm Deletion</div>
-            <button onClick={closeDeleteSceneModal} className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center" style={{backgroundColor: 'rgba(255,255,255,0.2)', color: '#202020'}}>
+            <button onClick={handleClose} className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center" style={{backgroundColor: 'rgba(255,255,255,0.2)', color: '#202020'}}>
               <FontAwesomeIcon icon={faClose} />
             </button>
           </div>
@@ -63,7 +72,7 @@ const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, s
 
           {/* Footer */}
           <div className='mt-auto px-6 py-4 flex items-center justify-end gap-3'>
-            <button onClick={closeDeleteSceneModal}>
+            <button onClick={handleClose}>
               <ButtonLink text={'Cancel'} textColor='#CC7A00' bgColor='#FFF4E6' className='px-4 py-2' />
             </button>
             <button onClick={handleDelete}>
