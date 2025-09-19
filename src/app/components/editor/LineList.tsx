@@ -270,7 +270,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
           items={lineItems?.filter(line => line.id !== null).map(line => line.id!) || []} 
           strategy={verticalListSortingStrategy}
         >
-          <div>
+          <div className='w-full'>
             { 
             lineItems?.map((line, index) => {
               return line.id == lineBeingEdited?.id ? 
