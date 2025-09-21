@@ -1,12 +1,13 @@
 "use client";
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay, faPause, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faPause, faXmark, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { DraftLine, EditLineMode } from '@/app/types';
 
 type Props = {
   line: DraftLine;
   setLineMode: React.Dispatch<React.SetStateAction<EditLineMode>>;
+  onAudioTrimmed?: (trimmedAudioBlob: Blob) => void; // Callback with the trimmed audio blob
 };
 
 type TrimRange = {
@@ -14,7 +15,7 @@ type TrimRange = {
   end: number;
 };
 
-const BeautifulWaveform = ({ line, setLineMode }: Props) => {
+const BeautifulWaveform = ({ line, setLineMode, onAudioTrimmed }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -30,6 +31,7 @@ const BeautifulWaveform = ({ line, setLineMode }: Props) => {
   const [dragStartOffset, setDragStartOffset] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [waveformData, setWaveformData] = useState<number[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Initialize audio and load waveform data - NO EXTERNAL DEPENDENCIES
   useEffect(() => {
@@ -279,6 +281,111 @@ const BeautifulWaveform = ({ line, setLineMode }: Props) => {
     setIsDragging(null);
   };
 
+  // Create local trimmed audio (no API call)
+  const saveTrimmedAudio = async () => {
+    if (!line.audio_url || !audioBufferRef.current || isSaving) return;
+    
+    setIsSaving(true);
+    try {
+      // Get the audio buffer
+      const audioBuffer = audioBufferRef.current;
+      
+      // Calculate sample positions
+      const startSample = Math.floor(trimRange.start * audioBuffer.sampleRate);
+      const endSample = Math.floor(trimRange.end * audioBuffer.sampleRate);
+      const trimmedLength = endSample - startSample;
+      
+      if (trimmedLength <= 0) {
+        throw new Error('Invalid trim range');
+      }
+      
+      // Create trimmed audio buffer
+      const trimmedBuffer = audioContextRef.current!.createBuffer(
+        audioBuffer.numberOfChannels,
+        trimmedLength,
+        audioBuffer.sampleRate
+      );
+      
+      // Copy trimmed audio data
+      for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+        const originalData = audioBuffer.getChannelData(channel);
+        const trimmedData = trimmedBuffer.getChannelData(channel);
+        
+        for (let i = 0; i < trimmedLength; i++) {
+          trimmedData[i] = originalData[startSample + i];
+        }
+      }
+      
+      // Convert to WAV blob for local use
+      const wavBlob = audioBufferToWavBlob(trimmedBuffer);
+      
+      // Success - exit trim mode and pass the trimmed audio blob to parent
+      setLineMode('default');
+      
+      // Notify parent with the trimmed audio blob (for local preview)
+      if (onAudioTrimmed) {
+        onAudioTrimmed(wavBlob);
+      }
+      
+    } catch (error) {
+      console.error('Error creating trimmed audio:', error);
+      alert('Failed to create trimmed audio. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Helper function to convert AudioBuffer to WAV blob
+  const audioBufferToWavBlob = (buffer: AudioBuffer): Blob => {
+    const numChannels = buffer.numberOfChannels;
+    const sampleRate = buffer.sampleRate;
+    const format = 1; // PCM
+    const bitDepth = 16;
+    
+    const bytesPerSample = bitDepth / 8;
+    const blockAlign = numChannels * bytesPerSample;
+    const byteRate = sampleRate * blockAlign;
+    const dataSize = buffer.length * blockAlign;
+    const bufferSize = 44 + dataSize;
+    
+    const arrayBuffer = new ArrayBuffer(bufferSize);
+    const view = new DataView(arrayBuffer);
+    
+    // Write WAV header
+    const writeString = (offset: number, string: string) => {
+      for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    };
+    
+    writeString(0, 'RIFF');
+    view.setUint32(4, bufferSize - 8, true);
+    writeString(8, 'WAVE');
+    writeString(12, 'fmt ');
+    view.setUint32(16, 16, true); // fmt chunk size
+    view.setUint16(20, format, true);
+    view.setUint16(22, numChannels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, byteRate, true);
+    view.setUint16(32, blockAlign, true);
+    view.setUint16(34, bitDepth, true);
+    writeString(36, 'data');
+    view.setUint32(40, dataSize, true);
+    
+    // Write audio data
+    let offset = 44;
+    for (let i = 0; i < buffer.length; i++) {
+      for (let channel = 0; channel < numChannels; channel++) {
+        const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+        const intSample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+        view.setInt16(offset, intSample, true);
+        offset += 2;
+      }
+    }
+    
+    return new Blob([arrayBuffer], { type: 'audio/wav' });
+  };
+
   // Play/pause functionality
   const togglePlayback = () => {
     if (!audioRef.current) return;
@@ -404,26 +511,55 @@ const BeautifulWaveform = ({ line, setLineMode }: Props) => {
           {trimRange.start.toFixed(1)}s - {trimRange.end.toFixed(1)}s
         </div>
 
-        <button
-          onClick={() => setLineMode('default')}
-          className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-          style={{ 
-            backgroundColor: '#F4F3F0', 
-            color: '#CC7A00',
-            border: '1px solid #E5E2DC'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#E5E2DC';
-            e.currentTarget.style.borderColor = '#D1CCC0';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#F4F3F0';
-            e.currentTarget.style.borderColor = '#E5E2DC';
-          }}
-        >
-          <FontAwesomeIcon icon={faXmark} className="text-xs" />
-          Close
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={saveTrimmedAudio}
+            disabled={isSaving}
+            className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            style={{ 
+              backgroundColor: isSaving ? '#D1D5DB' : '#10B981', 
+              color: '#FFFFFF',
+              border: `1px solid ${isSaving ? '#9CA3AF' : '#059669'}`,
+              opacity: isSaving ? 0.7 : 1
+            }}
+            onMouseEnter={(e) => {
+              if (!isSaving) {
+                e.currentTarget.style.backgroundColor = '#059669';
+                e.currentTarget.style.borderColor = '#047857';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isSaving) {
+                e.currentTarget.style.backgroundColor = '#10B981';
+                e.currentTarget.style.borderColor = '#059669';
+              }
+            }}
+          >
+            <FontAwesomeIcon icon={faCheck} className="text-xs" />
+            {isSaving ? 'Saving...' : 'Save'}
+          </button>
+
+          <button
+            onClick={() => setLineMode('default')}
+            className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            style={{ 
+              backgroundColor: '#F4F3F0', 
+              color: '#CC7A00',
+              border: '1px solid #E5E2DC'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#E5E2DC';
+              e.currentTarget.style.borderColor = '#D1CCC0';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#F4F3F0';
+              e.currentTarget.style.borderColor = '#E5E2DC';
+            }}
+          >
+            <FontAwesomeIcon icon={faXmark} className="text-xs" />
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );

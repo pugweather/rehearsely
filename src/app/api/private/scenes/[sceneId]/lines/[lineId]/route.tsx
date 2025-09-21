@@ -19,27 +19,70 @@ export async function PATCH(
     }
 
     const {lineId} = params
-    const body = await req.json()
-    const {...updates} = body
-
-    // Create audio, create buffer
-    const userId = user.id
-    const text = updates.text
-    const voiceId = updates.voiceId
-
-    if (!text) {
-        return NextResponse.json({error: "Error: Missing text"}, {status: 500})
+    const contentType = req.headers.get('content-type') || '';
+    
+    // Handle FormData (audio file upload) vs JSON (text updates)
+    let updates: any = {};
+    let uploadedAudioFile: File | null = null;
+    
+    if (contentType.includes('multipart/form-data')) {
+        // Handle audio file upload (trimmed audio)
+        const formData = await req.formData();
+        uploadedAudioFile = formData.get('audio') as File;
+        
+        // Get any other form fields
+        for (const [key, value] of formData.entries()) {
+            if (key !== 'audio') {
+                updates[key] = value;
+            }
+        }
+    } else {
+        // Handle JSON updates
+        const body = await req.json();
+        updates = body;
     }
 
+    const userId = user.id;
     var publicUrl: string | null = null;
-    if (voiceId) {
-        var audioFile = await createAudioBufferFromText(text, voiceId)
-        var fileName = `${uuid()}.mp3`;
-        var filePath = `${userId}/${fileName}`
-        // Save audio to S3
+
+    // Handle uploaded audio file (trimmed audio)
+    if (uploadedAudioFile) {
+        const fileName = `${uuid()}.wav`;
+        const filePath = `${userId}/${fileName}`;
+        
+        const audioBuffer = await uploadedAudioFile.arrayBuffer();
+        
+        // Save trimmed audio to storage
         const {error: uploadError } = await supabase.storage
             .from('audio-urls')
-            .upload(filePath, audioFile, {
+            .upload(filePath, audioBuffer, {
+                contentType: 'audio/wav',
+                upsert: true,
+            });
+    
+        if (uploadError) {
+            return NextResponse.json({error: "Audio upload failed"}, {status: 500})
+        }
+    
+        const {data: publicUrlData} = await supabase.storage
+            .from('audio-urls')
+            .getPublicUrl(filePath)
+        
+        publicUrl = publicUrlData.publicUrl;
+    } 
+    // Handle text-to-speech generation
+    else if (updates.text && updates.voiceId) {
+        const text = updates.text;
+        const voiceId = updates.voiceId;
+        
+        const generatedAudioFile = await createAudioBufferFromText(text, voiceId);
+        const fileName = `${uuid()}.mp3`;
+        const filePath = `${userId}/${fileName}`;
+        
+        // Save generated audio to storage
+        const {error: uploadError } = await supabase.storage
+            .from('audio-urls')
+            .upload(filePath, generatedAudioFile, {
                 contentType: 'audio/mpeg',
                 upsert: true,
             });
@@ -48,12 +91,11 @@ export async function PATCH(
             return NextResponse.json({error: "Audio upload failed"}, {status: 500})
         }
     
-        var {data: publicUrlData} = await supabase.storage
+        const {data: publicUrlData} = await supabase.storage
             .from('audio-urls')
             .getPublicUrl(filePath)
         
-        publicUrl = publicUrlData.publicUrl
-            
+        publicUrl = publicUrlData.publicUrl;
     }
 
     // Update line in db
@@ -61,13 +103,12 @@ export async function PATCH(
         .update(lines)
         .set({
             ...updates,
-            ...(publicUrl ? {audio_url: publicUrl} : {audio_url: null})
+            ...(publicUrl ? {audio_url: publicUrl} : {})
         })
         .where(eq(lines.id, Number(lineId)))
         .returning()
 
-    // Pass in NULL to audio_url if we're updating our own character
-    return NextResponse.json({id: lineId, updates: {...updates, ...(publicUrl ? {audio_url: publicUrl} : {audio_url: null})}}, {status: 200})
+    return NextResponse.json({id: lineId, updates: {...updates, ...(publicUrl ? {audio_url: publicUrl} : {})}}, {status: 200})
 
 }
 

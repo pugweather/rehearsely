@@ -66,8 +66,43 @@ const EditLine = ({
   const [lineSpeed, setLineSpeed] = useState<number>(lineBeingEditedData.speed); // 1.0x is the default
   const [lineDelay, setLineDelay] = useState<number>(lineBeingEditedData.delay); // 1 second is the default
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  
+  // Track if any changes have been made
+  const [hasChanges, setHasChanges] = useState(false);
+  
+  // Store trimmed audio blob for later API submission
+  const [trimmedAudioBlob, setTrimmedAudioBlob] = useState<Blob | null>(null);
+  
+  // Store local audio URL for immediate playback
+  const [localAudioUrl, setLocalAudioUrl] = useState<string | null>(null);
+  
+  // Store original values to compare against
+  const originalValues = useRef({
+    text: lineBeingEditedData.text,
+    characterId: lineBeingEditedData.character?.id,
+    speed: lineBeingEditedData.speed,
+    delay: lineBeingEditedData.delay,
+  });
 
   console.log(lineBeingEditedData)
+
+  // Check for changes whenever relevant values change
+  React.useEffect(() => {
+    const currentValues = {
+      text: lineBeingEditedData.text,
+      characterId: lineBeingEditedData.character?.id,
+      speed: lineBeingEditedData.speed,
+      delay: lineBeingEditedData.delay,
+    };
+    
+    const hasTextChanged = currentValues.text !== originalValues.current.text;
+    const hasCharacterChanged = currentValues.characterId !== originalValues.current.characterId;
+    const hasSpeedChanged = currentValues.speed !== originalValues.current.speed;
+    const hasDelayChanged = currentValues.delay !== originalValues.current.delay;
+    const hasAudioTrimmed = trimmedAudioBlob !== null;
+    
+    setHasChanges(hasTextChanged || hasCharacterChanged || hasSpeedChanged || hasDelayChanged || hasAudioTrimmed);
+  }, [lineBeingEditedData.text, lineBeingEditedData.character?.id, lineBeingEditedData.speed, lineBeingEditedData.delay, trimmedAudioBlob]);
 
   const handleSave = async () => {
     const trimmed = text?.trim();
@@ -76,31 +111,51 @@ const EditLine = ({
     setIsLoading(true);
     let res;
 
-    const payload = {
-      text: trimmed,
-      characterId: character.id,
-      order: lineBeingEditedData.order,
-      delay: lineBeingEditedData.delay,
-      speed: lineBeingEditedData.speed,
-      ...(character.is_me === false ? { voiceId: lineBeingEditedData.voice?.voice_id } : {}),
-    };
+    // If we have trimmed audio, send it as FormData, otherwise send JSON
+    if (trimmedAudioBlob && !isNewLine) {
+      // Send trimmed audio as FormData
+      const formData = new FormData();
+      formData.append('audio', trimmedAudioBlob, 'trimmed_audio.wav');
+      formData.append('text', trimmed);
+      formData.append('characterId', character.id.toString());
+      formData.append('order', (lineBeingEditedData.order || 0).toString());
+      formData.append('delay', lineBeingEditedData.delay.toString());
+      formData.append('speed', lineBeingEditedData.speed.toString());
+      formData.append('character_id', character.id.toString());
+      formData.append('scene_id', sceneId!.toString());
 
-    if (isNewLine) {
-      res = await fetch(`/api/private/scenes/${sceneId}/lines`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-    } else {
       res = await fetch(`/api/private/scenes/${sceneId}/lines/${line?.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...payload,
-          character_id: character.id,
-          scene_id: sceneId,
-        }),
+        body: formData, // No Content-Type header for FormData
       });
+    } else {
+      // Send regular JSON payload
+      const payload = {
+        text: trimmed,
+        characterId: character.id,
+        order: lineBeingEditedData.order,
+        delay: lineBeingEditedData.delay,
+        speed: lineBeingEditedData.speed,
+        ...(character.is_me === false ? { voiceId: lineBeingEditedData.voice?.voice_id } : {}),
+      };
+
+      if (isNewLine) {
+        res = await fetch(`/api/private/scenes/${sceneId}/lines`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        res = await fetch(`/api/private/scenes/${sceneId}/lines/${line?.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...payload,
+            character_id: character.id,
+            scene_id: sceneId,
+          }),
+        });
+      }
     }
 
     if (res.ok) {
@@ -111,13 +166,28 @@ const EditLine = ({
         setLines((prev) => (prev ? [...prev, insertedLine] : [insertedLine]));
       } else {
         const { id, updates } = result;
+        console.log('API Response updates:', updates);
         setLines((lines) =>
-          lines?.map((line) => (line.id === lineId ? { id, ...updates } : line)) || null
+          lines?.map((line) => {
+            if (line.id === lineId) {
+              // Preserve original line data and apply updates
+              const updatedLine = { 
+                ...line, // Keep all original data including character_id
+                ...updates, // Apply API updates
+                id: Number(id) // Ensure ID is correct number type
+              };
+              console.log('Updated line:', updatedLine);
+              console.log('Original line character_id:', line.character_id);
+              console.log('Updated line character_id:', updatedLine.character_id);
+              return updatedLine;
+            }
+            return line;
+          }) || null
         );
       }
       closeEditLine();
     } else {
-      console.log(payload)
+      console.log("Save failed - request body:", trimmedAudioBlob ? "FormData with audio" : "JSON payload")
       console.error("Save failed");
     }
     setIsLoading(false);
@@ -148,6 +218,26 @@ const EditLine = ({
     setLineBeingEditedData(prev => ({...prev, delay: lineDelay}))
     setLineMode("default")
   }
+
+  // Handle when audio is trimmed - store the blob and mark as changed
+  const handleAudioTrimmed = (trimmedBlob: Blob) => {
+    setTrimmedAudioBlob(trimmedBlob);
+    
+    // Create local URL for immediate playback
+    const localUrl = URL.createObjectURL(trimmedBlob);
+    setLocalAudioUrl(localUrl);
+    
+    setHasChanges(true);
+  }
+
+  // Cleanup local URL when component unmounts
+  React.useEffect(() => {
+    return () => {
+      if (localAudioUrl) {
+        URL.revokeObjectURL(localAudioUrl);
+      }
+    };
+  }, [localAudioUrl]);
 
   const toggleLineMode = (btnMode: EditLineMode) => {
     if (lineMode === btnMode) {
@@ -246,10 +336,10 @@ return (
     />
 
     {/* Default Waveform to show when not in edit mode for other characters */}
-    {lineMode === "default" && line?.audio_url && <Waveform src={line.audio_url}/>}
+    {lineMode === "default" && line && (localAudioUrl || line.audio_url) && <Waveform src={localAudioUrl || line.audio_url!}/>}
 
     {/* Action Buttons UI */}
-    {lineMode === "trim" && line?.audio_url && <BeautifulWaveform line={line} setLineMode={setLineMode}/>}
+    {lineMode === "trim" && line && (localAudioUrl || line.audio_url) && <BeautifulWaveform line={{...line, audio_url: localAudioUrl || line.audio_url}} setLineMode={setLineMode} onAudioTrimmed={handleAudioTrimmed}/>}
 
     {lineMode === "speed" && 
       <div className="p-4 rounded-xl border-2 animate-in slide-in-from-top-2 fade-in duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-2 data-[state=closed]:fade-out overflow-hidden transition-all duration-300 ease-in-out" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
@@ -398,14 +488,16 @@ return (
           {/* Save */}
           <button
             onClick={handleSave}
-            disabled={isLoading}
-            className={`px-6 py-2 rounded-lg text-white transition-colors duration-200 flex items-center gap-2 ${isLoading ? "opacity-75 cursor-not-allowed" : ""}`}
-            style={{backgroundColor: '#FFA05A'}}
+            disabled={isLoading || !hasChanges}
+            className={`px-6 py-2 rounded-lg text-white transition-colors duration-200 flex items-center gap-2 ${(isLoading || !hasChanges) ? "opacity-50 cursor-not-allowed" : ""}`}
+            style={{
+              backgroundColor: '#FFA05A' // Always orange, opacity handles disabled state
+            }}
             onMouseEnter={(e) => {
-              if (!isLoading) e.currentTarget.style.backgroundColor = '#FF8A3A'
+              if (!isLoading && hasChanges) e.currentTarget.style.backgroundColor = '#FF8A3A'
             }}
             onMouseLeave={(e) => {
-              if (!isLoading) e.currentTarget.style.backgroundColor = '#FFA05A'
+              if (!isLoading && hasChanges) e.currentTarget.style.backgroundColor = '#FFA05A'
             }}
           >
             {!isLoading && <FontAwesomeIcon icon={faCheck} />}

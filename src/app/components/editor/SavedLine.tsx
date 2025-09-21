@@ -26,10 +26,15 @@ type Props = {
 
 const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLineBeingEditedData, setShouldScroll, setOriginalCharForOpenedLine, index, isDragDisabled}: Props) => {
 
+  console.log(characters)
+  console.log(line)
+
   const TEMP_LINE_ID = -999
-  const currCharacter = characters?.find(char => char.id === line?.character_id) ||  null
+  const currCharacter = characters?.find(char => Number(char.id) === Number(line?.character_id)) ||  null
   const voices = useVoicesStore((s) => s.voices)
   const isCharactersLoading = !characters || characters.length === 0
+
+  console.log(currCharacter)
   
   // Track mouse position for click vs drag detection
   const [mouseDownPos, setMouseDownPos] = React.useState<{x: number, y: number} | null>(null)
