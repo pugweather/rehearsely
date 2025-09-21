@@ -515,49 +515,38 @@ const BeautifulWaveform = ({ line, setLineMode, onAudioTrimmed }: Props) => {
           <button
             onClick={saveTrimmedAudio}
             disabled={isSaving}
-            className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-            style={{ 
-              backgroundColor: isSaving ? '#D1D5DB' : '#10B981', 
-              color: '#FFFFFF',
-              border: `1px solid ${isSaving ? '#9CA3AF' : '#059669'}`,
-              opacity: isSaving ? 0.7 : 1
-            }}
+            className="w-10 h-10 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
+            style={{backgroundColor: isSaving ? '#D1D5DB' : '#FFA05A'}}
             onMouseEnter={(e) => {
               if (!isSaving) {
-                e.currentTarget.style.backgroundColor = '#059669';
-                e.currentTarget.style.borderColor = '#047857';
+                e.currentTarget.style.backgroundColor = '#FF8A3A'
+                e.currentTarget.style.transform = 'scale(1.05)'
               }
             }}
             onMouseLeave={(e) => {
               if (!isSaving) {
-                e.currentTarget.style.backgroundColor = '#10B981';
-                e.currentTarget.style.borderColor = '#059669';
+                e.currentTarget.style.backgroundColor = '#FFA05A'
+                e.currentTarget.style.transform = 'scale(1)'
               }
             }}
           >
-            <FontAwesomeIcon icon={faCheck} className="text-xs" />
-            {isSaving ? 'Saving...' : 'Save'}
+            <FontAwesomeIcon icon={faCheck} className="text-sm" />
           </button>
 
           <button
             onClick={() => setLineMode('default')}
-            className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-            style={{ 
-              backgroundColor: '#F4F3F0', 
-              color: '#CC7A00',
-              border: '1px solid #E5E2DC'
-            }}
+            className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
+            style={{backgroundColor: '#F4F3F0', color: '#FFA05A'}}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#E5E2DC';
-              e.currentTarget.style.borderColor = '#D1CCC0';
+              e.currentTarget.style.backgroundColor = '#E8E6E1'
+              e.currentTarget.style.transform = 'scale(1.05)'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#F4F3F0';
-              e.currentTarget.style.borderColor = '#E5E2DC';
+              e.currentTarget.style.backgroundColor = '#F4F3F0'
+              e.currentTarget.style.transform = 'scale(1)'
             }}
           >
-            <FontAwesomeIcon icon={faXmark} className="text-xs" />
-            Close
+            <FontAwesomeIcon icon={faXmark} className="text-sm" />
           </button>
         </div>
       </div>

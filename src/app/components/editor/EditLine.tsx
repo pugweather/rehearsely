@@ -375,6 +375,23 @@ return (
           >
             <FontAwesomeIcon icon={faCheck} className="text-sm" />
           </button>
+          
+          {/* Close Button */}
+          <button
+            onClick={() => setLineMode("default")}
+            className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
+            style={{backgroundColor: '#F4F3F0', color: '#FFA05A'}}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#E8E6E1'
+              e.currentTarget.style.transform = 'scale(1.05)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#F4F3F0'
+              e.currentTarget.style.transform = 'scale(1)'
+            }}
+          >
+            <FontAwesomeIcon icon={faXmark} className="text-sm" />
+          </button>
         </div>
       </div>
     }
@@ -412,6 +429,23 @@ return (
             }}
           >
             <FontAwesomeIcon icon={faCheck} className="text-sm" />
+          </button>
+          
+          {/* Close Button */}
+          <button
+            onClick={() => setLineMode("default")}
+            className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
+            style={{backgroundColor: '#F4F3F0', color: '#FFA05A'}}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#E8E6E1'
+              e.currentTarget.style.transform = 'scale(1.05)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#F4F3F0'
+              e.currentTarget.style.transform = 'scale(1)'
+            }}
+          >
+            <FontAwesomeIcon icon={faXmark} className="text-sm" />
           </button>
         </div>
       </div>
