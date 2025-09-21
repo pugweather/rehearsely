@@ -1,88 +1,99 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import WaveSurfer from "wavesurfer.js";
-import { faPlay, faSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useRef, useEffect, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlay, faPause } from '@fortawesome/free-solid-svg-icons';
 
-export default function Waveform({ src }: { src: string }) {
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const wsRef = useRef<WaveSurfer | null>(null);
+type Props = {
+  src: string;
+};
+
+const Waveform = ({ src }: Props) => {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+
+  const togglePlayback = () => {
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+  };
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const audio = audioRef.current;
+    if (!audio) return;
 
-    // Create a WaveSurfer instance
-    const ws = WaveSurfer.create({
-      container: containerRef.current, // DOM node to draw into
-      url: src,                         // MP3 URL
-      waveColor: "#bbb",                // waveform color
-      progressColor: "#f47c2c",         // playback progress color
-      cursorColor: "#333",              // playhead color
-      height: 60,                       // pixels tall
-      barWidth: 2,                      // draw bars instead of a continuous line
-    });
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleEnded = () => setIsPlaying(false);
+    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const handleLoadedMetadata = () => setDuration(audio.duration);
 
-    wsRef.current = ws;
-
-    ws.on("ready", () => {
-      console.log("Waveform is ready, duration:", ws.getDuration());
-    });
-
-    ws.on("play", () => {
-      setIsPlaying(true)
-    })
-
-    ws.on("pause", () => {
-      setIsPlaying(false)
-    })
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
 
     return () => {
-      ws.destroy();
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
     };
-  }, [src]);
+  }, []);
+
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  // Handle clicking on progress bar to seek
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!audioRef.current || duration === 0) return;
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const clickPercent = x / rect.width;
+    const seekTime = clickPercent * duration;
+    
+    audioRef.current.currentTime = seekTime;
+    setCurrentTime(seekTime);
+  };
 
   return (
-    <div className="flex items-center gap-3">
-  {/* Waveform fills remaining space */}
-  <div ref={containerRef} className="flex-1 min-w-0 h-16" />
+    <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 flex items-center gap-3">
+      {/* Play button */}
+      <button
+        onClick={togglePlayback}
+        className="w-6 h-6 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 transition-colors flex-shrink-0"
+      >
+        <FontAwesomeIcon icon={isPlaying ? faPause : faPlay} className="text-xs" />
+      </button>
 
-  {/* Controls */}
-  <div className="flex items-center gap-2">
-    <button
-      onClick={() => wsRef.current?.playPause()}
-      aria-label="Play/Pause"
-      className="px-3 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 hover:shadow-md"
-      style={{backgroundColor: 'rgba(244,239,232,0.8)', color: '#FFA05A', border: '1px solid rgba(255,160,90,0.3)'}}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = 'rgba(255,160,90,0.1)'
-        e.currentTarget.style.borderColor = 'rgba(255,160,90,0.4)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
-        e.currentTarget.style.borderColor = 'rgba(255,160,90,0.3)'
-      }}
-    >
-      <FontAwesomeIcon icon={isPlaying ? faSquare : faPlay} className="text-sm" />
-    </button>
+      {/* Clickable progress bar */}
+      <div 
+        className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden cursor-pointer"
+        onClick={handleProgressClick}
+        title="Click to seek"
+      >
+        <div 
+          className="h-full bg-gray-600 transition-all duration-100"
+          style={{ width: `${progressPercent}%` }}
+        />
+      </div>
 
-    <button
-      aria-label="Delete"
-      className="px-3 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 hover:shadow-md"
-      style={{backgroundColor: 'rgba(220,38,38,0.1)', color: '#dc2626', border: '1px solid rgba(220,38,38,0.2)'}}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = 'rgba(220,38,38,0.15)'
-        e.currentTarget.style.borderColor = 'rgba(220,38,38,0.3)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = 'rgba(220,38,38,0.1)'
-        e.currentTarget.style.borderColor = 'rgba(220,38,38,0.2)'
-      }}
-    >
-      <FontAwesomeIcon icon={faTrash} className="text-sm" />
-    </button>
-  </div>
-</div>
+      {/* Time display */}
+      <div className="text-xs text-gray-500 font-mono">
+        {Math.floor(currentTime)}s / {Math.floor(duration)}s
+      </div>
 
+      {/* Hidden audio element */}
+      <audio ref={audioRef} src={src} preload="metadata" />
+    </div>
   );
-}
+};
+
+export default Waveform;

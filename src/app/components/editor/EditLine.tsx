@@ -18,7 +18,7 @@ import Waveform from "./Waveform";
 import localFont from "next/font/local";
 import clsx from "clsx";
 import { waveform } from "elevenlabs/api/resources/voices/resources/pvc/resources/samples";
-import WaveformTrim from "./WaveformTrim";
+import BeautifulWaveform from "./BeautifulWaveform";
 import { cn } from "@/lib/utils"
 import { Slider } from "../ui/Slider";
 import { lines } from "@/database/drizzle/schema";
@@ -249,7 +249,7 @@ return (
     {lineMode === "default" && line?.audio_url && <Waveform src={line.audio_url}/>}
 
     {/* Action Buttons UI */}
-    {lineMode === "trim" && line?.audio_url && <WaveformTrim line={line} setLineMode={setLineMode}/>}
+    {lineMode === "trim" && line?.audio_url && <BeautifulWaveform line={line} setLineMode={setLineMode}/>}
 
     {lineMode === "speed" && 
       <div className="p-4 rounded-xl border-2 animate-in slide-in-from-top-2 fade-in duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-2 data-[state=closed]:fade-out overflow-hidden transition-all duration-300 ease-in-out" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
