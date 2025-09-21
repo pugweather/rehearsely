@@ -1,5 +1,5 @@
 "use client"
-import React, { PropsWithChildren, useRef } from 'react'
+import React, { PropsWithChildren, useRef, useState, useEffect } from 'react'
 import Link from "next/link";
 import Navbar from "../layout/Navbar";
 import EditorWrapper from "./EditorWrapper";
@@ -7,7 +7,7 @@ import SceneSettings from "./SceneSettings";
 import LineList from "@/app/components/editor/LineList";
 import ButtonLink from '../ui/ButtonLink';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeftLong, faPlay } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeftLong, faPlay, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import { DraftLine, Line } from '@/app/types';
 import { Scene } from '@/app/types';
 import PlaySceneButtonsWrapper from './PlaySceneButtonsWrapper';
@@ -28,6 +28,25 @@ type Props = {
 const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setSceneIsPlaying}: Props) => {
 
     const scrollRef = useRef<HTMLDivElement | null>(null)
+    const [headerExpanded, setHeaderExpanded] = useState(false)
+    const headerRef = useRef<HTMLDivElement | null>(null)
+    
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+                setHeaderExpanded(false)
+            }
+        }
+        
+        if (headerExpanded) {
+            document.addEventListener('mousedown', handleClickOutside)
+        }
+        
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [headerExpanded])
     
     return (
         <div className="relative h-screen overflow-hidden">
@@ -44,24 +63,58 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
         
             {/* scrollable area */}
             <div className="flex-1 overflow-y-scroll" ref={scrollRef}>
-              <EditorWrapper>
-                <div className="relative text-black py-6 border-b border-b-gray-300 min-h-20">
-                  <Link href="/scenes">
-                    <span className="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium shadow-sm hover:shadow-md transition-all duration-200 ease-in-out arrow-slide-on-hover inline-flex items-center gap-2 text-sm">
-                      <svg className="arrow-icon w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
-                        <path fillRule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-                      </svg>
-                      <span className={`${sunsetSerialMediumFont.className}`}>Back to Scenes</span>
-                    </span>
-                  </Link>
-                  <div className={`absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 line-clamp-1 w-[27.5rem] text-center text-2xl font-medium text-gray-900 ${sunsetSerialMediumFont.className}`}>
-                    {scene.name}
+         <EditorWrapper>
+                {/* Compact Scene Header */}
+                <div className="fixed left-1/2 -translate-x-1/2 top-20 text-black z-99999">
+                  <div className="relative" ref={headerRef}>
+                    {/* Compact header button */}
+                    <button 
+                      className={`transition-all duration-200 ease-in-out cursor-pointer min-w-32 max-w-48 px-3 py-2 rounded-md ${
+                        headerExpanded 
+                          ? 'bg-gray-100 shadow-md' 
+                          : 'hover:bg-gray-50 shadow-sm hover:shadow-md'
+                      }`}
+                      style={{ backgroundColor: headerExpanded ? '#f5f5f5' : 'var(--bg-page)' }}
+                      onClick={() => setHeaderExpanded(!headerExpanded)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className={`text-sm font-medium text-gray-700 truncate pr-2 ${sunsetSerialMediumFont.className}`}>
+                          {scene.name}
+                        </div>
+                        <FontAwesomeIcon 
+                          icon={headerExpanded ? faChevronUp : faChevronDown} 
+                          className="w-3 h-3 text-gray-500 transition-transform duration-200 flex-shrink-0"
+                        />
+                      </div>
+                    </button>
+                    
+                    {/* Expanded dropdown content */}
+                    {headerExpanded && (
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-[36rem] bg-white rounded-lg shadow-lg transition-all duration-200 ease-in-out" style={{ backgroundColor: 'var(--bg-page)' }}>
+                        <div className="p-4">
+                          <div className="flex items-center justify-between">
+                            {/* Back to scenes button */}
+                            <Link href="/scenes" onClick={(e) => e.stopPropagation()}>
+                              <span className="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium shadow-sm hover:shadow-md transition-all duration-200 ease-in-out arrow-slide-on-hover inline-flex items-center gap-2 text-sm whitespace-nowrap">
+                                <svg className="arrow-icon w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                                  <path fillRule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                                </svg>
+                                <span className={`${sunsetSerialMediumFont.className}`}>Back to Scenes</span>
+                              </span>
+                            </Link>
+                            
+                            {/* Scene settings */}
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <SceneSettings />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
         
-                <SceneSettings />
-        
-                <div className="flex flex-col items-center py-8">
+                <div className="flex flex-col items-center py-8 pt-20">
                   <div className="max-w-md w-full flex flex-col items-center pb-20">
                     <LineList
                       lineItems={lineItems}
