@@ -281,17 +281,27 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
             { 
             lineItems?.map((line, index) => {
               return line.id == lineBeingEdited?.id ? 
-              <EditLine 
-                key={line.id}
-                line={line} 
-                characters={characters} 
-                lineBeingEditedData={lineBeingEditedData}
-                newLineOrder={newLineOrder}
-                setLines={setLines}
-                setLineBeingEditedData={setLineBeingEditedData}
-                charsDropdownData={charsDropdownData}
-                closeEditLine={closeEditLine}
+              (false ? (
+                // Show loading state instead of EditLine when characters haven't loaded
+                <div key={line.id} className="rounded-2xl w-full px-6 py-6 mb-8 flex items-center justify-center" style={{backgroundColor: '#E3D6C6', border: '1px solid rgba(32,32,32,0.1)'}}>
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-lg font-medium">Loading characters...</span>
+                  </div>
+                </div>
+              ) : (
+                <EditLine 
+                  key={line.id}
+                  line={line} 
+                  characters={characters} 
+                  lineBeingEditedData={lineBeingEditedData}
+                  newLineOrder={newLineOrder}
+                  setLines={setLines}
+                  setLineBeingEditedData={setLineBeingEditedData}
+                  charsDropdownData={charsDropdownData}
+                  closeEditLine={closeEditLine}
                 />
+              ))
                 : 
               <SavedLine 
                 key={line.id}

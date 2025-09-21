@@ -22,6 +22,9 @@ import WaveformTrim from "./WaveformTrim";
 import { cn } from "@/lib/utils"
 import { Slider } from "../ui/Slider";
 import { lines } from "@/database/drizzle/schema";
+import { useCharacters } from '@/app/context/charactersContext';
+import { useVoicesStore } from '@/app/stores/useVoicesStores';
+import Dropdown from '../ui/Dropdown';
 
 type Props = {
   line: DraftLine | null;
@@ -53,6 +56,10 @@ const EditLine = ({
   const sceneId = line?.scene_id;
   const lineId = line?.id;
   const { character, text } = lineBeingEditedData;
+
+  const { characters: chars, setCharacters } = useCharacters();
+  const voices = useVoicesStore((s: any) => s.voices);
+  const isCharactersLoading = characters === null;
 
   const [isLoading, setIsLoading] = useState(false);
   const [lineMode, setLineMode] = useState<EditLineMode>("default"); // default | trim | delay | speed
@@ -152,7 +159,7 @@ const EditLine = ({
 
 return (
   <div className={clsx(
-    "rounded-2xl w-full px-6 py-6 space-y-6 relative shadow-md transition-all duration-200 hover:shadow-lg mb-8",
+    "rounded-2xl w-full px-6 py-6 space-y-6 relative shadow-md transition-all duration-300 hover:shadow-lg mb-8",
     isLoading ? "pointer-events-none opacity-75" : ""
     )} style={{backgroundColor: '#E3D6C6', border: '1px solid rgba(32,32,32,0.1)'}}>
     {/* Close Button (X) */}
@@ -168,44 +175,51 @@ return (
 
     {/* Character Dropdown */}
     <div className="flex justify-between pr-12">
-      <div className="dropdown">
-        <div
-          tabIndex={0}
-          role="button"
-          className="btn btn-outline px-4 py-2 rounded-lg inline-flex items-center gap-2 text-sm"
-          style={{backgroundColor: 'rgba(244,239,232,0.8)', color: '#202020', border: '1px solid rgba(32,32,32,0.1)'}}
-        >
-          <FontAwesomeIcon icon={faUser} style={{color: '#FFA05A'}} />
-          {character ? `${character.name}${character.is_me ? " (me)" : ""}` : "Select Character"}
-          <FontAwesomeIcon icon={faChevronDown} style={{color: '#202020', opacity: 0.6}} />
+      {isCharactersLoading ? (
+        <div className="px-4 py-2 rounded-lg bg-gray-100 text-gray-500 text-sm font-medium flex items-center gap-2">
+          <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+          Loading characters...
         </div>
-        <ul
-          tabIndex={0}
-          className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow"
-        >
-          {charsDropdownData?.map((item, index) => (
-            <li key={index}>
-              <a 
-                className={item.className} 
-                onClick={(e) => {
-                  e.preventDefault();
-                  item.onClick();
-                  // Only close dropdown after a delay to allow modal to open
-                  setTimeout(() => {
-                    const activeElement = document.activeElement as HTMLElement;
-                    if (activeElement) {
-                      activeElement.blur();
-                    }
-                    document.body.click();
-                  }, 100);
-                }}
-              >
-                {item.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
+      ) : (
+        <div className="dropdown">
+          <div
+            tabIndex={0}
+            role="button"
+            className="btn btn-outline px-4 py-2 rounded-lg inline-flex items-center gap-2 text-sm"
+            style={{backgroundColor: 'rgba(244,239,232,0.8)', color: '#202020', border: '1px solid rgba(32,32,32,0.1)'}}
+          >
+            <FontAwesomeIcon icon={faUser} style={{color: '#FFA05A'}} />
+            {character ? `${character.name}${character.is_me ? " (me)" : ""}` : (isCharactersLoading ? "Loading..." : "Select Character")}
+            <FontAwesomeIcon icon={faChevronDown} style={{color: '#202020', opacity: 0.6}} />
+          </div>
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow"
+          >
+            {charsDropdownData?.map((item, index) => (
+              <li key={index}>
+                <a 
+                  className={item.className} 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    item.onClick();
+                    // Only close dropdown after a delay to allow modal to open
+                    setTimeout(() => {
+                      const activeElement = document.activeElement as HTMLElement;
+                      if (activeElement) {
+                        activeElement.blur();
+                      }
+                      document.body.click();
+                    }, 100);
+                  }}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
 
     {/* Textarea */}
@@ -238,10 +252,10 @@ return (
     {lineMode === "trim" && line?.audio_url && <WaveformTrim line={line} setLineMode={setLineMode}/>}
 
     {lineMode === "speed" && 
-      <div className="p-4 rounded-xl border-2" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
+      <div className="p-4 rounded-xl border-2 animate-in slide-in-from-top-2 fade-in duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-2 data-[state=closed]:fade-out overflow-hidden transition-all duration-300 ease-in-out" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
         <div className="flex items-center gap-4">
           <div className="flex-1">
-            <label className="text-sm font-semibold mb-2 block" style={{color: '#CC7A00'}}>Playback Speed</label>
+            <label className="text-sm font-semibold mb-2 block" style={{color: '#CC7A00'}}>Speed</label>
             <input 
               type="range" 
               min={0} 
@@ -276,10 +290,10 @@ return (
     }
 
     {lineMode === "delay" && 
-      <div className="p-4 rounded-xl border-2" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
+      <div className="p-4 rounded-xl border-2 animate-in slide-in-from-top-2 fade-in duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-2 data-[state=closed]:fade-out overflow-hidden transition-all duration-300 ease-in-out" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
         <div className="flex items-center gap-4">
           <div className="flex-1">
-            <label className="text-sm font-semibold mb-2 block" style={{color: '#CC7A00'}}>Delay Time</label>
+            <label className="text-sm font-semibold mb-2 block" style={{color: '#CC7A00'}}>Delay</label>
             <input 
               type="range" 
               min={0} 

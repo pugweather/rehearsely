@@ -29,6 +29,7 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
   const TEMP_LINE_ID = -999
   const currCharacter = characters?.find(char => char.id === line?.character_id) ||  null
   const voices = useVoicesStore((s) => s.voices)
+  const isCharactersLoading = !characters || characters.length === 0
   
   // Track mouse position for click vs drag detection
   const [mouseDownPos, setMouseDownPos] = React.useState<{x: number, y: number} | null>(null)
@@ -36,6 +37,12 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
   if (line == null) return
 
   const handleSetLineToEditMode = () => {
+    // Prevent opening EditLine if characters are still loading
+    if (!characters || characters.length === 0) {
+      console.log('🚫 Prevented EditLine open - characters still loading');
+      return;
+    }
+    
     setShouldScroll(true)
     setLineBeingEdited(line)
     // Get voice object to pass into the edit mode line
@@ -125,9 +132,10 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className={`w-full text-center mb-8 px-8 py-6 cursor-pointer rounded-xl transition-all duration-300 ease-in-out font-medium border border-transparent ${courierPrimeRegular.className} ${
+      className={`w-full text-center mb-8 px-8 py-6 rounded-xl transition-all duration-300 ease-in-out font-medium border border-transparent ${courierPrimeRegular.className} ${
         isDragging ? 'shadow-lg scale-105' : 'shadow-none scale-100'
       } ${
+        isCharactersLoading ? 'cursor-not-allowed opacity-60' : 
         isDragDisabled ? 'cursor-default' : 'cursor-grab'
       }`}
       style={{
@@ -138,14 +146,14 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
         borderColor: isDragging ? 'rgba(255,160,90,0.3)' : 'transparent',
       }}
       onMouseEnter={(e) => {
-        if (!isDragDisabled && !isDragging) {
+        if (!isDragDisabled && !isDragging && !isCharactersLoading) {
           e.currentTarget.style.backgroundColor = 'rgba(255,160,90,0.08)'
           e.currentTarget.style.borderColor = 'rgba(255,160,90,0.2)'
           e.currentTarget.style.borderRadius = '12px'
         }
       }}
       onMouseLeave={(e) => {
-        if (!isDragDisabled && !isDragging) {
+        if (!isDragDisabled && !isDragging && !isCharactersLoading) {
           e.currentTarget.style.backgroundColor = 'transparent'
           e.currentTarget.style.borderColor = 'transparent'
           e.currentTarget.style.borderRadius = '12px'

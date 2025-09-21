@@ -40,7 +40,7 @@ const Modal = ({children, width, height, isOpen = true, onClose}: Props) => {
 
     return (
         <div 
-            className={`fixed inset-0 flex items-center justify-center z-[9999] transition-all duration-200 ease-out ${
+            className={`fixed inset-0 flex items-center justify-center z-[999999] transition-all duration-200 ease-out ${
                 isVisible 
                     ? 'opacity-100' 
                     : 'opacity-0'

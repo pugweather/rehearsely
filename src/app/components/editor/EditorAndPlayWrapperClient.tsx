@@ -6,6 +6,7 @@ import EditorWrapperOuter from './EditorWrapperOuter'
 import PlaySceneWrapperOuter from '../play/PlayerSceneWrapperOuter'
 import { CharactersProvider } from '@/app/context/charactersContext'
 import { CountdownProvider } from '@/app/context/countdownContext'
+import CurtainReveal from '../ui/CurtainReveal'
 
 type Props = {
     scene: Scene,
@@ -39,31 +40,31 @@ const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
     fetchSceneCharacters()
     }, [scene.id])
 
+    const isLoading = characters === null
+
     return (
         <CharactersProvider characters={characters} setCharacters={setCharacters}>
             <CountdownProvider>
-            <div>
-                {
-                    sceneIsPlaying ? 
-                    <PlaySceneWrapperOuter
-                        scene={scene}
-                        lineItems={lines}
-                        setLines={setLines}
-                        setSceneIsPlaying={setSceneIsPlaying}
-                        sceneIsPlaying={sceneIsPlaying}
-                    >
-                    </PlaySceneWrapperOuter> 
-                    :
-                    <EditorWrapperOuter
-                        scene={scene}
-                        lineItems={lines}
-                        setLines={setLines}
-                        setSceneIsPlaying={setSceneIsPlaying}
-                        sceneIsPlaying={sceneIsPlaying}
-                    >
-                    </EditorWrapperOuter>
-                }
-            </div>
+                <CurtainReveal isLoading={isLoading} loadingText="Loading scene">
+                    {
+                        sceneIsPlaying ? 
+                        <PlaySceneWrapperOuter
+                            scene={scene}
+                            lineItems={lines}
+                            setLines={setLines}
+                            setSceneIsPlaying={setSceneIsPlaying}
+                            sceneIsPlaying={sceneIsPlaying}
+                        />
+                        :
+                        <EditorWrapperOuter
+                            scene={scene}
+                            lineItems={lines}
+                            setLines={setLines}
+                            setSceneIsPlaying={setSceneIsPlaying}
+                            sceneIsPlaying={sceneIsPlaying}
+                        />
+                    }
+                </CurtainReveal>
             </CountdownProvider>
         </CharactersProvider>
     )
