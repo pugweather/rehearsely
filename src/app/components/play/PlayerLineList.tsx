@@ -120,7 +120,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
             })
           }
           {sceneIsPlaying && delayCountdown !== null && <CountdownModal countdown={delayCountdown} />}
-          {sceneHasStarted && <MicTranscriber line={currentLine} listening={currentCharacter.is_me} setSpokenText={setSpokenText} onLineSpoken={() => console.log("go to next line....")}/>}
+          {sceneHasStarted && sceneIsPlaying && <MicTranscriber line={currentLine} listening={currentCharacter.is_me} setSpokenText={setSpokenText} onLineSpoken={() => console.log("go to next line....")}/>}
         </>
     )
 }
