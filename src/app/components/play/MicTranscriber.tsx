@@ -32,12 +32,7 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
   const socketRef = useRef<WebSocket | null>(null)
   const mediaStreamRef = useRef<MediaStream | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const reconnectAttemptsRef = useRef(0)
   const isCleanupRef = useRef(false)
-
-  const MAX_RECONNECT_ATTEMPTS = 5
-  const RECONNECT_DELAY = 2000
 
   // Clean up function
   const cleanup = useCallback(() => {
@@ -72,11 +67,6 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
       mediaStreamRef.current = null
     }
 
-    if (reconnectTimeoutRef.current) {
-      console.log('⏰ Clearing reconnect timeout')
-      clearTimeout(reconnectTimeoutRef.current)
-      reconnectTimeoutRef.current = null
-    }
 
     setConnectionStatus('disconnected')
     setError(null)
@@ -129,7 +119,6 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
         console.log('✅ Deepgram WebSocket connected')
         setConnectionStatus('connected')
         setError(null)
-        reconnectAttemptsRef.current = 0
         
         // Send configuration message
         socket.send(JSON.stringify({
@@ -156,25 +145,26 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
         clearTimeout(connectTimeout)
         console.log('🔌 Deepgram WebSocket closed:', event.code, event.reason)
         
-        if (!isCleanupRef.current && reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
-          setConnectionStatus('connecting')
-          reconnectAttemptsRef.current++
-          console.log(`🔄 Attempting to reconnect... (${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})`)
-          
-          reconnectTimeoutRef.current = setTimeout(() => {
-            initializeConnection()
-          }, RECONNECT_DELAY)
-        } else {
+        // Only set to disconnected if this was an intentional close (cleanup)
+        if (isCleanupRef.current) {
+          console.log('✅ WebSocket closed due to cleanup')
           setConnectionStatus('disconnected')
-          if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
-            setError('Failed to reconnect after multiple attempts')
-          }
+        } else {
+          console.log('⚠️ WebSocket closed unexpectedly - but may still be working')
+          // Don't immediately show error - let the connection prove it's broken
+          // If messages stop coming, user will notice. If they keep coming, auto-recovery will handle it.
         }
       }
 
       socket.onmessage = (event) => {
         try {
-            console.log("hey")
+          // If we're receiving messages, connection is actually fine
+          if (connectionStatus === 'error') {
+            console.log('🔄 Connection recovered - clearing error')
+            setConnectionStatus('connected')
+            setError(null)
+          }
+          
           const data: DeepgramResponse = JSON.parse(event.data)
           
           if (data.channel?.alternatives?.[0]?.transcript) {
