@@ -85,14 +85,14 @@ const AcmeLogo = () => {
 };
 
   return (
-    <div className="navbar fixed top-0 left-0 right-0 max-w-[1440px] mx-auto h-[75px] pb-50px backdrop-blur-lg z-999999">
+    <div className="navbar fixed top-0 left-0 right-0 max-w-[1440px] mx-auto h-[75px] pb-50px backdrop-blur-lg z-10">
       <div className="navbar-start">
         <Link href="/" className="text-2xl font-bold">Rehearsely</Link>
       </div>
       <div className="navbar-end">
          {user ? 
-         <a className="btn btn-lg default-btn black grow-on-hover">Log out</a>:
-         <Link href="/login" className="btn btn-lg default-btn black">Log in</Link>
+         <a className="btn btn-lg default-btn black grow-on-hover relative z-0" onClick={handleLogout}>Log out</a>:
+         <Link href="/login" className="btn btn-lg default-btn black relative z-0">Log in</Link>
         }
       </div>
     </div>

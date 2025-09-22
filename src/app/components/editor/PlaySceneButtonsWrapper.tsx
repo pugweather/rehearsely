@@ -10,7 +10,7 @@ type Props = {
 const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) => {
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-60">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 w-60">
       <div className="bg-[#f4efe8] shadow-[0_0_3px_1px_rgba(0,0,0,0.06)] rounded-2xl px-6 py-4 flex items-center justify-center border border-black/10">
         {
           sceneIsPlaying ? 
