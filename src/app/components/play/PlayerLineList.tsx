@@ -62,21 +62,27 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
         
       // Handle other characters speaking
       } else {
-        console.log(currentLine)
-        const characterAudioUrl = currentLine.audio_url
-        const currAudio = new Audio(characterAudioUrl)
-        audio.current = currAudio
-        audio.current.play()
 
-        // Quit player after last line is finished
-        audio.current.onended = () => {
-          if (isLastLine) {
-            setSceneIsPlaying(false)
-          } else {
-            console.log(currentLineIndex)
-            setCurrentLineIndex(prev => prev + 1)
+        const lineDelay = Number(currentLine.delay * 1000) // Convert from s to ms
+
+        setTimeout(function() {
+          console.log(currentLine)
+          const characterAudioUrl = currentLine.audio_url
+          const currAudio = new Audio(characterAudioUrl)
+          audio.current = currAudio
+          audio.current.play()
+
+          // Quit player after last line is finished
+          audio.current.onended = () => {
+            if (isLastLine) {
+              setSceneIsPlaying(false)
+            } else {
+              console.log(currentLineIndex)
+              setCurrentLineIndex(prev => prev + 1)
+            }
           }
-        }
+        }, lineDelay)
+        
       }
       
     }, [currentLineIndex, spokenText])
