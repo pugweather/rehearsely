@@ -336,10 +336,25 @@ return (
     />
 
     {/* Default Waveform to show when not in edit mode for other characters */}
-    {lineMode === "default" && line && (localAudioUrl || line.audio_url) && <Waveform src={localAudioUrl || line.audio_url!}/>}
+    {lineMode === "default" && line && (localAudioUrl || line.audio_url) && (
+      <>
+        {console.log('Speed being passed to Waveform:', lineBeingEditedData.speed)}
+        <Waveform src={localAudioUrl || line.audio_url!} speed={lineBeingEditedData.speed || 1.0} />
+      </>
+    )}
 
     {/* Action Buttons UI */}
-    {lineMode === "trim" && line && (localAudioUrl || line.audio_url) && <BeautifulWaveform line={{...line, audio_url: localAudioUrl || line.audio_url}} setLineMode={setLineMode} onAudioTrimmed={handleAudioTrimmed}/>}
+    {lineMode === "trim" && line && (localAudioUrl || line.audio_url) && (
+      <>
+        {console.log('Speed being passed to BeautifulWaveform:', lineBeingEditedData.speed)}
+        <BeautifulWaveform 
+          line={{...line, audio_url: localAudioUrl || line.audio_url}} 
+          setLineMode={setLineMode} 
+          onAudioTrimmed={handleAudioTrimmed} 
+          speed={lineBeingEditedData.speed || 1.0} 
+        />
+      </>
+    )}
 
     {lineMode === "speed" && 
       <div className="p-4 rounded-xl border-2 animate-in slide-in-from-top-2 fade-in duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-2 data-[state=closed]:fade-out overflow-hidden transition-all duration-300 ease-in-out" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>

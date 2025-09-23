@@ -5,9 +5,10 @@ import { faPlay, faPause } from '@fortawesome/free-solid-svg-icons';
 
 type Props = {
   src: string;
+  speed?: number;
 };
 
-const Waveform = ({ src }: Props) => {
+const Waveform = ({ src, speed = 1.0 }: Props) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -19,6 +20,9 @@ const Waveform = ({ src }: Props) => {
     if (isPlaying) {
       audioRef.current.pause();
     } else {
+      // Set playback rate before playing
+      audioRef.current.playbackRate = speed;
+      console.log('Setting playbackRate to:', speed);
       audioRef.current.play();
     }
   };
@@ -31,7 +35,12 @@ const Waveform = ({ src }: Props) => {
     const handlePause = () => setIsPlaying(false);
     const handleEnded = () => setIsPlaying(false);
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const handleLoadedMetadata = () => setDuration(audio.duration);
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
+      // Set playback rate when metadata loads
+      audio.playbackRate = speed;
+      console.log('Audio loaded, setting playbackRate to:', speed);
+    };
 
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
@@ -46,7 +55,16 @@ const Waveform = ({ src }: Props) => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
     };
-  }, []);
+  }, [speed]);
+
+  // Update playback rate when speed changes
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.playbackRate = speed;
+      console.log('Speed changed, setting playbackRate to:', speed);
+    }
+  }, [speed]);
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 

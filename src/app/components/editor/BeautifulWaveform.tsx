@@ -8,6 +8,7 @@ type Props = {
   line: DraftLine;
   setLineMode: React.Dispatch<React.SetStateAction<EditLineMode>>;
   onAudioTrimmed?: (trimmedAudioBlob: Blob) => void; // Callback with the trimmed audio blob
+  speed?: number; // Added speed prop
 };
 
 type TrimRange = {
@@ -15,7 +16,7 @@ type TrimRange = {
   end: number;
 };
 
-const BeautifulWaveform = ({ line, setLineMode, onAudioTrimmed }: Props) => {
+const BeautifulWaveform = ({ line, setLineMode, onAudioTrimmed, speed = 1.0 }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -397,6 +398,7 @@ const BeautifulWaveform = ({ line, setLineMode, onAudioTrimmed }: Props) => {
       // Always start from trim start and reset current time
       audioRef.current.currentTime = trimRange.start;
       setCurrentTime(trimRange.start);
+      audioRef.current.playbackRate = speed;
       audioRef.current.play();
       setIsPlaying(true);
     }
