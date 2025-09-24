@@ -33,14 +33,13 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
   const mediaStreamRef = useRef<MediaStream | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const isCleanupRef = useRef(false)
+  const finalTranscriptRef = useRef<string>('')
 
   // Clean up function
   const cleanup = useCallback(() => {
-    console.log('🧹 Starting cleanup...')
     isCleanupRef.current = true
     
     if (mediaRecorderRef.current) {
-      console.log('🎙️ Stopping MediaRecorder and removing event listeners')
       
       // Remove ALL event listeners first (this is the key!)
       mediaRecorderRef.current.ondataavailable = null
@@ -56,23 +55,20 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
     mediaRecorderRef.current = null
 
     if (socketRef.current) {
-      console.log('🔌 Closing WebSocket')
       socketRef.current.close(1000, 'Component cleanup')
       socketRef.current = null
     }
 
     if (mediaStreamRef.current) {
-      console.log('📱 Stopping media stream tracks')
       mediaStreamRef.current.getTracks().forEach(track => track.stop())
       mediaStreamRef.current = null
     }
-
 
     setConnectionStatus('disconnected')
     setError(null)
     setTranscript('')
     setSpokenWordCount(0)
-    console.log('✅ Cleanup complete')
+    finalTranscriptRef.current = ''
   }, [])
 
   // Initialize microphone
@@ -91,7 +87,6 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
       mediaStreamRef.current = stream
       return stream
     } catch (error) {
-      console.error('Failed to access microphone:', error)
       setError('Failed to access microphone. Please check permissions.')
       throw error
     }
@@ -106,8 +101,17 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
         return
       }
 
-      // Use modern WebSocket connection with proper headers
-      const socket = new WebSocket('wss://api.deepgram.com/v1/listen', ['token', apiKey])
+      // Use modern WebSocket connection with optimized parameters for low latency
+      const url = new URL('wss://api.deepgram.com/v1/listen')
+      url.searchParams.set('model', 'nova-2')
+      url.searchParams.set('language', 'en-US')
+      url.searchParams.set('punctuate', 'false')
+      url.searchParams.set('interim_results', 'true')
+      url.searchParams.set('endpointing', '150')
+      url.searchParams.set('smart_format', 'false')
+      url.searchParams.set('vad_events', 'true')
+
+      const socket = new WebSocket(url.toString(), ['token', apiKey])
       
       const connectTimeout = setTimeout(() => {
         socket.close()
@@ -116,26 +120,16 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
 
       socket.onopen = () => {
         clearTimeout(connectTimeout)
-        console.log('✅ Deepgram WebSocket connected')
         setConnectionStatus('connected')
         setError(null)
         
-        // Send configuration message
-        socket.send(JSON.stringify({
-          type: 'Configure',
-          processors: {
-            vad: {
-              silence_threshold: 0.5
-            }
-          }
-        }))
+        // Configuration is now handled via URL parameters, no need to send separate config
         
         resolve(socket)
       }
 
       socket.onerror = (error) => {
         clearTimeout(connectTimeout)
-        console.error('❌ Deepgram WebSocket error:', error)
         setConnectionStatus('error')
         setError('WebSocket connection failed')
         reject(error)
@@ -143,16 +137,10 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
 
       socket.onclose = (event) => {
         clearTimeout(connectTimeout)
-        console.log('🔌 Deepgram WebSocket closed:', event.code, event.reason)
         
         // Only set to disconnected if this was an intentional close (cleanup)
         if (isCleanupRef.current) {
-          console.log('✅ WebSocket closed due to cleanup')
           setConnectionStatus('disconnected')
-        } else {
-          console.log('⚠️ WebSocket closed unexpectedly - but may still be working')
-          // Don't immediately show error - let the connection prove it's broken
-          // If messages stop coming, user will notice. If they keep coming, auto-recovery will handle it.
         }
       }
 
@@ -160,7 +148,6 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
         try {
           // If we're receiving messages, connection is actually fine
           if (connectionStatus === 'error') {
-            console.log('🔄 Connection recovered - clearing error')
             setConnectionStatus('connected')
             setError(null)
           }
@@ -169,33 +156,33 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
           
           if (data.channel?.alternatives?.[0]?.transcript) {
             const transcriptText = data.channel.alternatives[0].transcript
-            
+
             if (transcriptText.trim()) {
               console.log('🎤 Transcript:', transcriptText, '| Final:', data.is_final)
-              
-              // Update spoken text for real-time feedback
+
+              // Always update spoken text for real-time feedback
               setSpokenText(transcriptText)
-              
-              // Handle transcript updates - fix duplication issue
+
+              // Handle transcript processing and display
               if (data.is_final) {
-                // Only add final results to permanent transcript
-                setTranscript(prev => {
-                  // Don't add if it's already there (prevents duplication)
-                  if (prev.trim().endsWith(transcriptText.trim())) {
-                    return prev
-                  }
-                  return prev + transcriptText + ' '
-                })
+                // Process final transcript for word matching
                 processTranscript(transcriptText)
+
+                // Add to final transcript ref and update display
+                const newFinalTranscript = finalTranscriptRef.current + transcriptText + ' '
+                finalTranscriptRef.current = newFinalTranscript
+                setTranscript(newFinalTranscript)
               } else {
-                // Show interim results without adding to permanent transcript
-                // This is just for live feedback, don't accumulate
-                console.log('📝 Interim result:', transcriptText)
+                // For interim results, process for immediate feedback
+                processTranscript(transcriptText)
+
+                // Display final transcript + current interim (no permanent storage)
+                setTranscript(finalTranscriptRef.current + transcriptText)
               }
             }
           }
         } catch (error) {
-          console.error('Error parsing Deepgram response:', error)
+          // Error parsing response
         }
       }
 
@@ -226,7 +213,6 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
 
     // Check if line is complete
     if (matchCount >= expectedWords.length && expectedWords.length > 0) {
-      console.log('✅ Line completed!')
       onLineSpoken()
     }
   }, [expectedWords, onLineSpoken])
@@ -248,29 +234,22 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
 
       const recorder = new MediaRecorder(stream, {
         mimeType: mimeType || undefined,
-        audioBitsPerSecond: 16000
+        audioBitsPerSecond: 64000
       })
 
       recorder.ondataavailable = (event) => {
-        console.log(`🎵 Audio data available: ${event.data.size} bytes, type: ${event.data.type}`)
         if (event.data.size > 0 && socket.readyState === WebSocket.OPEN) {
-          console.log(`📤 Actually sending ${event.data.size} bytes to Deepgram`)
           socket.send(event.data)
-          console.log(`✅ Send completed`)
-        } else {
-          console.log(`❌ Cannot send: size=${event.data.size}, socketState=${socket.readyState}`)
         }
       }
 
       recorder.onerror = (error) => {
-        console.error('MediaRecorder error:', error)
         setError('Audio recording failed')
       }
 
       mediaRecorderRef.current = recorder
       return recorder
     } catch (error) {
-      console.error('Failed to create MediaRecorder:', error)
       setError('Failed to initialize audio recording')
       throw error
     }
@@ -288,9 +267,7 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
       const socket = await createWebSocketConnection()
       setupMediaRecorder(stream, socket)
 
-      console.log('🎉 Deepgram connection fully initialized')
     } catch (error) {
-      console.error('Failed to initialize connection:', error)
       setConnectionStatus('error')
       setError(error instanceof Error ? error.message : 'Connection failed')
     }
@@ -298,13 +275,11 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
 
   // Initialize connection on mount and cleanup on unmount
   useEffect(() => {
-    console.log('🎬 MicTranscriber component mounted - initializing connection')
     isCleanupRef.current = false
     initializeConnection()
     
     // This cleanup runs when component unmounts (switching back to editor)
     return () => {
-      console.log('🎬 MicTranscriber component unmounting - running cleanup')
       cleanup()
     }
   }, [initializeConnection, cleanup])
@@ -326,7 +301,7 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
     setExpectedWords(cleanWords)
     setTranscript('')
     setSpokenWordCount(0)
-    console.log('📝 Expected words:', cleanWords)
+    finalTranscriptRef.current = ''
   }, [line])
 
   // Handle listening state changes - with proper timing
@@ -335,36 +310,23 @@ export default function MicTranscriber({ line, listening, setSpokenText, onLineS
       const recorder = mediaRecorderRef.current
       const socket = socketRef.current
 
-      console.log(`🎛️ Listening state changed: ${listening}`)
-      console.log(`🎙️ Recorder state: ${recorder?.state || 'null'}`)
-      console.log(`🔌 Socket state: ${socket?.readyState || 'null'}`)
-      console.log(`🔗 Connection status: ${connectionStatus}`)
-
       if (listening) {
         if (!recorder || !socket || socket.readyState !== WebSocket.OPEN) {
-          console.log(`⏳ Waiting for connection... recorder=${!!recorder}, socket=${!!socket}, socketReady=${socket?.readyState === WebSocket.OPEN}`)
-          
           // If connection isn't ready yet, wait and try again
           if (connectionStatus === 'connecting') {
             setTimeout(startRecordingWhenReady, 100)
             return
           } else {
-            console.log(`❌ Cannot start recording: connection not ready`)
             return
           }
         }
 
         if (recorder.state === 'inactive') {
-          console.log('🎤 Starting recording with 100ms chunks...')
-          recorder.start(100) // Send data every 100ms
-          console.log(`🎤 Recording started, state is now: ${recorder.state}`)
-        } else {
-          console.log(`🎤 Recorder already in state: ${recorder.state}`)
+          recorder.start(50) // Send data every 50ms for lower latency
         }
       } else {
         // When listening stops, stop recording but keep connection for potential restart
         if (recorder && recorder.state === 'recording') {
-          console.log('⏸️ Stopping recording...')
           recorder.stop()
         }
       }
