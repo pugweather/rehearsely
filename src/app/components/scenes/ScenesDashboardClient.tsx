@@ -16,7 +16,8 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
 
     const [scenes, setScenes] = useState<Scene[]>(sceneData)
     // Search filtering state
-    const [query, setQuery]= useState<string>('')
+    const [query, setQuery] = useState<string>('')
+    const [debouncedQuery, setDebouncedQuery] = useState<string>('')
     // Dropdown state
     const [openedDropdownId, setOpenedDropdownId] = useState<number | null>(null)
     const [dropdownPos, setDropdownPos] = useState<{top: number, right: number} | null>(null)
@@ -25,7 +26,11 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
     // Delete scene modal state
     const [sceneDeleting, setSceneDeleting] = useState<Scene  | null>(null)
     // Animation state for filtered scenes
-    const [visibleScenes, setVisibleScenes] = useState<Set<number>>(new Set())
+    const [visibleScenes, setVisibleScenes] = useState<Set<number>>(
+      new Set(sceneData.map(scene => scene.id)) // Initialize all scenes as visible on first load
+    )
+    const animationTimeoutRefs = useRef<NodeJS.Timeout[]>([])
+    const [isFiltering, setIsFiltering] = useState(false)
 
     console.log(openedDropdownId)
 
@@ -60,23 +65,52 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
       setSceneDeleting(null)
     }
     
+    // Debounce query for smoother animation
+    useEffect(() => {
+      setIsFiltering(true)
+
+      const timeoutId = setTimeout(() => {
+        setDebouncedQuery(query)
+        setIsFiltering(false)
+      }, 150) // 150ms debounce
+
+      return () => clearTimeout(timeoutId)
+    }, [query])
+
     const filteredScenes = useMemo(() => {
       return scenes.filter(scene => {
-        return scene.name?.toLowerCase().includes(query.toLowerCase().trim())
+        return scene.name?.toLowerCase().includes(debouncedQuery.toLowerCase().trim())
       })
-    }, [scenes, query])
+    }, [scenes, debouncedQuery])
 
     // Animate scene cards when filtering changes
     useEffect(() => {
+      // Clear any existing timeouts to prevent race conditions
+      animationTimeoutRefs.current.forEach(timeout => clearTimeout(timeout))
+      animationTimeoutRefs.current = []
+
       // Clear visible scenes first
       setVisibleScenes(new Set())
-      
-      // Stagger the appearance of filtered scenes
+
+      // If no filtered scenes, don't animate
+      if (filteredScenes.length === 0) {
+        return
+      }
+
+      // Stagger the appearance of filtered scenes with cleanup
       filteredScenes.forEach((scene, index) => {
-        setTimeout(() => {
+        const timeout = setTimeout(() => {
           setVisibleScenes(prev => new Set([...prev, scene.id]))
-        }, index * 100)
+        }, index * 50) // Reduced delay for snappier animation
+
+        animationTimeoutRefs.current.push(timeout)
       })
+
+      // Cleanup function
+      return () => {
+        animationTimeoutRefs.current.forEach(timeout => clearTimeout(timeout))
+        animationTimeoutRefs.current = []
+      }
     }, [filteredScenes])
 
     // Options for our the scene card dropdowns
@@ -118,18 +152,20 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
       <div className="relative z-10">
         <ScenesDashboardHeader onChange={setQuery}/>
         
-        <div className='p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto'>
+        <div className={`p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto transition-opacity duration-300 ${
+          isFiltering ? 'opacity-50' : 'opacity-100'
+        }`}>
           {filteredScenes.map((scene, index) => {
             const isVisible = visibleScenes.has(scene.id)
             return <div
               key={scene.id}
-              className={`transition-all duration-600 ease-out ${
-                isVisible 
-                  ? 'opacity-100 translate-y-0' 
-                  : 'opacity-0 translate-y-6'
+              className={`transition-all duration-500 ease-out transform ${
+                isVisible
+                  ? 'opacity-100 translate-y-0 scale-100'
+                  : 'opacity-0 translate-y-4 scale-95'
               }`}
               style={{
-                transitionDelay: `${index * 100}ms`
+                transitionDelay: isVisible ? `${index * 50}ms` : '0ms'
               }}
             >
               <SceneCard 
