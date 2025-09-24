@@ -53,7 +53,7 @@ export default function LoginPage() {
       <div className="relative z-10 w-full">
         <Navbar />
 
-        <div className="flex flex-col items-center justify-center flex-grow min-h-[calc(100vh-80px)] px-6">
+        <div className="flex flex-col items-center justify-center flex-grow min-h-[calc(100vh-120px)] px-6 -mt-12">
           {/* Main sign-in card with offset shadow technique */}
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -92,17 +92,15 @@ export default function LoginPage() {
                     </div>
 
                     {/* Google Sign-in Button with enhanced styling */}
-                    <motion.button
+                    <button
                       type="button"
                       onClick={handleSignIn}
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="group/btn w-full py-4 px-6 flex justify-center items-center bg-white hover:bg-gray-50 border-3 border-black rounded-xl text-gray-800 font-semibold text-lg transition-all duration-200 shadow-md hover:shadow-lg relative overflow-hidden"
+                      className="group/btn w-full py-4 px-6 flex justify-center items-center bg-white hover:bg-gray-50 border-3 border-black rounded-xl text-gray-800 font-semibold text-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-1 relative overflow-hidden"
                     >
                       {/* Subtle shine effect on hover */}
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-500"></div>
 
-                      <div className='relative min-w-8 min-h-8 mr-4 transition-transform duration-200 group-hover/btn:scale-110'>
+                      <div className='relative min-w-8 min-h-8 mr-4'>
                         <Image
                           src="/google-icon.png"
                           alt="google icon"
@@ -111,7 +109,7 @@ export default function LoginPage() {
                         />
                       </div>
                       <span className="relative z-10">Continue with Google</span>
-                    </motion.button>
+                    </button>
 
                     {/* Decorative accent dots */}
                     <div className="flex justify-center space-x-2 pt-4">
@@ -124,16 +122,6 @@ export default function LoginPage() {
               </div>
             </div>
           </motion.div>
-
-          {/* Subtitle with gentle animation */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-center text-gray-500 mt-8 text-sm font-medium"
-          >
-            Practice your lines • Perfect your performance • Play your scenes
-          </motion.p>
         </div>
       </div>
     </div>

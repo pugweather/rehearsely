@@ -3,6 +3,7 @@ import { DraftLine, Character } from '@/app/types'
 import PlayerLine from './PlayerLine'
 import CountdownModal from './CountdownModal'
 import MicTranscriber from './MicTranscriber'
+import LineCompletionDetector from './LineCompletionDetector'
 import { isLineCloseEnough } from '@/app/utils/utils'
 import { useCharacters } from '@/app/context/charactersContext';
 import { useSceneDelay } from '@/app/context/countdownContext'
@@ -36,6 +37,9 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
     const sceneHasStarted = (-1 != currentLineIndex) && (null != currentCharacter)
     const [spokenText, setSpokenText] = useState<string | null>(null)
 
+    // Algorithm toggle - set to false to use old system
+    const [useAdvancedAlgorithm, setUseAdvancedAlgorithm] = useState<boolean>(true)
+
     // Playing scene
     useEffect(() => {
 
@@ -52,13 +56,15 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
   
       // Handle my character speaking
       if (currentCharacter.is_me) {
-        if (isLineCloseEnough(currentLine.text, spokenText)) {
+        // Use old simple algorithm if advanced is disabled
+        if (!useAdvancedAlgorithm && isLineCloseEnough(currentLine.text, spokenText)) {
           if (isLastLine) {
             setSceneIsPlaying(false)
           } else {
             setCurrentLineIndex(prev => prev + 1)
           }
         }
+        // Advanced algorithm handles completion via callbacks below
         
       // Handle other characters speaking
       } else {
@@ -117,6 +123,22 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
       fetchSceneCharacters()
     }, [sceneId])
 
+    // Advanced algorithm callbacks
+    const handleLineCompleted = (completedLineIndex: number) => {
+      console.log(`✅ Line ${completedLineIndex} completed by algorithm`)
+      const isLastLine = lastLineIndex === completedLineIndex
+      if (isLastLine) {
+        setSceneIsPlaying(false)
+      } else {
+        setCurrentLineIndex(prev => prev + 1)
+      }
+    }
+
+    const handleLineSkipped = (fromIndex: number, toIndex: number) => {
+      console.log(`⏭️ Algorithm detected line skip: ${fromIndex} → ${toIndex}`)
+      setCurrentLineIndex(toIndex)
+    }
+
     return (
         <>
           {
@@ -127,6 +149,21 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
           }
           {sceneIsPlaying && delayCountdown !== null && <CountdownModal countdown={delayCountdown} />}
           {sceneHasStarted && sceneIsPlaying && <MicTranscriber line={currentLine} listening={currentCharacter.is_me} setSpokenText={setSpokenText} onLineSpoken={() => console.log("go to next line....")}/>}
+
+          {/* Advanced Line Completion Algorithm - Toggle useAdvancedAlgorithm to false to disable */}
+          {/* {useAdvancedAlgorithm && sceneHasStarted && sceneIsPlaying && lineItems && (
+            <LineCompletionDetector
+              currentLine={currentLine}
+              allLines={lineItems}
+              currentLineIndex={currentLineIndex}
+              spokenText={spokenText}
+              isListening={currentCharacter?.is_me || false}
+              onLineCompleted={handleLineCompleted}
+              onLineSkipped={handleLineSkipped}
+              enableDebugMode={true} // Set to false to hide debug overlay
+              enableAlgorithm={true}
+            />
+          )} */}
         </>
     )
 }

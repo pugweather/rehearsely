@@ -4,7 +4,13 @@ import { createClient } from "../../../utils/supabase/server"
 
 export async function signInWithGoogle(redirectTo: string) {
   const supabase = await createClient()
-  const redirectURL = `http://localhost:3000/auth/callback?next=${redirectTo}`
+
+  // Get the correct port dynamically
+  const baseURL = process.env.NODE_ENV === 'production'
+    ? process.env.NEXT_PUBLIC_SITE_URL || 'https://yoursite.com'
+    : 'http://localhost:3002' // Use 3002 since that's your current dev port
+
+  const redirectURL = `${baseURL}/auth/callback?next=${redirectTo}`
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -12,7 +18,7 @@ export async function signInWithGoogle(redirectTo: string) {
       redirectTo: redirectURL,
     }
   })
-  if (error) throw error 
+  if (error) throw error
   return data
 }
 // import { revalidatePath } from 'next/cache'
