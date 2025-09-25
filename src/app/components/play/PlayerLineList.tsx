@@ -3,7 +3,7 @@ import { DraftLine, Character } from '@/app/types'
 import PlayerLine from './PlayerLine'
 import CountdownModal from './CountdownModal'
 import MicTranscriber from './MicTranscriber'
-import LineCompletionDetector from './LineCompletionDetector'
+import LinePositionTracker from './LineCompletionDetector'
 import { isLineCloseEnough } from '@/app/utils/utils'
 import { useCharacters } from '@/app/context/charactersContext';
 import { useSceneDelay } from '@/app/context/countdownContext'
@@ -36,6 +36,9 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
     const currentCharacter = currentLine && (-1 != currentLineIndex) ? characters?.find(char => char.id === currentLine.character_id) : null
     const sceneHasStarted = (-1 != currentLineIndex) && (null != currentCharacter)
     const [spokenText, setSpokenText] = useState<string | null>(null)
+
+    // Track matched words for teleprompter highlighting
+    const [matchedWordIndices, setMatchedWordIndices] = useState<number[]>([])
 
     // Algorithm toggle - set to false to use old system
     const [useAdvancedAlgorithm, setUseAdvancedAlgorithm] = useState<boolean>(true)
@@ -123,10 +126,20 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
       fetchSceneCharacters()
     }, [sceneId])
 
-    // Advanced algorithm callbacks
-    const handleLineCompleted = (completedLineIndex: number) => {
-      console.log(`✅ Line ${completedLineIndex} completed by algorithm`)
-      const isLastLine = lastLineIndex === completedLineIndex
+    // Clear matched words when line changes
+    useEffect(() => {
+      setMatchedWordIndices([])
+    }, [currentLineIndex])
+
+    // Position tracker callbacks
+    const handleWordsMatched = (matchedIndices: number[]) => {
+      setMatchedWordIndices(matchedIndices)
+    }
+
+    const handleLineFullySpoken = () => {
+      console.log(`✅ Line fully spoken - advancing to next line`)
+      setMatchedWordIndices([]) // Clear highlighting
+      const isLastLine = lastLineIndex === currentLineIndex
       if (isLastLine) {
         setSceneIsPlaying(false)
       } else {
@@ -134,36 +147,37 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
       }
     }
 
-    const handleLineSkipped = (fromIndex: number, toIndex: number) => {
-      console.log(`⏭️ Algorithm detected line skip: ${fromIndex} → ${toIndex}`)
-      setCurrentLineIndex(toIndex)
-    }
-
     return (
         <>
           {
             lineItems?.map((line, idx) => {
               const isCurrentLine = line.id === currentLine?.id
-              return <PlayerLine key={line.id} line={line} characters={characters} isCurrentLine={isCurrentLine} lineIndex={idx} currentLineIndex={currentLineIndex}/>
+              return <PlayerLine
+                key={line.id}
+                line={line}
+                characters={characters}
+                isCurrentLine={isCurrentLine}
+                lineIndex={idx}
+                currentLineIndex={currentLineIndex}
+                matchedWordIndices={isCurrentLine ? matchedWordIndices : []}
+              />
             })
           }
           {sceneIsPlaying && delayCountdown !== null && <CountdownModal countdown={delayCountdown} />}
           {sceneHasStarted && sceneIsPlaying && <MicTranscriber line={currentLine} listening={currentCharacter.is_me} setSpokenText={setSpokenText} onLineSpoken={() => console.log("go to next line....")}/>}
 
-          {/* Advanced Line Completion Algorithm - Toggle useAdvancedAlgorithm to false to disable */}
-          {/* {useAdvancedAlgorithm && sceneHasStarted && sceneIsPlaying && lineItems && (
-            <LineCompletionDetector
+          {/* Position Tracker - Shows where you are in the current line */}
+          {useAdvancedAlgorithm && sceneHasStarted && sceneIsPlaying && (
+            <LinePositionTracker
               currentLine={currentLine}
-              allLines={lineItems}
-              currentLineIndex={currentLineIndex}
               spokenText={spokenText}
               isListening={currentCharacter?.is_me || false}
-              onLineCompleted={handleLineCompleted}
-              onLineSkipped={handleLineSkipped}
+              onWordsMatched={handleWordsMatched}
+              onLineFullySpoken={handleLineFullySpoken}
               enableDebugMode={true} // Set to false to hide debug overlay
               enableAlgorithm={true}
             />
-          )} */}
+          )}
         </>
     )
 }
