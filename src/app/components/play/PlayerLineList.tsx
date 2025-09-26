@@ -131,6 +131,25 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
       setMatchedWordIndices([])
     }, [currentLineIndex])
 
+    // Cleanup audio when player stops
+    useEffect(() => {
+      if (!sceneIsPlaying && audio.current) {
+        audio.current.pause()
+        audio.current.currentTime = 0
+        audio.current = null
+      }
+    }, [sceneIsPlaying])
+
+    // Cleanup on unmount
+    useEffect(() => {
+      return () => {
+        if (audio.current) {
+          audio.current.pause()
+          audio.current.currentTime = 0
+        }
+      }
+    }, [])
+
     // Position tracker callbacks
     const handleWordsMatched = (matchedIndices: number[]) => {
       setMatchedWordIndices(matchedIndices)
