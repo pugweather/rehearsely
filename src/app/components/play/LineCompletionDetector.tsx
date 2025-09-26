@@ -43,6 +43,7 @@ export default function LinePositionTracker({
   // State - track progressive position in the line
   const [furthestWordIndex, setFurthestWordIndex] = useState<number>(-1) // -1 means no words matched yet
   const [debugInfo, setDebugInfo] = useState<any>({})
+  const [lineCompletionReported, setLineCompletionReported] = useState<boolean>(false) // Track if completion already reported
 
   // Refs
   const lastSpokenTextRef = useRef<string>('')
@@ -56,6 +57,7 @@ export default function LinePositionTracker({
   // Reset position when line changes
   useEffect(() => {
     setFurthestWordIndex(-1)
+    setLineCompletionReported(false) // Reset completion flag for new line
   }, [currentLine])
 
   // Process new speech
@@ -172,7 +174,8 @@ export default function LinePositionTracker({
       const progressRatio = wordsSpoken / totalWords
 
       // Check if entire line is complete (all words highlighted)
-      if (wordsSpoken >= totalWords && onLineFullySpoken) {
+      if (wordsSpoken >= totalWords && onLineFullySpoken && !lineCompletionReported) {
+        setLineCompletionReported(true) // Mark as reported to prevent duplicate calls
         onLineFullySpoken()
       }
 
