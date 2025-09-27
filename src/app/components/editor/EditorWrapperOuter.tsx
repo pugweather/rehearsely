@@ -64,6 +64,15 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
             {/* scrollable area */}
             <div className="flex-1 overflow-y-scroll" ref={scrollRef}>
          <EditorWrapper>
+                {/* Back to scenes button */}
+                <Link href="/scenes" onClick={(e) => e.stopPropagation()}>
+                  <span className="fixed top-20 left-[34rem] px-3 py-2 hover:bg-gray-50 text-gray-600 hover:text-gray-900 transition-all duration-200 ease-in-out arrow-slide-on-hover inline-flex items-center gap-2 text-base whitespace-nowrap">
+                    <svg className="arrow-icon w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                      <path fillRule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                    </svg>
+                    <span className={`${sunsetSerialMediumFont.className}`}>Back</span>
+                  </span>
+                </Link>
                 {/* Compact Scene Header */}
                 <div className="fixed left-1/2 -translate-x-1/2 top-20 text-black z-999">
                   <div className="relative" ref={headerRef}>
@@ -93,16 +102,6 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
                       <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-[36rem] bg-white rounded-lg shadow-lg transition-all duration-100 ease-out animate-in slide-in-from-top-2 fade-in zoom-in-95" style={{ backgroundColor: 'var(--bg-page)' }}>
                         <div className="p-4">
                           <div className="flex items-center justify-between">
-                            {/* Back to scenes button */}
-                            <Link href="/scenes" onClick={(e) => e.stopPropagation()}>
-                              <span className="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-black hover:text-white text-gray-700 font-medium shadow-sm hover:shadow-md transition-all duration-200 ease-in-out arrow-slide-on-hover inline-flex items-center gap-2 text-sm whitespace-nowrap">
-                                <svg className="arrow-icon w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
-                                  <path fillRule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-                                </svg>
-                                <span className={`${sunsetSerialMediumFont.className}`}>Back</span>
-                              </span>
-                            </Link>
-                            
                             {/* Scene settings */}
                             <div onClick={(e) => e.stopPropagation()}>
                               <SceneSettings />
