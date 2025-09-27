@@ -10,7 +10,8 @@ import {
   faUser,
   faXmark,
   faChevronDown,
-  faStop
+  faStop,
+  faRedo
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DraftLine, Character, LineBeingEditedData, EditLineMode, DropdownData } from "@/app/types";
@@ -328,6 +329,19 @@ const EditLine = ({
     }
   };
 
+  // Handle rerecording - clear current recording and start new one
+  const handleRerecord = () => {
+    // Clear the current recorded audio
+    setRecordedAudioBlob(null);
+    setRecordingTime(0);
+    setLineMode("default");
+
+    // Start new recording immediately
+    setTimeout(() => {
+      startRecording();
+    }, 100); // Small delay to ensure state is updated
+  };
+
   // Save voice cloning (similar to handleSaveLineDelay/Speed)
   const handleSaveVoiceCloning = async () => {
     if (!recordedAudioBlob || !character?.id || !text?.trim()) return;
@@ -406,7 +420,7 @@ const EditLine = ({
         mediaRecorderRef.current.stop();
       }
     };
-  }, [localAudioUrl, isRecording]);
+  }, []); // Empty dependency array - only run on unmount
 
   const toggleLineMode = (btnMode: EditLineMode) => {
     if (lineMode === btnMode) {
@@ -635,31 +649,22 @@ return (
       </div>
     }
 
-    {/* Voice Cloning Mode */}
+    {/* Voice Cloning Mode - Compact */}
     {lineMode === "voice" && recordedAudioBlob && (
-      <div className="p-4 rounded-xl border-2 animate-in slide-in-from-top-2 fade-in duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-2 data-[state=closed]:fade-out overflow-hidden transition-all duration-300 ease-in-out" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
-        <div className="space-y-4">
-          <div className="text-center">
-            <h3 className="text-lg font-semibold mb-2" style={{color: '#CC7A00'}}>Voice Recording Complete</h3>
-            <p className="text-sm" style={{color: '#CC7A00'}}>
-              Recorded {formatTime(recordingTime)} of audio. Your voice will be changed to the character's voice.
-            </p>
-            <p className="text-xs mt-1" style={{color: '#B8860B'}}>
-              Voice Changer preserves your exact emotion, timing, and delivery.
-            </p>
-          </div>
-          
-          {/* Waveform placeholder - you can add actual waveform here */}
-          <div className="bg-white rounded-lg p-4 border-2" style={{borderColor: '#FFA05A'}}>
-            <div className="flex items-center justify-center h-16">
+      <div className="p-3 rounded-xl border-2 animate-in slide-in-from-top-2 fade-in duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-2 data-[state=closed]:fade-out overflow-hidden transition-all duration-300 ease-in-out" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
+        {/* Horizontal compact layout: waveform on left, buttons on right */}
+        <div className="flex items-center gap-4">
+          {/* Compact waveform */}
+          <div className="flex-1 bg-white rounded-lg p-2 border-2" style={{borderColor: '#FFA05A'}}>
+            <div className="flex items-center justify-center h-8">
               <div className="flex items-center gap-1">
-                {[...Array(20)].map((_, i) => (
+                {[...Array(15)].map((_, i) => (
                   <div 
                     key={i}
                     className="bg-orange-400 rounded-full animate-pulse"
                     style={{
-                      width: '3px',
-                      height: `${Math.random() * 40 + 10}px`,
+                      width: '2px',
+                      height: `${Math.random() * 20 + 8}px`,
                       animationDelay: `${i * 0.1}s`
                     }}
                   />
@@ -668,7 +673,30 @@ return (
             </div>
           </div>
           
-          <div className="flex items-center justify-center gap-4">
+          {/* Compact buttons */}
+          <div className="flex items-center gap-3">
+            {/* Rerecord Button */}
+            <button
+              onClick={handleRerecord}
+              disabled={isLoading}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
+              style={{backgroundColor: '#72A5F2', color: '#ffffff'}}
+              onMouseEnter={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.backgroundColor = '#5B94E8'
+                  e.currentTarget.style.transform = 'scale(1.05)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.backgroundColor = '#72A5F2'
+                  e.currentTarget.style.transform = 'scale(1)'
+                }
+              }}
+            >
+              <FontAwesomeIcon icon={faRedo} className="text-sm" />
+            </button>
+
             {/* Save Voice Button - matches delay/speed popup style */}
             <button
               onClick={handleSaveVoiceCloning}
@@ -694,7 +722,7 @@ return (
                 <FontAwesomeIcon icon={faCheck} className="text-sm" />
               )}
             </button>
-            
+
             {/* Close Button - matches delay/speed popup style */}
             <button
               onClick={() => {
