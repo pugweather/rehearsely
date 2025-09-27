@@ -10,7 +10,7 @@ import {
   faUser,
   faXmark,
   faChevronDown,
-  faH
+  faStop
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DraftLine, Character, LineBeingEditedData, EditLineMode, DropdownData } from "@/app/types";
@@ -76,6 +76,13 @@ const EditLine = ({
   // Store local audio URL for immediate playback
   const [localAudioUrl, setLocalAudioUrl] = useState<string | null>(null);
   
+  // Voice recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [recordedAudioBlob, setRecordedAudioBlob] = useState<Blob | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
   // Store original values to compare against
   const originalValues = useRef({
     text: lineBeingEditedData.text,
@@ -100,9 +107,10 @@ const EditLine = ({
     const hasSpeedChanged = currentValues.speed !== originalValues.current.speed;
     const hasDelayChanged = currentValues.delay !== originalValues.current.delay;
     const hasAudioTrimmed = trimmedAudioBlob !== null;
+    const hasAudioRecorded = recordedAudioBlob !== null;
     
-    setHasChanges(hasTextChanged || hasCharacterChanged || hasSpeedChanged || hasDelayChanged || hasAudioTrimmed);
-  }, [lineBeingEditedData.text, lineBeingEditedData.character?.id, lineBeingEditedData.speed, lineBeingEditedData.delay, trimmedAudioBlob]);
+    setHasChanges(hasTextChanged || hasCharacterChanged || hasSpeedChanged || hasDelayChanged || hasAudioTrimmed || hasAudioRecorded);
+  }, [lineBeingEditedData.text, lineBeingEditedData.character?.id, lineBeingEditedData.speed, lineBeingEditedData.delay, trimmedAudioBlob, recordedAudioBlob]);
 
   const handleSave = async () => {
     const trimmed = text?.trim();
@@ -111,11 +119,19 @@ const EditLine = ({
     setIsLoading(true);
     let res;
 
-    // If we have trimmed audio, send it as FormData, otherwise send JSON
-    if (trimmedAudioBlob && !isNewLine) {
-      // Send trimmed audio as FormData
+    // If we have recorded audio (for voice cloning) or trimmed audio, send it as FormData
+    if ((recordedAudioBlob || trimmedAudioBlob) && !isNewLine) {
+      // Send recorded/trimmed audio as FormData
       const formData = new FormData();
-      formData.append('audio', trimmedAudioBlob, 'trimmed_audio.wav');
+      
+      // Prioritize recorded audio for voice cloning, fallback to trimmed audio
+      if (recordedAudioBlob) {
+        formData.append('audio', recordedAudioBlob, 'recorded_voice.webm');
+        formData.append('isVoiceCloning', 'true'); // Flag to indicate this is for voice cloning
+      } else if (trimmedAudioBlob) {
+        formData.append('audio', trimmedAudioBlob, 'trimmed_audio.wav');
+      }
+      
       formData.append('text', trimmed);
       formData.append('characterId', character.id.toString());
       formData.append('order', (lineBeingEditedData.order || 0).toString());
@@ -230,14 +246,167 @@ const EditLine = ({
     setHasChanges(true);
   }
 
-  // Cleanup local URL when component unmounts
+  // Format recording time as MM:SS
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  // Start recording
+  const startRecording = async () => {
+    try {
+      console.log('Requesting microphone access...');
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 16000,
+          channelCount: 1
+        }
+      });
+
+      console.log('Microphone access granted, starting recording...');
+      
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus',
+        audioBitsPerSecond: 16000
+      });
+
+      const audioChunks: Blob[] = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        console.log('Audio data available:', event.data.size, 'bytes');
+        if (event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        console.log('Recording stopped, total chunks:', audioChunks.length);
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        setRecordedAudioBlob(audioBlob);
+        setLineMode("voice"); // Switch to voice mode to show waveform + buttons
+        
+        // Stop all tracks to release microphone
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      console.log('MediaRecorder started, setting up timer...');
+      // Start timer
+      recordingTimerRef.current = setInterval(() => {
+        console.log('Timer tick');
+        setRecordingTime(prev => {
+          const newTime = prev + 1;
+          console.log('Recording time:', newTime);
+          return newTime;
+        });
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      alert('Could not access microphone. Please check permissions and ensure you are using HTTPS.');
+    }
+  };
+
+  // Stop recording
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = null;
+      }
+    }
+  };
+
+  // Save voice cloning (similar to handleSaveLineDelay/Speed)
+  const handleSaveVoiceCloning = async () => {
+    if (!recordedAudioBlob || !character?.id || !text?.trim()) return;
+
+    console.log('Starting voice cloning...');
+    console.log('recordedAudioBlob size:', recordedAudioBlob.size);
+    console.log('character.id:', character.id);
+    console.log('text:', text.trim());
+    console.log('sceneId:', sceneId);
+    console.log('line?.id:', line?.id);
+
+    setIsLoading(true);
+    
+    try {
+      // Create FormData for voice cloning
+      const formData = new FormData();
+      formData.append('audio', recordedAudioBlob, 'recorded_voice.webm');
+      formData.append('isVoiceCloning', 'true');
+      formData.append('text', text.trim());
+      formData.append('characterId', character.id.toString());
+      formData.append('order', (lineBeingEditedData.order || 0).toString());
+      formData.append('delay', lineBeingEditedData.delay.toString());
+      formData.append('speed', lineBeingEditedData.speed.toString());
+      formData.append('character_id', character.id.toString());
+      formData.append('scene_id', sceneId!.toString());
+
+      console.log('Sending API request to:', `/api/private/scenes/${sceneId}/lines/${line?.id}`);
+      console.log('FormData entries:');
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value instanceof File ? `File(${value.size} bytes)` : value);
+      }
+
+      const res = await fetch(`/api/private/scenes/${sceneId}/lines/${line?.id}`, {
+        method: "PATCH",
+        body: formData,
+      });
+
+      console.log('API Response status:', res.status);
+      console.log('API Response ok:', res.ok);
+      
+      if (res.ok) {
+        const data = await res.json();
+        console.log('API Response data:', data);
+        // Update the line with new audio URL
+        if (data.updates.audio_url) {
+          setLocalAudioUrl(data.updates.audio_url);
+        }
+        setLineMode("default");
+        setRecordedAudioBlob(null);
+        setRecordingTime(0);
+        setHasChanges(false);
+      } else {
+        const errorText = await res.text();
+        console.error('API Error Response:', errorText);
+        throw new Error(`Voice cloning failed: ${res.status} - ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Voice cloning error:', error);
+      console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
+      alert(`Voice cloning failed. Please try again. Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Cleanup local URL and recording timer when component unmounts
   React.useEffect(() => {
     return () => {
       if (localAudioUrl) {
         URL.revokeObjectURL(localAudioUrl);
       }
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+      if (mediaRecorderRef.current && isRecording) {
+        mediaRecorderRef.current.stop();
+      }
     };
-  }, [localAudioUrl]);
+  }, [localAudioUrl, isRecording]);
 
   const toggleLineMode = (btnMode: EditLineMode) => {
     if (lineMode === btnMode) {
@@ -466,6 +635,97 @@ return (
       </div>
     }
 
+    {/* Voice Cloning Mode */}
+    {lineMode === "voice" && recordedAudioBlob && (
+      <div className="p-4 rounded-xl border-2 animate-in slide-in-from-top-2 fade-in duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-2 data-[state=closed]:fade-out overflow-hidden transition-all duration-300 ease-in-out" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
+        <div className="space-y-4">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold mb-2" style={{color: '#CC7A00'}}>Voice Recording Complete</h3>
+            <p className="text-sm" style={{color: '#CC7A00'}}>
+              Recorded {formatTime(recordingTime)} of audio. Your voice will be changed to the character's voice.
+            </p>
+            <p className="text-xs mt-1" style={{color: '#B8860B'}}>
+              Voice Changer preserves your exact emotion, timing, and delivery.
+            </p>
+          </div>
+          
+          {/* Waveform placeholder - you can add actual waveform here */}
+          <div className="bg-white rounded-lg p-4 border-2" style={{borderColor: '#FFA05A'}}>
+            <div className="flex items-center justify-center h-16">
+              <div className="flex items-center gap-1">
+                {[...Array(20)].map((_, i) => (
+                  <div 
+                    key={i}
+                    className="bg-orange-400 rounded-full animate-pulse"
+                    style={{
+                      width: '3px',
+                      height: `${Math.random() * 40 + 10}px`,
+                      animationDelay: `${i * 0.1}s`
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-center gap-4">
+            {/* Save Voice Button - matches delay/speed popup style */}
+            <button
+              onClick={handleSaveVoiceCloning}
+              disabled={isLoading}
+              className="w-10 h-10 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
+              style={{backgroundColor: '#FFA05A'}}
+              onMouseEnter={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.backgroundColor = '#FF8A3A'
+                  e.currentTarget.style.transform = 'scale(1.05)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.backgroundColor = '#FFA05A'
+                  e.currentTarget.style.transform = 'scale(1)'
+                }
+              }}
+            >
+              {isLoading ? (
+                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <FontAwesomeIcon icon={faCheck} className="text-sm" />
+              )}
+            </button>
+            
+            {/* Close Button - matches delay/speed popup style */}
+            <button
+              onClick={() => {
+                setLineMode("default");
+                setRecordedAudioBlob(null);
+                setRecordingTime(0);
+                setHasChanges(false);
+              }}
+              disabled={isLoading}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
+              style={{backgroundColor: '#F4F3F0', color: '#FFA05A'}}
+              onMouseEnter={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.backgroundColor = '#E8E6E1'
+                  e.currentTarget.style.transform = 'scale(1.05)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.backgroundColor = '#F4F3F0'
+                  e.currentTarget.style.transform = 'scale(1)'
+                }
+              }}
+            >
+              <FontAwesomeIcon icon={faXmark} className="text-sm" />
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
     {/* Action Buttons (icon-only) */}
     <div className="flex items-center justify-between">
       {character && !character.is_me &&
@@ -555,27 +815,56 @@ return (
         </div>
       </div>
 
-    {/* Record Voice Button (Only show if it's not your character) */}
-    {
-    character && !character.is_me && 
-    <button
-      className="w-full px-6 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-medium"
-      style={{backgroundColor: 'rgba(244,239,232,0.8)', color: '#202020', border: '1px solid rgba(32,32,32,0.1)'}}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = '#FFA05A'
-        e.currentTarget.style.color = '#ffffff'
-        e.currentTarget.style.borderColor = '#FFA05A'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
-        e.currentTarget.style.color = '#202020'
-        e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
-      }}
-    >
-      <FontAwesomeIcon icon={faMicrophone} />
-      Record Voice
-    </button>
-    }
+    {/* Voice Recording Section (Only show if it's not your character and not in voice mode) */}
+    {character && !character.is_me && lineMode !== "voice" && (
+      <div className="space-y-4">
+        {/* Recording Controls */}
+        {!isRecording && !recordedAudioBlob && (
+          <button
+            onClick={startRecording}
+            className="w-full px-6 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-medium"
+            style={{backgroundColor: 'rgba(244,239,232,0.8)', color: '#202020', border: '1px solid rgba(32,32,32,0.1)'}}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#FFA05A'
+              e.currentTarget.style.color = '#ffffff'
+              e.currentTarget.style.borderColor = '#FFA05A'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
+              e.currentTarget.style.color = '#202020'
+              e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
+            }}
+          >
+            <FontAwesomeIcon icon={faMicrophone} />
+            Record Voice
+          </button>
+        )}
+
+        {/* Recording in Progress */}
+        {isRecording && (
+          <div className="w-full px-6 py-3 rounded-lg border-2 animate-pulse" 
+               style={{backgroundColor: '#FFE6E6', borderColor: '#FF4444'}}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <span className="font-medium text-red-700">Recording...</span>
+                <span className="font-mono text-lg font-bold text-red-700">
+                  {formatTime(recordingTime)}
+                </span>
+              </div>
+              <button
+                onClick={stopRecording}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors duration-200 flex items-center gap-2"
+              >
+                <FontAwesomeIcon icon={faStop} />
+                Stop
+              </button>
+            </div>
+          </div>
+        )}
+
+      </div>
+    )}
 
   </div>
   );
