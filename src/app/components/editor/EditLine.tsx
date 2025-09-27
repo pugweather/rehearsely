@@ -11,7 +11,8 @@ import {
   faXmark,
   faChevronDown,
   faStop,
-  faRedo
+  faRedo,
+  faPlay
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DraftLine, Character, LineBeingEditedData, EditLineMode, DropdownData } from "@/app/types";
@@ -20,6 +21,7 @@ import localFont from "next/font/local";
 import clsx from "clsx";
 import { waveform } from "elevenlabs/api/resources/voices/resources/pvc/resources/samples";
 import BeautifulWaveform from "./BeautifulWaveform";
+import RecordedAudioWaveform, { RecordedAudioWaveformRef } from "./RecordedAudioWaveform";
 import { cn } from "@/lib/utils"
 import { Slider } from "../ui/Slider";
 import { lines } from "@/database/drizzle/schema";
@@ -81,8 +83,10 @@ const EditLine = ({
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [recordedAudioBlob, setRecordedAudioBlob] = useState<Blob | null>(null);
+  const [isWaveformPlaying, setIsWaveformPlaying] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const waveformRef = useRef<RecordedAudioWaveformRef>(null);
   
   // Store original values to compare against
   const originalValues = useRef({
@@ -331,9 +335,10 @@ const EditLine = ({
 
   // Handle rerecording - clear current recording and start new one
   const handleRerecord = () => {
-    // Clear the current recorded audio
+    // Clear the current recorded audio and reset playing state
     setRecordedAudioBlob(null);
     setRecordingTime(0);
+    setIsWaveformPlaying(false); // Reset playing state for new recording
     setLineMode("default");
 
     // Start new recording immediately
@@ -649,106 +654,119 @@ return (
       </div>
     }
 
-    {/* Voice Cloning Mode - Compact */}
+    {/* Voice Cloning Mode - Reorganized Layout */}
     {lineMode === "voice" && recordedAudioBlob && (
       <div className="p-3 rounded-xl border-2 animate-in slide-in-from-top-2 fade-in duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-2 data-[state=closed]:fade-out overflow-hidden transition-all duration-300 ease-in-out" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
-        {/* Horizontal compact layout: waveform on left, buttons on right */}
-        <div className="flex items-center gap-4">
-          {/* Compact waveform */}
-          <div className="flex-1 bg-white rounded-lg p-2 border-2" style={{borderColor: '#FFA05A'}}>
-            <div className="flex items-center justify-center h-8">
-              <div className="flex items-center gap-1">
-                {[...Array(15)].map((_, i) => (
-                  <div 
-                    key={i}
-                    className="bg-orange-400 rounded-full animate-pulse"
-                    style={{
-                      width: '2px',
-                      height: `${Math.random() * 20 + 8}px`,
-                      animationDelay: `${i * 0.1}s`
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          {/* Compact buttons */}
-          <div className="flex items-center gap-3">
-            {/* Rerecord Button */}
-            <button
-              onClick={handleRerecord}
-              disabled={isLoading}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
-              style={{backgroundColor: '#72A5F2', color: '#ffffff'}}
-              onMouseEnter={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.backgroundColor = '#5B94E8'
-                  e.currentTarget.style.transform = 'scale(1.05)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.backgroundColor = '#72A5F2'
-                  e.currentTarget.style.transform = 'scale(1)'
-                }
-              }}
-            >
-              <FontAwesomeIcon icon={faRedo} className="text-sm" />
-            </button>
+        {/* Waveform with all controls on same line */}
+        <div className="space-y-2">
+          {/* Waveform component */}
+          <RecordedAudioWaveform
+            ref={waveformRef}
+            audioBlob={recordedAudioBlob}
+            onPlayingChange={setIsWaveformPlaying}
+          />
 
-            {/* Save Voice Button - matches delay/speed popup style */}
-            <button
-              onClick={handleSaveVoiceCloning}
-              disabled={isLoading}
-              className="w-10 h-10 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
-              style={{backgroundColor: '#FFA05A'}}
-              onMouseEnter={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.backgroundColor = '#FF8A3A'
-                  e.currentTarget.style.transform = 'scale(1.05)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.backgroundColor = '#FFA05A'
-                  e.currentTarget.style.transform = 'scale(1)'
-                }
-              }}
-            >
-              {isLoading ? (
-                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <FontAwesomeIcon icon={faCheck} className="text-sm" />
-              )}
-            </button>
-
-            {/* Close Button - matches delay/speed popup style */}
+          {/* All buttons on same line: Play on left, others on right */}
+          <div className="flex items-center justify-between">
+            {/* Play button on left */}
             <button
               onClick={() => {
-                setLineMode("default");
-                setRecordedAudioBlob(null);
-                setRecordingTime(0);
-                setHasChanges(false);
+                waveformRef.current?.togglePlayback();
               }}
-              disabled={isLoading}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
-              style={{backgroundColor: '#F4F3F0', color: '#FFA05A'}}
+              className="flex items-center gap-2 px-3 py-1 rounded text-sm font-medium transition-colors"
+              style={{
+                backgroundColor: '#FFA05A',
+                color: '#FFFFFF',
+                border: '1px solid #FF8A3A'
+              }}
               onMouseEnter={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.backgroundColor = '#E8E6E1'
-                  e.currentTarget.style.transform = 'scale(1.05)'
-                }
+                e.currentTarget.style.backgroundColor = '#FF8A3A';
               }}
               onMouseLeave={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.backgroundColor = '#F4F3F0'
-                  e.currentTarget.style.transform = 'scale(1)'
-                }
+                e.currentTarget.style.backgroundColor = '#FFA05A';
               }}
             >
-              <FontAwesomeIcon icon={faXmark} className="text-sm" />
+              <FontAwesomeIcon icon={isWaveformPlaying ? faStop : faPlay} className="text-xs" />
+              {isWaveformPlaying ? 'Stop' : 'Play'}
             </button>
+
+            {/* Action buttons on right */}
+            <div className="flex items-center gap-3">
+              {/* Rerecord Button */}
+              <button
+                onClick={handleRerecord}
+                disabled={isLoading}
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
+                style={{backgroundColor: '#72A5F2', color: '#ffffff'}}
+                onMouseEnter={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.backgroundColor = '#5B94E8'
+                    e.currentTarget.style.transform = 'scale(1.05)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.backgroundColor = '#72A5F2'
+                    e.currentTarget.style.transform = 'scale(1)'
+                  }
+                }}
+              >
+                <FontAwesomeIcon icon={faRedo} className="text-sm" />
+              </button>
+
+              {/* Save Voice Button */}
+              <button
+                onClick={handleSaveVoiceCloning}
+                disabled={isLoading}
+                className="w-10 h-10 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
+                style={{backgroundColor: '#FFA05A'}}
+                onMouseEnter={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.backgroundColor = '#FF8A3A'
+                    e.currentTarget.style.transform = 'scale(1.05)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.backgroundColor = '#FFA05A'
+                    e.currentTarget.style.transform = 'scale(1)'
+                  }
+                }}
+              >
+                {isLoading ? (
+                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <FontAwesomeIcon icon={faCheck} className="text-sm" />
+                )}
+              </button>
+
+              {/* Cancel Button */}
+              <button
+                onClick={() => {
+                  setLineMode("default");
+                  setRecordedAudioBlob(null);
+                  setRecordingTime(0);
+                  setHasChanges(false);
+                }}
+                disabled={isLoading}
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
+                style={{backgroundColor: '#F4F3F0', color: '#FFA05A'}}
+                onMouseEnter={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.backgroundColor = '#E8E6E1'
+                    e.currentTarget.style.transform = 'scale(1.05)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.backgroundColor = '#F4F3F0'
+                    e.currentTarget.style.transform = 'scale(1)'
+                  }
+                }}
+              >
+                <FontAwesomeIcon icon={faXmark} className="text-sm" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
