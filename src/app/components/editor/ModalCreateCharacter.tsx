@@ -372,14 +372,13 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
                 {/* Footer */}
                 <div className='mt-auto px-6 py-4 flex items-center justify-between gap-3 border-t' style={{borderColor: 'rgba(32,32,32,0.1)'}}>
                     <button
-                        className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                            playVoiceBtnDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                        className={`px-4 py-2 rounded-lg font-medium text-white transition-colors duration-200 flex items-center gap-2 ${
+                            playVoiceBtnDisabled ? 'opacity-50' : ''
                         }`}
                         disabled={playVoiceBtnDisabled}
                         onClick={audioIsPlaying ? stopSelectedVoiceAudio : playSelectedVoiceAudio}
                         style={{
-                            backgroundColor: playVoiceBtnDisabled ? '#ccc' : '#FFA05A',
-                            color: '#ffffff'
+                            backgroundColor: '#FFA05A'
                         }}
                         onMouseEnter={(e) => {
                             if (!playVoiceBtnDisabled) e.currentTarget.style.backgroundColor = '#FF8A3A'
@@ -393,14 +392,13 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
                     </button>
 
                     <button
-                        className={`px-6 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                            saveCharBtnDisabled || isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                        className={`px-6 py-2 rounded-lg font-medium text-white transition-colors duration-200 flex items-center gap-2 ${
+                            saveCharBtnDisabled || isLoading ? 'opacity-50' : ''
                         }`}
                         disabled={saveCharBtnDisabled || isLoading}
                         onClick={handleAddNewCharacter}
                         style={{
-                            backgroundColor: (saveCharBtnDisabled || isLoading) ? '#ccc' : '#FFA05A',
-                            color: '#ffffff'
+                            backgroundColor: '#FFA05A'
                         }}
                         onMouseEnter={(e) => {
                             if (!saveCharBtnDisabled && !isLoading) e.currentTarget.style.backgroundColor = '#FF8A3A'

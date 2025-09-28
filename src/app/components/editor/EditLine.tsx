@@ -28,6 +28,7 @@ import { lines } from "@/database/drizzle/schema";
 import { useCharacters } from '@/app/context/charactersContext';
 import { useVoicesStore } from '@/app/stores/useVoicesStores';
 import Dropdown from '../ui/Dropdown';
+import MicErrorModal from '../ui/MicErrorModal';
 
 type Props = {
   line: DraftLine | null;
@@ -84,7 +85,10 @@ const EditLine = ({
   const [recordingTime, setRecordingTime] = useState(0);
   const [recordedAudioBlob, setRecordedAudioBlob] = useState<Blob | null>(null);
   const [isWaveformPlaying, setIsWaveformPlaying] = useState(false);
+  const [showMicErrorModal, setShowMicErrorModal] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const waveformRef = useRef<RecordedAudioWaveformRef>(null);
   
@@ -119,7 +123,7 @@ const EditLine = ({
 
   const handleSave = async () => {
     const trimmed = text?.trim();
-    if (!trimmed || !character?.id) return;
+
 
     setIsLoading(true);
     let res;
@@ -316,7 +320,7 @@ const EditLine = ({
 
     } catch (error) {
       console.error('Error starting recording:', error);
-      alert('Could not access microphone. Please check permissions and ensure you are using HTTPS.');
+      setShowMicErrorModal(true);
     }
   };
 
@@ -500,11 +504,14 @@ return (
       )}
     </div>
 
+
     {/* Textarea */}
     <textarea
       placeholder="Type the line..."
       value={text || ""}
-      onChange={(e) => setLineBeingEditedData((prev) => ({ ...prev, text: e.target.value }))}
+      onChange={(e) => {
+        setLineBeingEditedData((prev) => ({ ...prev, text: e.target.value }))
+      }}
       className="w-full min-h-[100px] px-4 py-3 rounded-lg text-base resize-none border-0 focus:outline-none transition-all duration-200"
       style={{
         backgroundColor: 'rgba(244,239,232,0.9)',
@@ -522,6 +529,7 @@ return (
         e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
       }}
     />
+
 
     {/* Default Waveform to show when not in edit mode for other characters */}
     {lineMode === "default" && line && (localAudioUrl || line.audio_url) && (
@@ -843,16 +851,16 @@ return (
           {/* Save */}
           <button
             onClick={handleSave}
-            disabled={isLoading || !hasChanges}
-            className={`px-6 py-2 rounded-lg text-white transition-colors duration-200 flex items-center gap-2 ${(isLoading || !hasChanges) ? "opacity-50 cursor-not-allowed" : ""}`}
+            disabled={isLoading || !hasChanges || !lineBeingEditedData.character || !text?.trim()}
+            className={`px-6 py-2 rounded-lg text-white transition-colors duration-200 flex items-center gap-2 ${(isLoading || !hasChanges || !lineBeingEditedData.character || !text?.trim()) ? "opacity-50 cursor-not-allowed" : ""}`}
             style={{
               backgroundColor: '#FFA05A' // Always orange, opacity handles disabled state
             }}
             onMouseEnter={(e) => {
-              if (!isLoading && hasChanges) e.currentTarget.style.backgroundColor = '#FF8A3A'
+              if (!isLoading && hasChanges && lineBeingEditedData.character && text?.trim()) e.currentTarget.style.backgroundColor = '#FF8A3A'
             }}
             onMouseLeave={(e) => {
-              if (!isLoading && hasChanges) e.currentTarget.style.backgroundColor = '#FFA05A'
+              if (!isLoading && hasChanges && lineBeingEditedData.character && text?.trim()) e.currentTarget.style.backgroundColor = '#FFA05A'
             }}
           >
             {!isLoading && <FontAwesomeIcon icon={faCheck} />}
@@ -866,24 +874,26 @@ return (
       <div className="space-y-4">
         {/* Recording Controls */}
         {!isRecording && !recordedAudioBlob && (
-          <button
-            onClick={startRecording}
-            className="w-full px-6 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-medium"
-            style={{backgroundColor: 'rgba(244,239,232,0.8)', color: '#202020', border: '1px solid rgba(32,32,32,0.1)'}}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#FFA05A'
-              e.currentTarget.style.color = '#ffffff'
-              e.currentTarget.style.borderColor = '#FFA05A'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
-              e.currentTarget.style.color = '#202020'
-              e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
-            }}
-          >
-            <FontAwesomeIcon icon={faMicrophone} />
-            Record Voice
-          </button>
+          <div className="relative">
+            <button
+              onClick={startRecording}
+              className="w-full px-6 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-medium"
+              style={{backgroundColor: 'rgba(244,239,232,0.8)', color: '#202020', border: '1px solid rgba(32,32,32,0.1)'}}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#FFA05A'
+                e.currentTarget.style.color = '#ffffff'
+                e.currentTarget.style.borderColor = '#FFA05A'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
+                e.currentTarget.style.color = '#202020'
+                e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
+              }}
+            >
+              <FontAwesomeIcon icon={faMicrophone} />
+              Record Voice
+            </button>
+          </div>
         )}
 
         {/* Recording in Progress */}
@@ -911,6 +921,11 @@ return (
 
       </div>
     )}
+
+    <MicErrorModal
+      isOpen={showMicErrorModal}
+      onClose={() => setShowMicErrorModal(false)}
+    />
 
   </div>
   );

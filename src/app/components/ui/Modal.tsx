@@ -45,9 +45,8 @@ const Modal = ({children, width, height, isOpen = true, onClose}: Props) => {
                     ? 'opacity-100' 
                     : 'opacity-0'
             }`}
-            style={{ 
-                backgroundColor: isVisible ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0)',
-                paddingBottom: '120px' // Move modal up to avoid bottom buttons
+            style={{
+                backgroundColor: isVisible ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0)'
             }}
             onClick={handleBackdropClick}
         >
