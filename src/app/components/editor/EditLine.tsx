@@ -293,6 +293,11 @@ const EditLine = ({
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  // Check if there's audio available to trim (either existing audio_url or recorded audio)
+  const hasAudioToTrim = (): boolean => {
+    return !!(line?.audio_url || recordedAudioBlob || localAudioUrl);
+  };
+
   // Start recording
   const startRecording = async () => {
     // If permission not yet granted, request it
@@ -905,39 +910,52 @@ return (
             img: faHand,
             mode: "delay"
           }
-        ].map((item, i) => (
-          <button
-            key={i}
-            className="w-11 h-11 rounded-xl flex items-center flex-col justify-center transition-all duration-200"
-            style={{
-              backgroundColor: lineMode === item.mode ? '#72A5F2' : 'rgba(244,239,232,0.8)',
-              color: lineMode === item.mode ? '#ffffff' : '#202020',
-              border: '1px solid',
-              borderColor: lineMode === item.mode ? '#5B94E8' : 'rgba(32,32,32,0.15)',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-            }}
-            onMouseEnter={(e) => {
-              if (lineMode !== item.mode) {
-                e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.9)'
-                e.currentTarget.style.borderColor = 'rgba(32,32,32,0.2)'
-                e.currentTarget.style.color = '#202020'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (lineMode !== item.mode) {
-                e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
-                e.currentTarget.style.borderColor = 'rgba(32,32,32,0.15)'
-                e.currentTarget.style.color = '#202020'
-              }
-            }}
-            onClick={() => toggleLineMode(item.mode as EditLineMode)}
-          >
-            <FontAwesomeIcon icon={item.img} className="text-sm" />
-            <div className="uppercase text-[0.5rem] mt-1 tracking-wide font-medium">
-              {item.mode}
-            </div>
-          </button>
-        ))}
+        ].map((item, i) => {
+          const isTrimButton = item.mode === "trim";
+          const isDisabled = isTrimButton && !hasAudioToTrim();
+
+          return (
+            <button
+              key={i}
+              disabled={isDisabled}
+              className={`w-11 h-11 rounded-xl flex items-center flex-col justify-center transition-all duration-200 ${
+                isDisabled ? '!cursor-default' : 'cursor-pointer'
+              }`}
+              style={{
+                backgroundColor: lineMode === item.mode ? '#72A5F2' : (isDisabled ? 'rgba(200,200,200,0.6)' : 'rgba(244,239,232,0.8)'),
+                color: lineMode === item.mode ? '#ffffff' : (isDisabled ? 'rgba(80,80,80,0.9)' : '#202020'),
+                border: '1px solid',
+                borderColor: lineMode === item.mode ? '#5B94E8' : (isDisabled ? 'rgba(150,150,150,0.5)' : 'rgba(32,32,32,0.15)'),
+                boxShadow: isDisabled ? 'none' : '0 1px 2px rgba(0,0,0,0.05)',
+                opacity: isDisabled ? 0.75 : 1,
+                cursor: isDisabled ? 'default !important' : 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                if (!isDisabled && lineMode !== item.mode) {
+                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.9)'
+                  e.currentTarget.style.borderColor = 'rgba(32,32,32,0.2)'
+                  e.currentTarget.style.color = '#202020'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isDisabled && lineMode !== item.mode) {
+                  e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
+                  e.currentTarget.style.borderColor = 'rgba(32,32,32,0.15)'
+                  e.currentTarget.style.color = '#202020'
+                }
+              }}
+              onClick={() => !isDisabled && toggleLineMode(item.mode as EditLineMode)}
+            >
+              <FontAwesomeIcon
+                icon={item.img}
+                className="text-sm"
+              />
+              <div className="uppercase text-[0.5rem] mt-1 tracking-wide font-medium">
+                {item.mode}
+              </div>
+            </button>
+          )
+        })}
       </div>
       }
 
