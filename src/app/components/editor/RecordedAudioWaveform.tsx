@@ -213,24 +213,31 @@ const RecordedAudioWaveform = React.forwardRef<RecordedAudioWaveformRef, Props>(
       setIsPlaying(false);
       onPlayingChange?.(false);
     };
-    const handleTimeUpdate = () => {
+
+    const updateTime = () => {
       setCurrentTime(audio.currentTime);
-      // Force canvas redraw during playback
-      drawWaveform();
+      if (isPlaying) {
+        animationFrameRef.current = requestAnimationFrame(updateTime);
+      }
     };
 
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
     audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('timeupdate', handleTimeUpdate);
+
+    if (isPlaying) {
+      animationFrameRef.current = requestAnimationFrame(updateTime);
+    }
 
     return () => {
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
-  }, [audioUrl, drawWaveform]);
+  }, [audioUrl, isPlaying]);
 
   // Expose controls to parent component
   useImperativeHandle(ref, () => ({
