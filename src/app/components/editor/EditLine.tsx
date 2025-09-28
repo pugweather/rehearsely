@@ -787,41 +787,48 @@ return (
         {
         [
           {
-            img: faScissors, 
+            img: faScissors,
             mode: "trim"
-          }, 
+          },
           {
-            img: faPersonRunning, 
+            img: faPersonRunning,
             mode: "speed"
-          }, 
+          },
           {
-            img: faHand, 
+            img: faHand,
             mode: "delay"
           }
         ].map((item, i) => (
           <button
             key={i}
-            className="w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-200"
+            className="w-11 h-11 rounded-xl flex items-center flex-col justify-center transition-all duration-200"
             style={{
               backgroundColor: lineMode === item.mode ? '#72A5F2' : 'rgba(244,239,232,0.8)',
               color: lineMode === item.mode ? '#ffffff' : '#202020',
-              border: '1px solid rgba(32,32,32,0.1)'
+              border: '1px solid',
+              borderColor: lineMode === item.mode ? '#5B94E8' : 'rgba(32,32,32,0.15)',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
             }}
             onMouseEnter={(e) => {
               if (lineMode !== item.mode) {
-                e.currentTarget.style.backgroundColor = '#ffffff'
+                e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.9)'
                 e.currentTarget.style.borderColor = 'rgba(32,32,32,0.2)'
+                e.currentTarget.style.color = '#202020'
               }
             }}
             onMouseLeave={(e) => {
               if (lineMode !== item.mode) {
                 e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
-                e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
+                e.currentTarget.style.borderColor = 'rgba(32,32,32,0.15)'
+                e.currentTarget.style.color = '#202020'
               }
             }}
             onClick={() => toggleLineMode(item.mode as EditLineMode)}
           >
-            <FontAwesomeIcon icon={item.img} />
+            <FontAwesomeIcon icon={item.img} className="text-sm" />
+            <div className="uppercase text-[0.5rem] mt-1 tracking-wide font-medium">
+              {item.mode}
+            </div>
           </button>
         ))}
       </div>
