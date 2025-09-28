@@ -86,7 +86,21 @@ const EditLine = ({
   const [recordedAudioBlob, setRecordedAudioBlob] = useState<Blob | null>(null);
   const [isWaveformPlaying, setIsWaveformPlaying] = useState(false);
   const [showMicErrorModal, setShowMicErrorModal] = useState(false);
+  const [micPermissionGranted, setMicPermissionGranted] = useState(false);
+  const [micErrorType, setMicErrorType] = useState<'permission' | 'no_device'>('permission');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+  // Check if microphones are available
+  const checkMicrophoneAvailability = async (): Promise<boolean> => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices()
+      const audioInputs = devices.filter(device => device.kind === 'audioinput')
+      return audioInputs.length > 0
+    } catch (error) {
+      console.error('Error checking microphone availability:', error)
+      return false
+    }
+  }
 
   // Track if this line was saved with voice cloning in this session
   const [savedWithVoiceCloning, setSavedWithVoiceCloning] = useState<boolean>(false);
@@ -281,8 +295,48 @@ const EditLine = ({
 
   // Start recording
   const startRecording = async () => {
+    // If permission not yet granted, request it
+    if (!micPermissionGranted) {
+      // First check if microphones are available
+      const hasMicrophone = await checkMicrophoneAvailability()
+      if (!hasMicrophone) {
+        setMicErrorType('no_device')
+        setShowMicErrorModal(true)
+        return
+      }
+
+      try {
+        console.log('Requesting microphone access...');
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+            sampleRate: 16000,
+            channelCount: 1
+          }
+        });
+        console.log('Microphone access granted');
+        // Stop the stream immediately since we just needed permission
+        stream.getTracks().forEach(track => track.stop());
+        setMicPermissionGranted(true);
+        // Don't auto-start recording - user must click record again
+      } catch (error) {
+        console.error('Failed to access microphone:', error);
+        // Check the specific error to determine if it's a permission issue or no device
+        if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+          setMicErrorType('no_device')
+        } else {
+          setMicErrorType('permission')
+        }
+        setShowMicErrorModal(true);
+      }
+      return;
+    }
+
+    // Permission already granted, start actual recording
     try {
-      console.log('Requesting microphone access...');
+      console.log('Starting recording with granted permission...');
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
@@ -984,7 +1038,32 @@ return (
 
     <MicErrorModal
       isOpen={showMicErrorModal}
-      onClose={() => setShowMicErrorModal(false)}
+      errorType={micErrorType}
+      onClose={async () => {
+        setShowMicErrorModal(false)
+        // Only request permission when modal is closed if it's a permission issue, not a device issue
+        if (!micPermissionGranted && micErrorType === 'permission') {
+          try {
+            console.log('Requesting microphone access after modal close...');
+            const stream = await navigator.mediaDevices.getUserMedia({
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+                sampleRate: 16000,
+                channelCount: 1
+              }
+            });
+            console.log('Microphone access granted');
+            // Stop the stream immediately since we just needed permission
+            stream.getTracks().forEach(track => track.stop());
+            setMicPermissionGranted(true);
+          } catch (error) {
+            console.error('Failed to access microphone after modal close:', error);
+            // Don't show modal again to avoid infinite loop
+          }
+        }
+      }}
     />
 
   </div>

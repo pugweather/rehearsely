@@ -91,9 +91,9 @@ const PlayerLine = ({line, characters, isCurrentLine, lineIndex, currentLineInde
   }
 
   return (
-    <div 
+    <div
       className={clsx(
-        `w-full text-center mb-10 rounded-xl pl-10 pr-10 py-3 border border-transparent ${courierPrimeRegular.className}`,
+        `w-full text-center mb-10 rounded-2xl pl-10 pr-10 py-3 border border-transparent ${courierPrimeRegular.className}`,
         lineAlreadySpoken ? "opacity-30" : ""
       )}
       style={{
