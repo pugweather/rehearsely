@@ -181,30 +181,35 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
                                 return (
                                     <button
                                         key={voiceIndex}
-                                        className="px-3 py-2 rounded-lg text-sm font-medium text-center cursor-pointer transition-all duration-200 border"
+                                        className="px-4 py-3 rounded-xl text-sm font-medium text-center cursor-pointer transition-all duration-300 border-2 hover:scale-105"
                                         style={{
-                                            backgroundColor: voice.voice_id === selectedVoiceId 
-                                                ? '#FFA05A' 
-                                                : 'rgba(244,239,232,0.8)',
-                                            borderColor: voice.voice_id === selectedVoiceId 
-                                                ? '#FFA05A' 
-                                                : 'rgba(32,32,32,0.1)',
-                                            color: voice.voice_id === selectedVoiceId 
-                                                ? '#ffffff' 
-                                                : '#202020'
+                                            backgroundColor: voice.voice_id === selectedVoiceId
+                                                ? '#FFA05A'
+                                                : 'rgba(255, 255, 255, 0.9)',
+                                            borderColor: voice.voice_id === selectedVoiceId
+                                                ? '#FFA05A'
+                                                : 'rgba(255, 160, 90, 0.3)',
+                                            color: voice.voice_id === selectedVoiceId
+                                                ? '#ffffff'
+                                                : '#202020',
+                                            boxShadow: voice.voice_id === selectedVoiceId
+                                                ? '0 8px 20px rgba(255, 160, 90, 0.3)'
+                                                : '0 4px 10px rgba(0, 0, 0, 0.05)'
                                         }}
                                         onMouseEnter={(e) => {
                                             if (voice.voice_id !== selectedVoiceId) {
                                                 e.currentTarget.style.backgroundColor = '#ffffff'
                                                 e.currentTarget.style.borderColor = '#FFA05A'
                                                 e.currentTarget.style.color = '#FFA05A'
+                                                e.currentTarget.style.boxShadow = '0 6px 15px rgba(255, 160, 90, 0.2)'
                                             }
                                         }}
                                         onMouseLeave={(e) => {
                                             if (voice.voice_id !== selectedVoiceId) {
-                                                e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
-                                                e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
+                                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)'
+                                                e.currentTarget.style.borderColor = 'rgba(255, 160, 90, 0.3)'
                                                 e.currentTarget.style.color = '#202020'
+                                                e.currentTarget.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.05)'
                                             }
                                         }}
                                         onClick={() => handleSelectVoice(voice)}
@@ -228,69 +233,107 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
 
     return (
         <Modal width={700} height={750}>
-            <div className='flex flex-col h-full rounded-2xl' style={{backgroundColor: '#E3D6C6', border: '1px solid rgba(32,32,32,0.1)'}}>
+            <div className='flex flex-col h-full rounded-2xl overflow-hidden' style={{
+                background: 'linear-gradient(145deg, #E8DDD0 0%, #E3D6C6 50%, #DDD0C1 100%)',
+                border: '1px solid rgba(255, 160, 90, 0.2)',
+                boxShadow: '0 20px 40px rgba(255, 160, 90, 0.1)'
+            }}>
                 {/* Header */}
-                <div className='relative px-6 py-5 border-b' style={{borderColor: 'rgba(32,32,32,0.1)'}}>
-                    <div className='text-xl font-semibold' style={{color: '#202020'}}>Create New Character</div>
-                    <button 
-                        onClick={closeCreateCharModal} 
-                        className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200" 
-                        style={{backgroundColor: 'rgba(255,255,255,0.2)', color: '#202020'}}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.3)'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'}
+                <div className='relative px-6 py-6 border-b' style={{
+                    borderColor: 'rgba(255, 160, 90, 0.2)',
+                    background: 'linear-gradient(90deg, rgba(255, 160, 90, 0.05) 0%, rgba(255, 160, 90, 0.02) 100%)'
+                }}>
+                    <div className='text-2xl font-bold text-black'>
+                        Create New Character
+                    </div>
+                    <button
+                        onClick={closeCreateCharModal}
+                        className="absolute top-5 right-5 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
+                        style={{
+                            backgroundColor: 'rgba(255, 160, 90, 0.1)',
+                            color: '#FFA05A',
+                            border: '1px solid rgba(255, 160, 90, 0.2)'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = 'rgba(255, 160, 90, 0.2)'
+                            e.currentTarget.style.borderColor = '#FFA05A'
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'rgba(255, 160, 90, 0.1)'
+                            e.currentTarget.style.borderColor = 'rgba(255, 160, 90, 0.2)'
+                        }}
                     >
                         <FontAwesomeIcon icon={faXmark} />
                     </button>
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 px-6 py-4 overflow-y-auto">
+                <div className="flex-1 px-6 py-5 overflow-y-auto">
                     {/* Character Name Section */}
-                    <div className="mb-6">
-                        <label className="block text-lg font-semibold mb-3" style={{color: '#202020'}}>
-                            Character Name
+                    <div className="mb-8">
+                        <label className="block text-lg font-bold mb-4 flex items-center gap-2" style={{color: '#8B4513'}}>
+                            🎭 Character Name
                         </label>
-                        <input
-                            type="text"
-                            placeholder="Enter character name..."
-                            value={characterName || ''}
-                            onChange={(e) => handleTypingInInputBox(e.target.value)}
-                            className="w-full px-4 py-3 rounded-lg text-base border-0 focus:outline-none transition-all duration-200"
-                            style={{
-                                backgroundColor: 'rgba(244,239,232,0.9)',
-                                color: '#202020',
-                                border: '1px solid rgba(32,32,32,0.1)'
-                            }}
-                            onFocus={(e) => {
-                                e.currentTarget.style.backgroundColor = '#ffffff'
-                                e.currentTarget.style.boxShadow = `0 0 0 2px #FFA05A`
-                                e.currentTarget.style.borderColor = '#FFA05A'
-                            }}
-                            onBlur={(e) => {
-                                e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.9)'
-                                e.currentTarget.style.boxShadow = 'none'
-                                e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
-                            }}
-                        />
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder="Enter character name..."
+                                value={characterName || ''}
+                                onChange={(e) => handleTypingInInputBox(e.target.value)}
+                                className="w-full px-4 py-4 rounded-xl text-base border-0 focus:outline-none transition-all duration-300"
+                                style={{
+                                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                                    color: '#202020',
+                                    border: '2px solid rgba(255, 160, 90, 0.3)',
+                                    boxShadow: '0 4px 12px rgba(255, 160, 90, 0.1)'
+                                }}
+                                onFocus={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#ffffff'
+                                    e.currentTarget.style.boxShadow = `0 8px 25px rgba(255, 160, 90, 0.2)`
+                                    e.currentTarget.style.borderColor = '#FFA05A'
+                                    e.currentTarget.style.transform = 'translateY(-2px)'
+                                }}
+                                onBlur={(e) => {
+                                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.8)'
+                                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 160, 90, 0.1)'
+                                    e.currentTarget.style.borderColor = 'rgba(255, 160, 90, 0.3)'
+                                    e.currentTarget.style.transform = 'translateY(0px)'
+                                }}
+                            />
+                        </div>
                         {errorText && (
-                            <p className="mt-2 text-sm" style={{color: '#dc2626'}}>{errorText}</p>
+                            <p className="mt-3 text-sm flex items-center gap-2" style={{color: '#dc2626'}}>
+                                ⚠️ {errorText}
+                            </p>
                         )}
                     </div>
 
                     {/* Voice Selection Section */}
                     <div className="mb-4">
-                        <h3 className="text-lg font-semibold mb-4" style={{color: '#202020'}}>Select Voice</h3>
+                        <h3 className="text-lg font-bold mb-5" style={{color: '#8B4513'}}>
+                            Select Voice
+                        </h3>
                         <div className="grid grid-cols-2 gap-6">
                             {/* Male Voices */}
-                            <div className="space-y-3">
-                                <h4 className="text-base font-bold pb-2 border-b" style={{color: '#f47c2c', borderColor: 'rgba(244,124,44,0.3)'}}>
+                            <div className="space-y-4 p-4 rounded-xl" style={{
+                                background: 'linear-gradient(135deg, rgba(255, 160, 90, 0.05) 0%, rgba(255, 160, 90, 0.02) 100%)',
+                                border: '1px solid rgba(255, 160, 90, 0.2)'
+                            }}>
+                                <h4 className="text-base font-bold pb-3 border-b" style={{
+                                    color: '#8B4513',
+                                    borderColor: 'rgba(255, 160, 90, 0.3)'
+                                }}>
                                     MALE VOICES
                                 </h4>
                                 <div className="space-y-3">
                                     {maleCharBtns && maleCharBtns.length > 0 ? (
                                         maleCharBtns
                                     ) : (
-                                        <div className="flex items-center justify-center h-20 text-sm rounded-lg border-2 border-dashed" style={{color: '#999', backgroundColor: 'rgba(244,239,232,0.5)', borderColor: 'rgba(32,32,32,0.2)'}}>
+                                        <div className="flex items-center justify-center h-20 text-sm rounded-xl border-2 border-dashed" style={{
+                                            color: '#999',
+                                            backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                                            borderColor: 'rgba(255, 160, 90, 0.3)'
+                                        }}>
                                             <p className="text-center">No male voices available</p>
                                         </div>
                                     )}
@@ -298,15 +341,25 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
                             </div>
 
                             {/* Female Voices */}
-                            <div className="space-y-3">
-                                <h4 className="text-base font-bold pb-2 border-b" style={{color: '#f7a954', borderColor: 'rgba(247,169,84,0.3)'}}>
+                            <div className="space-y-4 p-4 rounded-xl" style={{
+                                background: 'linear-gradient(135deg, rgba(255, 160, 90, 0.05) 0%, rgba(255, 160, 90, 0.02) 100%)',
+                                border: '1px solid rgba(255, 160, 90, 0.2)'
+                            }}>
+                                <h4 className="text-base font-bold pb-3 border-b" style={{
+                                    color: '#8B4513',
+                                    borderColor: 'rgba(255, 160, 90, 0.3)'
+                                }}>
                                     FEMALE VOICES
                                 </h4>
                                 <div className="space-y-3">
                                     {femaleCharBtns && femaleCharBtns.length > 0 ? (
                                         femaleCharBtns
                                     ) : (
-                                        <div className="flex items-center justify-center h-20 text-sm rounded-lg border-2 border-dashed" style={{color: '#999', backgroundColor: 'rgba(244,239,232,0.5)', borderColor: 'rgba(32,32,32,0.2)'}}>
+                                        <div className="flex items-center justify-center h-20 text-sm rounded-xl border-2 border-dashed" style={{
+                                            color: '#999',
+                                            backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                                            borderColor: 'rgba(255, 160, 90, 0.3)'
+                                        }}>
                                             <p className="text-center">No female voices available</p>
                                         </div>
                                     )}
