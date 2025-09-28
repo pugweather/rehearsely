@@ -30,13 +30,12 @@ const PlayerLine = ({line, characters, isCurrentLine, lineIndex, currentLineInde
 
     let res = ""
 
-    const meText = "(me)"
     const charIsMe = currCharacter?.is_me === true
 
     if (currCharacter) {
         res += currCharacter.name
     } if (charIsMe) {
-        res += ' ' + meText
+        res += ' (me)'
     }
 
     return res
@@ -44,8 +43,6 @@ const PlayerLine = ({line, characters, isCurrentLine, lineIndex, currentLineInde
 
   const renderHighlightedText = () => {
     if (!line?.text) return null
-
-    // Normalize text to get words (same logic as LineCompletionDetector)
     const normalizeText = (text: string): string => {
       return text
         .toLowerCase()
@@ -94,11 +91,15 @@ const PlayerLine = ({line, characters, isCurrentLine, lineIndex, currentLineInde
   }
 
   return (
-    <div className={clsx(
-      `w-full text-center mb-10 rounded-xl pl-10 pr-10 py-3 ${courierPrimeRegular.className}`,
-      isCurrentLine ? "bg-gray-100" : "",
-      lineAlreadySpoken ? "opacity-30" : ""
-      )}>
+    <div 
+      className={clsx(
+        `w-full text-center mb-10 rounded-xl pl-10 pr-10 py-3 border border-transparent ${courierPrimeRegular.className}`,
+        lineAlreadySpoken ? "opacity-30" : ""
+      )}
+      style={{
+        backgroundColor: isCurrentLine ? 'rgba(255,160,90,0.08)' : 'transparent',
+        borderColor: isCurrentLine ? 'rgba(255,160,90,0.2)' : 'transparent',
+      }}>
         <div className='text-lg tracking-wider uppercase text-gray-700 mb-2 font-semibold'>{displaySelectedCharacterName()}</div>
         <div className='text-xl leading-relaxed text-black whitespace-pre-wrap'>
           {isCurrentLine && matchedWordIndices.length > 0 ? renderHighlightedText() : line.text}
