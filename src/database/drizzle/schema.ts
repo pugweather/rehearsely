@@ -15,6 +15,7 @@ export const lines = pgTable("lines", {
 	audio_url: text(),
 	speed: numeric().notNull(),
 	delay: numeric().notNull(),
+	is_voice_cloned: boolean().default(false).notNull(),
 }, (table) => [
 	foreignKey({
 			columns: [table.character_id],
