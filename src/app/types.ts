@@ -40,7 +40,7 @@ export type LineBeingEditedData = {
     order: number | null
 }
 
-export type EditLineMode = "default" | "trim" | "delay" | "speed" | "voice"
+export type EditLineMode = "default" | "trim" | "delay" | "speed" | "voice" | "recording"
 
 // Dropdowns
 export type DropdownData = {

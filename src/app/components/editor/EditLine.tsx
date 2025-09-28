@@ -88,6 +88,11 @@ const EditLine = ({
   const [showMicErrorModal, setShowMicErrorModal] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
+  // Track if this line was saved with voice cloning in this session
+  const [savedWithVoiceCloning, setSavedWithVoiceCloning] = useState<boolean>(false);
+
+  // Separate loading state for voice cloning save
+  const [isVoiceCloningSaving, setIsVoiceCloningSaving] = useState<boolean>(false);
 
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const waveformRef = useRef<RecordedAudioWaveformRef>(null);
@@ -117,9 +122,15 @@ const EditLine = ({
     const hasDelayChanged = currentValues.delay !== originalValues.current.delay;
     const hasAudioTrimmed = trimmedAudioBlob !== null;
     const hasAudioRecorded = recordedAudioBlob !== null;
-    
+
+    // If text has changed after voice cloning, reset the voice cloning flag
+    // This handles the edge case where changing text reverts back to TTS
+    if (hasTextChanged && savedWithVoiceCloning) {
+      setSavedWithVoiceCloning(false);
+    }
+
     setHasChanges(hasTextChanged || hasCharacterChanged || hasSpeedChanged || hasDelayChanged || hasAudioTrimmed || hasAudioRecorded);
-  }, [lineBeingEditedData.text, lineBeingEditedData.character?.id, lineBeingEditedData.speed, lineBeingEditedData.delay, trimmedAudioBlob, recordedAudioBlob]);
+  }, [lineBeingEditedData.text, lineBeingEditedData.character?.id, lineBeingEditedData.speed, lineBeingEditedData.delay, trimmedAudioBlob, recordedAudioBlob, savedWithVoiceCloning]);
 
   const handleSave = async () => {
     const trimmed = text?.trim();
@@ -210,6 +221,12 @@ const EditLine = ({
           }) || null
         );
       }
+
+      // If we saved without recorded/trimmed audio, this is TTS (not voice cloned)
+      if (!recordedAudioBlob && !trimmedAudioBlob) {
+        setSavedWithVoiceCloning(false);
+      }
+
       closeEditLine();
     } else {
       console.log("Save failed - request body:", trimmedAudioBlob ? "FormData with audio" : "JSON payload")
@@ -247,11 +264,11 @@ const EditLine = ({
   // Handle when audio is trimmed - store the blob and mark as changed
   const handleAudioTrimmed = (trimmedBlob: Blob) => {
     setTrimmedAudioBlob(trimmedBlob);
-    
+
     // Create local URL for immediate playback
     const localUrl = URL.createObjectURL(trimmedBlob);
     setLocalAudioUrl(localUrl);
-    
+
     setHasChanges(true);
   }
 
@@ -277,7 +294,7 @@ const EditLine = ({
       });
 
       console.log('Microphone access granted, starting recording...');
-      
+
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: 'audio/webm;codecs=opus',
         audioBitsPerSecond: 16000
@@ -297,7 +314,7 @@ const EditLine = ({
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
         setRecordedAudioBlob(audioBlob);
         setLineMode("voice"); // Switch to voice mode to show waveform + buttons
-        
+
         // Stop all tracks to release microphone
         stream.getTracks().forEach(track => track.stop());
       };
@@ -306,6 +323,9 @@ const EditLine = ({
       mediaRecorder.start();
       setIsRecording(true);
       setRecordingTime(0);
+
+      // Close any other popups - recording mode is now active
+      setLineMode("recording");
 
       console.log('MediaRecorder started, setting up timer...');
       // Start timer
@@ -362,8 +382,9 @@ const EditLine = ({
     console.log('sceneId:', sceneId);
     console.log('line?.id:', line?.id);
 
-    setIsLoading(true);
-    
+    // Use separate loading state for voice cloning to avoid affecting main save button
+    setIsVoiceCloningSaving(true);
+
     try {
       // Create FormData for voice cloning
       const formData = new FormData();
@@ -398,10 +419,16 @@ const EditLine = ({
         if (data.updates.audio_url) {
           setLocalAudioUrl(data.updates.audio_url);
         }
+
+        // Mark that this line was saved with voice cloning
+        setSavedWithVoiceCloning(true);
+
         setLineMode("default");
         setRecordedAudioBlob(null);
         setRecordingTime(0);
-        setHasChanges(false);
+
+        // Enable the main save button after voice cloning
+        setHasChanges(true);
       } else {
         const errorText = await res.text();
         console.error('API Error Response:', errorText);
@@ -412,7 +439,7 @@ const EditLine = ({
       console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
       alert(`Voice cloning failed. Please try again. Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
-      setIsLoading(false);
+      setIsVoiceCloningSaving(false);
     }
   };
 
@@ -432,12 +459,38 @@ const EditLine = ({
   }, []); // Empty dependency array - only run on unmount
 
   const toggleLineMode = (btnMode: EditLineMode) => {
+    // If recording is active, stop it when switching to other modes
+    if (isRecording && btnMode !== "recording") {
+      stopRecording();
+    }
+
     if (lineMode === btnMode) {
       setLineMode("default")
     } else if (btnMode) {
       setLineMode(btnMode)
     }
   }
+
+
+  // Helper function to determine if a line is voice-cloned (not TTS)
+  const isVoiceClonedLine = () => {
+    // Never show for "me" characters since you don't record for yourself
+    if (character?.is_me) return false;
+
+    // If we have recorded audio in this session, it's voice-cloned
+    if (recordedAudioBlob) return true;
+
+    // If we saved with voice cloning in this session, it's voice-cloned
+    if (savedWithVoiceCloning) return true;
+
+    // For existing lines, check if they have the is_voice_cloned flag from database
+    if (line?.is_voice_cloned) {
+      return true;
+    }
+
+    return false;
+  }
+
 
 return (
   <div className={clsx(
@@ -543,11 +596,11 @@ return (
     {lineMode === "trim" && line && (localAudioUrl || line.audio_url) && (
       <>
         {console.log('Speed being passed to BeautifulWaveform:', lineBeingEditedData.speed)}
-        <BeautifulWaveform 
-          line={{...line, audio_url: localAudioUrl || line.audio_url}} 
-          setLineMode={setLineMode} 
-          onAudioTrimmed={handleAudioTrimmed} 
-          speed={lineBeingEditedData.speed || 1.0} 
+        <BeautifulWaveform
+          line={{...line, audio_url: localAudioUrl || line.audio_url}}
+          setLineMode={setLineMode}
+          onAudioTrimmed={handleAudioTrimmed}
+          speed={lineBeingEditedData.speed || 1.0}
         />
       </>
     )}
@@ -725,23 +778,23 @@ return (
               {/* Save Voice Button */}
               <button
                 onClick={handleSaveVoiceCloning}
-                disabled={isLoading}
+                disabled={isVoiceCloningSaving}
                 className="w-10 h-10 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
                 style={{backgroundColor: '#FFA05A'}}
                 onMouseEnter={(e) => {
-                  if (!isLoading) {
+                  if (!isVoiceCloningSaving) {
                     e.currentTarget.style.backgroundColor = '#FF8A3A'
                     e.currentTarget.style.transform = 'scale(1.05)'
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (!isLoading) {
+                  if (!isVoiceCloningSaving) {
                     e.currentTarget.style.backgroundColor = '#FFA05A'
                     e.currentTarget.style.transform = 'scale(1)'
                   }
                 }}
               >
-                {isLoading ? (
+                {isVoiceCloningSaving ? (
                   <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <FontAwesomeIcon icon={faCheck} className="text-sm" />
@@ -756,17 +809,17 @@ return (
                   setRecordingTime(0);
                   setHasChanges(false);
                 }}
-                disabled={isLoading}
+                disabled={isVoiceCloningSaving}
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
                 style={{backgroundColor: '#F4F3F0', color: '#FFA05A'}}
                 onMouseEnter={(e) => {
-                  if (!isLoading) {
+                  if (!isVoiceCloningSaving) {
                     e.currentTarget.style.backgroundColor = '#E8E6E1'
                     e.currentTarget.style.transform = 'scale(1.05)'
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (!isLoading) {
+                  if (!isVoiceCloningSaving) {
                     e.currentTarget.style.backgroundColor = '#F4F3F0'
                     e.currentTarget.style.transform = 'scale(1)'
                   }
@@ -880,7 +933,7 @@ return (
     {character && !character.is_me && lineMode !== "voice" && (
       <div className="space-y-4">
         {/* Recording Controls */}
-        {!isRecording && !recordedAudioBlob && (
+        {lineMode !== "recording" && !recordedAudioBlob && (
           <div className="relative">
             <button
               onClick={startRecording}
@@ -904,8 +957,8 @@ return (
         )}
 
         {/* Recording in Progress */}
-        {isRecording && (
-          <div className="w-full px-6 py-3 rounded-lg border-2 animate-pulse" 
+        {lineMode === "recording" && isRecording && (
+          <div className="w-full px-6 py-3 rounded-lg border-2 animate-pulse"
                style={{backgroundColor: '#FFE6E6', borderColor: '#FF4444'}}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
