@@ -55,9 +55,11 @@ const SceneNamePage = () => {
               <h1 className={`text-4xl mb-5 font-semibold ${sunsetSerialMediumFont.className}`}>Enter the name for your scene</h1>
               <div className='flex items-center'>
                   <Link href="/scenes">
-                    <span className="p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 ease-in-out text-2xl mr-2">
-                      <FontAwesomeIcon icon={faArrowLeftLong} />
-                      <span className={`ml-2 ${sunsetSerialMediumFont.className}`}>Back</span>
+                    <span className="px-3 py-2 text-gray-900 transition-all duration-200 ease-in-out arrow-slide-on-hover inline-flex items-center gap-2 text-2xl mr-2">
+                      <svg className="arrow-icon w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                        <path fillRule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                      </svg>
+                      <span className={`${sunsetSerialMediumFont.className}`}>Back</span>
                     </span>
                   </Link>
                   <input 
