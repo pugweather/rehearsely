@@ -99,9 +99,15 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
                     
                     {/* Expanded dropdown content */}
                     {headerExpanded && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-[36rem] bg-white rounded-lg shadow-lg transition-all duration-100 ease-out animate-in slide-in-from-top-2 fade-in zoom-in-95" style={{ backgroundColor: 'var(--bg-page)' }}>
-                        <div className="p-4">
-                          <div className="flex items-center justify-between">
+                      <div
+                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[32rem] rounded-xl transition-all duration-300 ease-in-out animate-in slide-in-from-top-2 fade-in zoom-in-95 shadow-sm hover:shadow-md"
+                        style={{
+                          backgroundColor: '#FFF4E6',
+                          border: '2px solid rgba(255, 160, 90, 0.4)'
+                        }}
+                      >
+                        <div className="p-6">
+                          <div className="flex items-center justify-center">
                             {/* Scene settings */}
                             <div onClick={(e) => e.stopPropagation()}>
                               <SceneSettings />

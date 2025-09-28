@@ -9,16 +9,21 @@ const Switch = () => {
     return (
         <button
             onClick={() => setIsOn(!isOn)}
-            className={clsx(
-                "w-16 h-7 rounded-2xl border border-gray-200",
-                isOn ? "bg-green-500" : "bg-gray-200"
-            )}
+            className="w-12 h-6 rounded-full transition-all duration-200 ease-in-out focus:outline-none"
+            style={{
+                backgroundColor: isOn ? '#FFA05A' : '#f3f4f6',
+                border: '2px solid rgba(255, 160, 90, 0.4)'
+            }}
         >
-            <div 
-                className={clsx("w-7.5 h-6 rounded-full border border-gray-100 bg-white transition-transform",
-                    isOn ? "translate-x-7.5" : "translate-x-0"
-                )}>
-
+            <div
+                className={clsx(
+                    "w-4 h-4 rounded-full bg-white transition-all duration-200 ease-in-out shadow-sm",
+                    isOn ? "translate-x-6" : "translate-x-0.5"
+                )}
+                style={{
+                    border: '1px solid rgba(0,0,0,0.1)'
+                }}
+            >
             </div>
         </button>
     );
