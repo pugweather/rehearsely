@@ -3,5 +3,6 @@ import { User, UserStore } from "../types"
 
 export const useUserStore = create<UserStore>((set) => ({
     user: null,
-    setUser: (user) => set({user})
+    isLoading: true,
+    setUser: (user) => set({user, isLoading: false})
 }))

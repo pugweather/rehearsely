@@ -80,6 +80,7 @@ export type User = {
 
 export type UserStore = {
     user: SupabaseUser | null,
+    isLoading: boolean,
     setUser: (user: SupabaseUser | null) => void
 }
 

@@ -1,5 +1,5 @@
 "use client"
-import React, {useEffect} from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 // import Link from "next/link";
 import Image from "next/image";
@@ -20,18 +20,10 @@ const marlonProBold = localFont({
 export default function Navbar2() {
 
   const user = useUserStore((s) => s.user);
-  const setUser = useUserStore((s) => s.setUser); 
+  const isLoading = useUserStore((s) => s.isLoading); 
 
   const router = useRouter()
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const supabase = await createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user)
-    }
-    fetchUser()
-  }, [])
   
   const handleLogout = async () => {
     const supabase = createClient();
@@ -90,10 +82,13 @@ const AcmeLogo = () => {
         <Link href="/" className="text-2xl font-bold">Rehearsely</Link>
       </div>
       <div className="navbar-end">
-         {user ? 
-         <a className="btn btn-lg default-btn black grow-on-hover relative z-0" onClick={handleLogout}>Log out</a>:
-         <Link href="/login" className="btn btn-lg default-btn black relative z-0">Log in</Link>
-        }
+         {isLoading ? (
+           <div className="btn btn-lg default-btn black relative z-0 opacity-50 cursor-not-allowed">Loading...</div>
+         ) : user ? (
+           <a className="btn btn-lg default-btn black grow-on-hover relative z-0" onClick={handleLogout}>Log out</a>
+         ) : (
+           <Link href="/login" className="btn btn-lg default-btn black relative z-0">Log in</Link>
+         )}
       </div>
     </div>
   );
