@@ -675,8 +675,7 @@ return (
               max={2} 
               step={0.1} 
               value={lineSpeed} 
-              className="w-full h-3 rounded-lg appearance-none cursor-pointer" 
-              style={{backgroundColor: '#ffffff', border: '2px solid #FFA05A'}}
+              className="range range-warning w-full" 
               onChange={(e) => setLineSpeed(Number(e.target.value))}
             />
           </div>
@@ -730,8 +729,7 @@ return (
               max={2} 
               step={0.1} 
               value={lineDelay} 
-              className="w-full h-3 rounded-lg appearance-none cursor-pointer" 
-              style={{backgroundColor: '#ffffff', border: '2px solid #FFA05A'}}
+              className="range range-warning w-full" 
               onChange={(e) => setLineDelay(Number(e.target.value))}
             />
           </div>
