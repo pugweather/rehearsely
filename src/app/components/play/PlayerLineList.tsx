@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useState, useEffect, useRef, useCallback} from 'react'
 import { DraftLine, Character } from '@/app/types'
 import PlayerLine from './PlayerLine'
 import CountdownModal from './CountdownModal'
@@ -150,12 +150,12 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
       }
     }, [])
 
-    // Position tracker callbacks
-    const handleWordsMatched = (matchedIndices: number[]) => {
+    // Position tracker callbacks - memoized to prevent infinite loops
+    const handleWordsMatched = useCallback((matchedIndices: number[]) => {
       setMatchedWordIndices(matchedIndices)
-    }
+    }, [])
 
-    const handleLineFullySpoken = () => {
+    const handleLineFullySpoken = useCallback(() => {
       console.log(`✅ Line fully spoken - advancing to next line`)
       setMatchedWordIndices([]) // Clear highlighting
       const isLastLine = lastLineIndex === currentLineIndex
@@ -164,7 +164,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
       } else {
         setCurrentLineIndex(prev => prev + 1)
       }
-    }
+    }, [lastLineIndex, currentLineIndex, setSceneIsPlaying])
 
     return (
         <>

@@ -49,7 +49,8 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
         // Stop the stream immediately since we just needed permission
         stream.getTracks().forEach(track => track.stop())
         setMicPermissionGranted(true)
-        // Don't auto-start scene - user must click play again
+        // Auto-start scene after permission is granted
+        setSceneIsPlaying(true)
       } catch (error) {
         console.error('Failed to access microphone:', error);
         // Check the specific error to determine if it's a permission issue or no device
