@@ -92,16 +92,30 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
 
   /* Characters */
 
-  // Handle scrolling to bottom when new line is added
+  // Handle scrolling when line is opened for editing
   useEffect(() => {
-    if (shouldScroll) {
-      // 30ms for some extra safety. want to make sure line is added before scrolling
+    if (shouldScroll && lineBeingEdited) {
       setTimeout(() => {
-        scrollToBottom(scrollRef)
+        if (scrollRef.current) {
+          // Find the EditLine element (it should be rendered now)
+          const editLineElement = scrollRef.current.querySelector('[data-edit-line="true"]')
+          if (editLineElement) {
+            const editLineRect = editLineElement.getBoundingClientRect()
+            const scrollRect = scrollRef.current.getBoundingClientRect()
+            const editLineCenter = editLineRect.top + editLineRect.height / 2
+            const scrollCenter = scrollRect.top + scrollRect.height / 2
+            const scrollOffset = editLineCenter - scrollCenter
+
+            scrollRef.current.scrollBy({
+              top: scrollOffset,
+              behavior: 'smooth'
+            })
+          }
+        }
         setShouldScroll(false)
       }, 10)
     }
-  }, [shouldScroll])
+  }, [shouldScroll, lineBeingEdited])
 
   /* Editing line */
 
@@ -303,14 +317,14 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
                 />
               ))
                 : 
-              <SavedLine 
+              <SavedLine
                 key={line.id}
-                line={line} 
-                lines={lineItems} 
-                characters={characters} 
+                line={line}
+                lines={lineItems}
+                characters={characters}
                 setLines={setLines}
-                setLineBeingEdited={setLineBeingEdited} 
-                setLineBeingEditedData={setLineBeingEditedData} 
+                setLineBeingEdited={setLineBeingEdited}
+                setLineBeingEditedData={setLineBeingEditedData}
                 setShouldScroll={setShouldScroll}
                 setOriginalCharForOpenedLine={setOriginalCharForOpenedLine}
                 index={index}

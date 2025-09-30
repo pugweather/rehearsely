@@ -552,10 +552,14 @@ const EditLine = ({
 
 
 return (
-  <div className={clsx(
-    "rounded-2xl w-full px-6 py-6 space-y-6 relative shadow-md transition-all duration-300 hover:shadow-lg mb-8",
-    isLoading ? "pointer-events-none opacity-75" : ""
-    )} style={{backgroundColor: '#E3D6C6', border: '1px solid rgba(32,32,32,0.1)'}}>
+  <div
+    data-edit-line="true"
+    className={clsx(
+      "rounded-2xl w-full px-6 py-6 space-y-6 relative shadow-md transition-all duration-300 hover:shadow-lg mb-8",
+      isLoading ? "pointer-events-none opacity-75" : ""
+    )}
+    style={{backgroundColor: '#E3D6C6', border: '1px solid rgba(32,32,32,0.1)'}}
+  >
     {/* Close Button (X) */}
     <button
       onClick={closeEditLine}

@@ -35,7 +35,7 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
   const isCharactersLoading = !characters || characters.length === 0
 
   console.log(currCharacter)
-  
+
   // Track mouse position for click vs drag detection
   const [mouseDownPos, setMouseDownPos] = React.useState<{x: number, y: number} | null>(null)
 
@@ -47,7 +47,7 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
       console.log('🚫 Prevented EditLine open - characters still loading');
       return;
     }
-    
+
     setShouldScroll(true)
     setLineBeingEdited(line)
     // Get voice object to pass into the edit mode line
@@ -140,7 +140,7 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
       className={`w-full text-center mb-8 px-8 py-6 rounded-xl transition-all duration-300 ease-in-out font-medium border border-transparent ${courierPrimeRegular.className} ${
         isDragging ? 'shadow-lg scale-105' : 'shadow-none scale-100'
       } ${
-        isCharactersLoading ? 'cursor-not-allowed opacity-60' : 
+        isCharactersLoading ? 'cursor-not-allowed opacity-60' :
         isDragDisabled ? 'cursor-default' : 'cursor-grab'
       }`}
       style={{
