@@ -1,5 +1,4 @@
 "use server"
-
 import { createClient } from "../../../utils/supabase/server"
 
 export async function signInWithGoogle(redirectTo: string) {
@@ -8,7 +7,7 @@ export async function signInWithGoogle(redirectTo: string) {
   // Get the correct port dynamically
   const baseURL = process.env.NODE_ENV === 'production'
     ? process.env.NEXT_PUBLIC_SITE_URL || 'https://yoursite.com'
-    : 'http://localhost:3002' // Use 3002 since that's your current dev port
+    : 'http://localhost:3000' // Use 3000 for dev port
 
   const redirectURL = `${baseURL}/auth/callback?next=${redirectTo}`
 
