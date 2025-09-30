@@ -140,7 +140,7 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
     ]
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative">
       {/* Subtle background accents - very understated */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* Large, very subtle gradient blobs */}

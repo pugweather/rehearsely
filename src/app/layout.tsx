@@ -55,7 +55,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
       </head>
-      <body className={`${yeseva.variable} ${quicksand.variable} ${marlonProBold.className} min-h-screen antialiased`}>
+      <body className={`${yeseva.variable} ${quicksand.variable} ${marlonProBold.className} antialiased`}>
         <div className="spacer pb-[125px]"></div>
         <InitUser />
         <InitVoices />

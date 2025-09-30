@@ -62,7 +62,7 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
             <Navbar />
         
             {/* scrollable area */}
-            <div className="flex-1 overflow-y-scroll" ref={scrollRef}>
+            <div className="flex-1 overflow-y-auto" ref={scrollRef}>
          <EditorWrapper>
                 {/* Back to scenes button */}
                 <Link href="/scenes" onClick={(e) => e.stopPropagation()}>

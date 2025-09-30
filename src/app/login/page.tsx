@@ -39,7 +39,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center relative overflow-hidden">
+    <div className="flex flex-col items-center relative overflow-hidden">
       {/* Background with theatrical gradient accents */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc]"></div>
 
