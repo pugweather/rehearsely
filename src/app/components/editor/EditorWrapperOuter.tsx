@@ -42,14 +42,13 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
         if (headerExpanded) {
             document.addEventListener('mousedown', handleClickOutside)
         }
-        
         return () => {
             document.removeEventListener('mousedown', handleClickOutside)
         }
     }, [headerExpanded])
     
     return (
-        <div className="relative h-screen overflow-hidden">
+        <div className="relative min-h-screen">
           
           {/* ENDLESS WHITE BACKGROUND - covers entire screen */}
           <div className="fixed inset-0 flex justify-center">
@@ -57,18 +56,17 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
           </div>
           
           {/* Main layout container */}
-          <div className="relative z-10 flex flex-col h-screen">
+          <div className="relative z-10">
             
             <Navbar />
         
-            {/* scrollable area */}
-            <div className="flex-1 overflow-y-auto" ref={scrollRef}>
+            {/* Content area - uses natural page scroll */}
+            <div ref={scrollRef}>
          <EditorWrapper>
                 {/* Back to scenes button */}
                 <Link href="/scenes" onClick={(e) => e.stopPropagation()}>
                   <span className="fixed top-20 left-[34rem] px-3 py-2 hover:bg-gray-50 text-gray-600 hover:text-gray-900 transition-all duration-200 ease-in-out arrow-slide-on-hover inline-flex items-center gap-2 text-base whitespace-nowrap">
                     <svg className="arrow-icon w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
-                      <path fillRule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
                     </svg>
                     <span className={`${sunsetSerialMediumFont.className}`}>Back</span>
                   </span>
@@ -119,7 +117,7 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
                   </div>
                 </div>
         
-                <div className="flex flex-col items-center py-8 pt-20">
+                <div className="flex flex-col items-center">
                   <div className="max-w-md w-full flex flex-col items-center pb-20">
                     <LineList
                       lineItems={lineItems}

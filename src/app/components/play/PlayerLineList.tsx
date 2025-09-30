@@ -99,6 +99,16 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
       
     }, [currentLineIndex, spokenText])
 
+    // Scroll to top when countdown starts (scene begins playing)
+    useEffect(() => {
+      if (sceneIsPlaying) {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        })
+      }
+    }, [sceneIsPlaying])
+
     // Countdown
     useEffect(() => {
       const countdownInterval = setInterval(function() {
@@ -106,6 +116,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
           if (prev === null || prev === 1) { // Technically end countdown on 1 lol
             const firstLineIndex = 0
             setCurrentLineIndex(firstLineIndex)
+            
             clearInterval(countdownInterval)
             return null
           }

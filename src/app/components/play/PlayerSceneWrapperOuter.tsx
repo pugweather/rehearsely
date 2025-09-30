@@ -27,7 +27,7 @@ const PlaySceneWrapperOuter = ({ scene, lineItems, sceneIsPlaying, setSceneIsPla
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
   return (
-    <div className="relative h-screen overflow-hidden">
+    <div className="relative min-h-screen">
       
       {/* ENDLESS WHITE BACKGROUND - covers entire screen */}
       <div className="fixed inset-0 flex justify-center">
@@ -35,16 +35,16 @@ const PlaySceneWrapperOuter = ({ scene, lineItems, sceneIsPlaying, setSceneIsPla
       </div>
       
       {/* Main layout container */}
-      <div className="relative z-10 flex flex-col h-screen">
+      <div className="relative z-10">
 
         <Navbar />
 
-        {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto" ref={scrollRef}>
-          <EditorWrapper>
-
-            <div className="flex flex-col items-center py-8">
-              <div className="max-w-md w-full flex flex-col items-center pb-20">
+        {/* Content Area - uses natural page scroll */}
+        <div ref={scrollRef}>
+          {/* Compact wrapper for player - less padding than EditorWrapper */}
+          <div className="flex-grow max-w-4xl w-full mx-auto px-6 py-4">
+            <div className="p-4">
+              <div className="max-w-md mx-auto">
                 <PlayerLineList
                   lineItems={lineItems}
                   sceneId={scene.id}
@@ -53,7 +53,7 @@ const PlaySceneWrapperOuter = ({ scene, lineItems, sceneIsPlaying, setSceneIsPla
                 />
               </div>
             </div>
-          </EditorWrapper>
+          </div>
         </div>
 
         {/* Fixed Play Button - transparent background so white shows through */}
