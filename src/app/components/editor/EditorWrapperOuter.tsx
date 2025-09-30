@@ -66,7 +66,8 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
                 {/* Back to scenes button */}
                 <Link href="/scenes" onClick={(e) => e.stopPropagation()}>
                   <span className="fixed top-20 left-[34rem] px-3 py-2 hover:bg-gray-50 text-gray-600 hover:text-gray-900 transition-all duration-200 ease-in-out arrow-slide-on-hover inline-flex items-center gap-2 text-base whitespace-nowrap">
-                    <svg className="arrow-icon w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                    <svg className="arrow-icon w-3.5 h-3.5" viewBox="0 0 16 12" fill="currentColor">
+                      <path d="M8 2L2 8l6 6M4 8h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
                     </svg>
                     <span className={`${sunsetSerialMediumFont.className}`}>Back</span>
                   </span>
