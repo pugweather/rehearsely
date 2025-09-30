@@ -4,9 +4,11 @@ import PlayerLine from './PlayerLine'
 import CountdownModal from './CountdownModal'
 import MicTranscriber from './MicTranscriber'
 import LinePositionTracker from './LineCompletionDetector'
+import Teleprompter from './Teleprompter'
 import { isLineCloseEnough } from '@/app/utils/utils'
 import { useCharacters } from '@/app/context/charactersContext';
 import { useSceneDelay } from '@/app/context/countdownContext'
+import { useTeleprompter } from '@/app/context/teleprompterContext'
 // import MicTranscriberSimple from './MicTranscriberSimple' // For testing only
 
 type Props = {
@@ -26,6 +28,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
     // const [characters, setCharacters] = useState<Character[] | null>(null)
     const {characters, setCharacters} = useCharacters()
     const {countdown, setCountdown} = useSceneDelay();
+    const { isTeleprompterActive } = useTeleprompter()
     // Not sure how to set initial value of countdown since it's context so I'll create state and initialize to the value from context
     const [delayCountdown, setDelayCountdown] = useState<number | null>(countdown)
     const [currentLineIndex, setCurrentLineIndex] = useState<number>(-1) // Unless playing from a certain line
@@ -165,9 +168,32 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
         setCurrentLineIndex(prev => prev + 1)
       }
     }, [lastLineIndex, currentLineIndex, setSceneIsPlaying])
+    // Determine what to show in teleprompter
+    const teleprompterLine = currentLine || lineItems[0]
+    const teleprompterCharacter = currentCharacter || (characters?.find(char => char.id === lineItems[0]?.character_id)) || null
+
+    console.log('Teleprompter Debug:', {
+      isTeleprompterActive,
+      hasLineItems: !!lineItems && lineItems.length > 0,
+      delayCountdown,
+      teleprompterLine,
+      teleprompterCharacter,
+      shouldRender: isTeleprompterActive && lineItems && lineItems.length > 0
+    })
 
     return (
         <>
+          {/* Teleprompter - shown when active and (scene is playing OR countdown is active) */}
+          {isTeleprompterActive && lineItems && lineItems.length > 0 && (
+            <div style={{ filter: delayCountdown !== null ? 'blur(8px)' : 'none' }}>
+              <Teleprompter
+                currentLine={teleprompterLine}
+                currentCharacter={teleprompterCharacter}
+                matchedWordIndices={delayCountdown !== null ? [] : matchedWordIndices}
+              />
+            </div>
+          )}
+
           {
             lineItems?.map((line, idx) => {
               const isCurrentLine = line.id === currentLine?.id

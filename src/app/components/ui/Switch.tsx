@@ -1,14 +1,23 @@
 "use client"
-import { useState } from "react";
 import clsx from "clsx";
 
-const Switch = () => {
+type Props = {
+    isOn?: boolean
+    setIsOn?: (value: boolean) => void
+}
 
-    const [isOn, setIsOn] = useState<boolean>(false);
+const Switch = ({ isOn: controlledIsOn, setIsOn: controlledSetIsOn }: Props) => {
+    // Use controlled state if provided, otherwise default to false
+    const isOn = controlledIsOn ?? false
+    const handleToggle = () => {
+        if (controlledSetIsOn) {
+            controlledSetIsOn(!isOn)
+        }
+    }
 
     return (
         <button
-            onClick={() => setIsOn(!isOn)}
+            onClick={handleToggle}
             className="w-12 h-6 rounded-full transition-all duration-200 ease-in-out focus:outline-none"
             style={{
                 backgroundColor: isOn ? '#FFA05A' : '#f3f4f6',
