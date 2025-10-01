@@ -11,9 +11,10 @@ type Props = {
   sceneId: number;
   setIsDeleteCharModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onCharacterDeleted?: () => void;
+  onCascadeDelete?: (characterId: number) => void;
 }
 
-const ModalDeleteCharacter = ({ character, sceneId, setIsDeleteCharModalOpen, onCharacterDeleted }: Props) => {
+const ModalDeleteCharacter = ({ character, sceneId, setIsDeleteCharModalOpen, onCharacterDeleted, onCascadeDelete }: Props) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(true);
@@ -30,36 +31,12 @@ const ModalDeleteCharacter = ({ character, sceneId, setIsDeleteCharModalOpen, on
   }, []);
 
   const handleDeleteCharacter = async () => {
-    setIsDeleting(true);
+    // 1. Immediately close modal and trigger cascade delete visualization
+    handleCancel(); // Close modal with animation
     
-    try {
-      const response = await fetch(`/api/private/scenes/${sceneId}/characters/${character.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete character');
-      }
-
-      // Remove character from local state
-      if (characters) {
-        setCharacters(characters.filter(c => c.id !== character.id));
-      }
-
-      // Call callback if provided
-      if (onCharacterDeleted) {
-        onCharacterDeleted();
-      }
-
-      setIsDeleteCharModalOpen(false);
-    } catch (error) {
-      console.error('Error deleting character:', error);
-      // You could add error handling/toast here
-    } finally {
-      setIsDeleting(false);
+    // 2. Trigger cascade delete in parent component
+    if (onCascadeDelete) {
+      onCascadeDelete(character.id);
     }
   };
 

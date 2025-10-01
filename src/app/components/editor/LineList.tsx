@@ -188,6 +188,52 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
     setLineBeingEdited(null) // TODO: we'll keep this for now. Maybe we can put all data into lineBeingEditedData....
   }
 
+  const handleCascadeDelete = async (characterId: number) => {
+    // 1. Close EditLine if open
+    closeEditLine();
+    
+    // 2. Immediately set all lines with this character to deleting state
+    setLines((prev) => 
+      prev?.map((line) => 
+        line.character_id === characterId ? { ...line, isDeleting: true } : line
+      ) || null
+    );
+
+    // 3. Perform the actual API deletion
+    try {
+      const response = await fetch(`/api/private/scenes/${sceneId}/characters/${characterId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete character');
+      }
+
+      // 4. Remove character and associated lines from local state
+      if (characters) {
+        setCharacters(characters.filter(c => c.id !== characterId));
+      }
+      
+      // Remove all lines associated with this character
+      setLines((prev) => 
+        prev?.filter((line) => line.character_id !== characterId) || null
+      );
+
+    } catch (error) {
+      console.error('Error deleting character:', error);
+      
+      // 5. If deletion failed, remove deleting state from affected lines
+      setLines((prev) => 
+        prev?.map((line) => 
+          line.character_id === characterId ? { ...line, isDeleting: false } : line
+        ) || null
+      );
+    }
+  }
+
   // Configure sensors for drag and drop - SUPER RESPONSIVE
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -308,6 +354,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
                   setLineBeingEditedData={setLineBeingEditedData}
                   charsDropdownData={charsDropdownData}
                   closeEditLine={closeEditLine}
+                  onCascadeDelete={handleCascadeDelete}
                 />
               ))
                 : 

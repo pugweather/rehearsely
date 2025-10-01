@@ -41,6 +41,7 @@ type Props = {
   closeEditLine: () => void;
   charsDropdownData: DropdownData[] | undefined;
   setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>;
+  onCascadeDelete?: (characterId: number) => Promise<void>;
 };
 
 const certaSansMedium = localFont({
@@ -56,6 +57,7 @@ const EditLine = ({
   closeEditLine,
   charsDropdownData,
   setLineBeingEditedData,
+  onCascadeDelete,
 }: Props) => {
   const TEMP_LINE_ID = -999;
   const isNewLine = line?.id === TEMP_LINE_ID;
@@ -1191,6 +1193,7 @@ return (
         character={characterToDelete}
         sceneId={sceneId}
         setIsDeleteCharModalOpen={setIsDeleteCharModalOpen}
+        onCascadeDelete={onCascadeDelete}
         onCharacterDeleted={() => {
           // Reset character selection if the deleted character was selected
           if (character?.id === characterToDelete.id) {
