@@ -48,7 +48,7 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
     }, [headerExpanded])
     
     return (
-        <div className="relative min-h-screen">
+        <div className="relative">
           
           {/* ENDLESS WHITE BACKGROUND - covers entire screen */}
           <div className="fixed inset-0 flex justify-center">

@@ -27,7 +27,7 @@ const PlaySceneWrapperOuter = ({ scene, lineItems, sceneIsPlaying, setSceneIsPla
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative">
       
       {/* ENDLESS WHITE BACKGROUND - covers entire screen */}
       <div className="fixed inset-0 flex justify-center">
