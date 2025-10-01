@@ -28,36 +28,17 @@ const SceneNamePage = () => {
 
     setIsLoading(true)
 
-    const res = await fetch("/api/private/scenes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: sceneName
-        // user_id already being handled in scenes API route
-      })
-    })
-
-    if (res.ok) {
-      const result = await res.json()
-      const {sceneId} = result
-      
-      // Start swipe transition
-      setIsTransitioning(true)
-      
-      // Navigate after a short delay to show the swipe effect
-      setTimeout(() => {
-        router.push(`/scene-creation-method?sceneId=${sceneId}&sceneName=${encodeURIComponent(sceneName)}`)
-      }, 300)
-    } else {
-      setIsLoading(false)
-      console.log("Error: failed to create scene")
-    }
+    // Start swipe transition
+    setIsTransitioning(true)
+    
+    // Navigate after a short delay to show the swipe effect
+    setTimeout(() => {
+      router.push(`/scene-creation-method?sceneName=${encodeURIComponent(sceneName)}`)
+    }, 300)
   }
 
   return (
-    <div className="flex flex-col relative min-h-screen -mt-[125px] pt-[125px]">
+    <div className="flex flex-col relative min-h-screen">
       <Navbar />
       {/* Background with theatrical gradient accents */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc]"></div>

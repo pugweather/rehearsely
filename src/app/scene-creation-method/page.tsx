@@ -9,7 +9,7 @@ const SceneCreationMethodPage = () => {
   const sceneId = searchParams.get('sceneId') || ''
   const sceneName = searchParams.get('sceneName') || ''
 
-  if (!sceneId || !sceneName) {
+  if (!sceneName) {
     return (
       <div className="flex flex-col min-h-screen">
         <Navbar />

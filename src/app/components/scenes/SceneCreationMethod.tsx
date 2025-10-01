@@ -20,6 +20,7 @@ type CreationMethod = 'upload' | 'write' | null
 const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) => {
   const [isVisible, setIsVisible] = useState(false)
   const [selectedMethod, setSelectedMethod] = useState<CreationMethod>(null)
+  const [isCreatingScene, setIsCreatingScene] = useState(false)
   const router = useRouter()
 
   // Trigger slide-in animation on mount
@@ -30,13 +31,41 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
     return () => clearTimeout(timer)
   }, [])
 
-  const handleCreateScene = () => {
+  const handleCreateScene = async () => {
+    if (!selectedMethod) return
+
     if (selectedMethod === 'upload') {
       // TODO: Navigate to upload flow
       console.log('Upload selected')
     } else if (selectedMethod === 'write') {
-      // Navigate to editor to write manually
-      router.push(`/editor/${sceneId}`)
+      // Create the scene first, then navigate to editor
+      setIsCreatingScene(true)
+
+      try {
+        const res = await fetch("/api/private/scenes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: sceneName
+          })
+        })
+
+        if (res.ok) {
+          const result = await res.json()
+          const { sceneId: newSceneId } = result
+          
+          // Navigate to editor with the newly created scene
+          router.push(`/editor/${newSceneId}`)
+        } else {
+          console.log("Error: failed to create scene")
+          setIsCreatingScene(false)
+        }
+      } catch (error) {
+        console.error("Error creating scene:", error)
+        setIsCreatingScene(false)
+      }
     }
   }
 
@@ -198,17 +227,26 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
           <div className="mb-8">
             <button
               onClick={handleCreateScene}
-              disabled={!selectedMethod}
+              disabled={!selectedMethod || isCreatingScene}
               className={`group relative px-8 py-4 rounded-xl border-4 border-black font-bold text-xl transition-all duration-300 ${
-                selectedMethod
+                selectedMethod && !isCreatingScene
                   ? 'bg-black text-white hover:shadow-xl hover:-translate-y-1 cursor-pointer'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
               } ${sunsetSerialMediumFont.className}`}
             >
               <span className="flex items-center gap-3">
-                Create Scene
-                {selectedMethod && (
-                  <FontAwesomeIcon icon={faArrowRight} className="text-lg group-hover:translate-x-1 transition-transform" />
+                {isCreatingScene ? (
+                  <>
+                    Creating Scene...
+                    <div className="w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"></div>
+                  </>
+                ) : (
+                  <>
+                    Create Scene
+                    {selectedMethod && (
+                      <FontAwesomeIcon icon={faArrowRight} className="text-lg group-hover:translate-x-1 transition-transform" />
+                    )}
+                  </>
                 )}
               </span>
             </button>
