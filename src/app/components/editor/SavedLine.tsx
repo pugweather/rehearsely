@@ -141,7 +141,7 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
         isDragging ? 'shadow-lg scale-105' : 'shadow-none scale-100'
       } ${
         isCharactersLoading ? 'cursor-not-allowed opacity-60' :
-        isDragDisabled ? 'cursor-default' : 'cursor-grab'
+        isDragDisabled ? 'cursor-pointer' : 'cursor-grab'
       }`}
       style={{
         ...style,
@@ -151,14 +151,14 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
         borderColor: isDragging ? 'rgba(255,160,90,0.3)' : 'transparent',
       }}
       onMouseEnter={(e) => {
-        if (!isDragDisabled && !isDragging && !isCharactersLoading) {
+        if (!isDragging && !isCharactersLoading) {
           e.currentTarget.style.backgroundColor = 'rgba(255,160,90,0.08)'
           e.currentTarget.style.borderColor = 'rgba(255,160,90,0.2)'
           e.currentTarget.style.borderRadius = '12px'
         }
       }}
       onMouseLeave={(e) => {
-        if (!isDragDisabled && !isDragging && !isCharactersLoading) {
+        if (!isDragging && !isCharactersLoading) {
           e.currentTarget.style.backgroundColor = 'transparent'
           e.currentTarget.style.borderColor = 'transparent'
           e.currentTarget.style.borderRadius = '12px'
