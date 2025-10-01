@@ -583,21 +583,23 @@ return (
           <div
             tabIndex={0}
             role="button"
-            className="btn btn-outline px-4 py-2 rounded-lg inline-flex items-center gap-2 text-sm"
+            className="btn btn-outline px-3 py-2 rounded-lg inline-flex items-center gap-2 text-sm w-[11rem]"
             style={{backgroundColor: 'rgba(244,239,232,0.8)', color: '#202020', border: '1px solid rgba(32,32,32,0.1)'}}
           >
-            <FontAwesomeIcon icon={faUser} style={{color: '#FFA05A'}} />
-            {character ? `${character.name}${character.is_me ? " (me)" : ""}` : (isCharactersLoading ? "Loading..." : "Select Character")}
-            <FontAwesomeIcon icon={faChevronDown} style={{color: '#202020', opacity: 0.6}} />
+            <FontAwesomeIcon icon={faUser} style={{color: '#FFA05A'}} className="flex-shrink-0" />
+            <span className="truncate flex-1 text-left min-w-0">
+              {character ? `${character.name}${character.is_me ? " (me)" : ""}` : (isCharactersLoading ? "Loading..." : "Select Character")}
+            </span>
+            <FontAwesomeIcon icon={faChevronDown} style={{color: '#202020', opacity: 0.6}} className="flex-shrink-0 ml-1" />
           </div>
           <ul
             tabIndex={0}
-            className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow"
+            className="dropdown-content menu bg-base-100 rounded-box z-50 w-48 p-2 shadow overflow-hidden"
           >
             {charsDropdownData?.map((item, index) => (
-              <li key={index}>
+              <li key={index} className="w-full">
                 <a 
-                  className={item.className} 
+                  className={`${item.className} truncate w-full max-w-full overflow-hidden whitespace-nowrap text-ellipsis block`} 
                   onClick={(e) => {
                     e.preventDefault();
                     item.onClick();
