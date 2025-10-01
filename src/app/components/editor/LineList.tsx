@@ -1,6 +1,6 @@
 "use client"
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { faChessKing, faPlus, faEllipsis } from "@fortawesome/free-solid-svg-icons";
+import { faChessKing, faPlus, faEllipsis, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SavedLine from './SavedLine'
 import EditLine from './EditLine'

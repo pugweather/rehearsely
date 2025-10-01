@@ -12,7 +12,8 @@ import {
   faChevronDown,
   faStop,
   faRedo,
-  faPlay
+  faPlay,
+  faPlusCircle
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DraftLine, Character, LineBeingEditedData, EditLineMode, DropdownData } from "@/app/types";
@@ -29,6 +30,7 @@ import { useCharacters } from '@/app/context/charactersContext';
 import { useVoicesStore } from '@/app/stores/useVoicesStores';
 import Dropdown from '../ui/Dropdown';
 import MicErrorModal from '../ui/MicErrorModal';
+import ModalDeleteCharacter from './ModalDeleteCharacter';
 
 type Props = {
   line: DraftLine | null;
@@ -89,6 +91,10 @@ const EditLine = ({
   const [micPermissionGranted, setMicPermissionGranted] = useState(false);
   const [micErrorType, setMicErrorType] = useState<'permission' | 'no_device'>('permission');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  
+  // Delete character modal state
+  const [isDeleteCharModalOpen, setIsDeleteCharModalOpen] = useState(false);
+  const [characterToDelete, setCharacterToDelete] = useState<Character | null>(null);
 
   // Check if microphones are available
   const checkMicrophoneAvailability = async (): Promise<boolean> => {
@@ -587,7 +593,7 @@ return (
             style={{backgroundColor: 'rgba(244,239,232,0.8)', color: '#202020', border: '1px solid rgba(32,32,32,0.1)'}}
           >
             <FontAwesomeIcon icon={faUser} style={{color: '#FFA05A'}} className="flex-shrink-0" />
-            <span className="truncate flex-1 text-left min-w-0">
+            <span className="truncate flex-1 text-left min-w-0 pt-1">
               {character ? `${character.name}${character.is_me ? " (me)" : ""}` : (isCharactersLoading ? "Loading..." : "Select Character")}
             </span>
             <FontAwesomeIcon icon={faChevronDown} style={{color: '#202020', opacity: 0.6}} className="flex-shrink-0 ml-1" />
@@ -596,27 +602,102 @@ return (
             tabIndex={0}
             className="dropdown-content menu bg-base-100 rounded-box z-50 w-48 p-2 shadow overflow-hidden"
           >
-            {charsDropdownData?.map((item, index) => (
-              <li key={index} className="w-full">
-                <a 
-                  className={`${item.className} truncate w-full max-w-full overflow-hidden whitespace-nowrap text-ellipsis block`} 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    item.onClick();
-                    // Only close dropdown after a delay to allow modal to open
-                    setTimeout(() => {
+            {charsDropdownData?.map((item, index) => {
+              // Check if this is a character item (not "New Character")
+              const isCharacterItem = !item.label.startsWith("+ New Character");
+              const isNewCharacterItem = item.label.startsWith("+ New Character");
+              const character = isCharacterItem ? characters?.find(c => 
+                item.label === (c.is_me ? `${c.name} (me)` : c.name)
+              ) : null;
+              
+              return (
+                <li key={index} className="w-full">
+                  <a 
+                    className={`${item.className} flex items-center w-full pl-3 pr-1 py-2 hover:bg-gray-100 rounded-md cursor-pointer`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      item.onClick();
+                      // Close dropdown immediately for character selection
                       const activeElement = document.activeElement as HTMLElement;
                       if (activeElement) {
                         activeElement.blur();
                       }
-                      document.body.click();
-                    }, 100);
-                  }}
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
+                    }}
+                  >
+                    {isNewCharacterItem ? (
+                      <div className="flex items-center gap-2 flex-1">
+                        <svg 
+                          width="16" 
+                          height="16" 
+                          viewBox="0 0 16 16" 
+                          fill="none" 
+                          className="flex-shrink-0"
+                        >
+                          <circle 
+                            cx="8" 
+                            cy="8" 
+                            r="7" 
+                            stroke="#6B7280" 
+                            strokeWidth="1"
+                            fill="none"
+                          />
+                          <line 
+                            x1="8" 
+                            y1="4" 
+                            x2="8" 
+                            y2="12" 
+                            stroke="#6B7280" 
+                            strokeWidth="1"
+                          />
+                          <line 
+                            x1="4" 
+                            y1="8" 
+                            x2="12" 
+                            y2="8" 
+                            stroke="#6B7280" 
+                            strokeWidth="1"
+                          />
+                        </svg>
+                        <span className="truncate text-left pt-1">
+                          New Character
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="truncate flex-1 text-left">
+                        {item.label}
+                      </span>
+                    )}
+                    {isCharacterItem && character && (
+                      <button
+                        className="ml-auto py-1 px-2 rounded transition-colors flex-shrink-0"
+                        style={{
+                          backgroundColor: 'transparent', 
+                          color: 'rgba(220,38,38,0.4)', 
+                          border: 'none'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = 'rgba(220,38,38,0.1)'
+                          e.currentTarget.style.color = '#dc2626'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                          e.currentTarget.style.color = 'rgba(220,38,38,0.4)'
+                        }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setCharacterToDelete(character);
+                          setIsDeleteCharModalOpen(true);
+                        }}
+                        title={`Delete ${character.name}`}
+                      >
+                        <FontAwesomeIcon icon={faTrash} className="w-2.5 h-2.5" />
+                      </button>
+                    )}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
@@ -1087,6 +1168,21 @@ return (
         }
       }}
     />
+
+    {/* Delete Character Modal */}
+    {isDeleteCharModalOpen && characterToDelete && sceneId && (
+      <ModalDeleteCharacter
+        character={characterToDelete}
+        sceneId={sceneId}
+        setIsDeleteCharModalOpen={setIsDeleteCharModalOpen}
+        onCharacterDeleted={() => {
+          // Reset character selection if the deleted character was selected
+          if (character?.id === characterToDelete.id) {
+            setLineBeingEditedData(prev => ({ ...prev, character: null, voice: null }));
+          }
+        }}
+      />
+    )}
 
   </div>
   );
