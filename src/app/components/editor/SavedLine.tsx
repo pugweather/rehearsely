@@ -42,9 +42,14 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
   if (line == null) return
 
   const handleSetLineToEditMode = () => {
-    // Prevent opening EditLine if characters are still loading
+    // Prevent opening EditLine if characters are still loading or line is being deleted
     if (!characters || characters.length === 0) {
       console.log('🚫 Prevented EditLine open - characters still loading');
+      return;
+    }
+    
+    if (line?.isDeleting) {
+      console.log('🚫 Prevented EditLine open - line is being deleted');
       return;
     }
 
@@ -124,7 +129,7 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
     isDragging,
   } = useSortable({ 
     id: line?.id!, 
-    disabled: isDragDisabled 
+    disabled: isDragDisabled || line?.isDeleting 
   });
 
   const style = {
@@ -140,25 +145,28 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
       className={`w-full text-center mb-8 px-8 py-6 rounded-xl transition-all duration-300 ease-in-out font-medium border border-transparent ${courierPrimeRegular.className} ${
         isDragging ? 'shadow-lg scale-105' : 'shadow-none scale-100'
       } ${
+        line?.isDeleting ? 'cursor-not-allowed opacity-60' :
         isCharactersLoading ? 'cursor-not-allowed opacity-60' :
         isDragDisabled ? 'cursor-pointer' : 'cursor-grab'
       }`}
       style={{
         ...style,
         border: '1px solid transparent',
-        // Orange hover color during drag - no transparency
-        backgroundColor: isDragging ? 'rgba(255,160,90,0.15)' : 'transparent',
-        borderColor: isDragging ? 'rgba(255,160,90,0.3)' : 'transparent',
+        // Different backgrounds for different states
+        backgroundColor: line?.isDeleting ? 'rgba(200,200,200,0.3)' :
+                        isDragging ? 'rgba(255,160,90,0.15)' : 'transparent',
+        borderColor: line?.isDeleting ? 'rgba(150,150,150,0.4)' :
+                    isDragging ? 'rgba(255,160,90,0.3)' : 'transparent',
       }}
       onMouseEnter={(e) => {
-        if (!isDragging && !isCharactersLoading) {
+        if (!isDragging && !isCharactersLoading && !line?.isDeleting) {
           e.currentTarget.style.backgroundColor = 'rgba(255,160,90,0.08)'
           e.currentTarget.style.borderColor = 'rgba(255,160,90,0.2)'
           e.currentTarget.style.borderRadius = '12px'
         }
       }}
       onMouseLeave={(e) => {
-        if (!isDragging && !isCharactersLoading) {
+        if (!isDragging && !isCharactersLoading && !line?.isDeleting) {
           e.currentTarget.style.backgroundColor = 'transparent'
           e.currentTarget.style.borderColor = 'transparent'
           e.currentTarget.style.borderRadius = '12px'
@@ -176,6 +184,47 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
       <div className="text-lg leading-relaxed text-gray-900 whitespace-pre-wrap">
         {line.text}
       </div>
+
+      {/* Deleting State */}
+      {line?.isDeleting && (
+        <div className="mt-4 flex items-center justify-center gap-2">
+          <span className="text-sm text-gray-500 font-medium">deleting</span>
+          <svg 
+            width="32" 
+            height="12" 
+            viewBox="0 0 32 12" 
+            className="ml-1"
+          >
+            <circle cx="4" cy="8" r="2" fill="#72a4f2">
+              <animate
+                attributeName="cy"
+                values="8;4;8"
+                dur="1.4s"
+                repeatCount="indefinite"
+                begin="0s"
+              />
+            </circle>
+            <circle cx="14" cy="8" r="2" fill="#ffa05a">
+              <animate
+                attributeName="cy"
+                values="8;4;8"
+                dur="1.4s"
+                repeatCount="indefinite"
+                begin="0.2s"
+              />
+            </circle>
+            <circle cx="24" cy="8" r="2" fill="#FFD96E">
+              <animate
+                attributeName="cy"
+                values="8;4;8"
+                dur="1.4s"
+                repeatCount="indefinite"
+                begin="0.4s"
+              />
+            </circle>
+          </svg>
+        </div>
+      )}
     </div>
   );
   

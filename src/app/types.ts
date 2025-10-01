@@ -19,13 +19,13 @@ export type DraftLine = {
     audio_url: string | undefined, // null?
     speed: number,
     delay: number,
-    isNew?: boolean
+    isNew?: boolean,
+    isDeleting?: boolean
 };
 
 export type Line = {
     character_id: number,
     id: number,
-    order: number,
     scene_id: number,
     text: string | null
     audio_url: string

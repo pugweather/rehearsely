@@ -258,6 +258,15 @@ const EditLine = ({
   const handleDelete = async () => {
     if (lineId === TEMP_LINE_ID) return closeEditLine();
 
+    // Immediately set the line to deleting state and close EditLine
+    setLines((prev) => 
+      prev?.map((line) => 
+        line.id === lineId ? { ...line, isDeleting: true } : line
+      ) || null
+    );
+    closeEditLine();
+
+    // Perform the actual deletion
     const res = await fetch(`/api/private/scenes/${sceneId}/lines/${lineId}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -265,8 +274,15 @@ const EditLine = ({
     });
 
     if (res.ok) {
+      // Remove the line from the list after successful deletion
       setLines((prev) => prev?.filter((line) => line.id !== lineId) || null);
-      closeEditLine();
+    } else {
+      // If deletion failed, remove the deleting state
+      setLines((prev) => 
+        prev?.map((line) => 
+          line.id === lineId ? { ...line, isDeleting: false } : line
+        ) || null
+      );
     }
   };
   
