@@ -11,7 +11,7 @@ const SceneCreationMethodPage = () => {
 
   if (!sceneId || !sceneName) {
     return (
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col min-h-screen">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -24,12 +24,10 @@ const SceneCreationMethodPage = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <>
       <Navbar />
-      <div className="flex-1 overflow-hidden">
-        <SceneCreationMethod sceneId={sceneId} sceneName={sceneName} />
-      </div>
-    </div>
+      <SceneCreationMethod sceneId={sceneId} sceneName={sceneName} />
+    </>
   )
 }
 

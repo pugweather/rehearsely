@@ -57,7 +57,8 @@ const SceneNamePage = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen relative overflow-hidden">
+    <div className="flex flex-col relative min-h-screen -mt-[125px] pt-[125px]">
+      <Navbar />
       {/* Background with theatrical gradient accents */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc]"></div>
 
@@ -68,9 +69,8 @@ const SceneNamePage = () => {
         <div className="absolute -bottom-40 left-1/3 w-72 h-72 bg-gradient-to-tr from-[#FFD96E]/6 to-transparent rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 flex flex-col flex-grow">
-        <Navbar />
-        <div className={`flex-grow text-black flex flex-col items-center justify-center transition-all duration-700 ease-out ${
+      <div className="relative z-10 flex flex-col flex-1">
+        <div className={`flex-1 text-black flex flex-col items-center justify-center py-16 transition-all duration-700 ease-out ${
           isTransitioning ? '-translate-x-full opacity-0' : 'translate-x-0 opacity-100'
         }`}>
           <div className='flex flex-col items-center'>

@@ -41,7 +41,7 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] relative overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] relative -mt-[125px] pt-[125px]">
       {/* Subtle background accents */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-[#72a4f2]/8 to-transparent rounded-full blur-3xl"></div>
@@ -70,7 +70,7 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
         </div>
 
         {/* Main content */}
-        <div className="flex-1 flex flex-col items-center justify-center px-8">
+        <div className="flex-1 flex flex-col items-center justify-center px-8 -mt-5">
 
           {/* Scene Title */}
           <div className="text-center mb-2">

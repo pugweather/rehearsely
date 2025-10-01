@@ -55,7 +55,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
       </head>
-      <body className={`${yeseva.variable} ${quicksand.variable} ${marlonProBold.className} antialiased`}>
+      <body className={`${yeseva.variable} ${quicksand.variable} ${marlonProBold.className} antialiased pt-[125px]`}>
         <InitUser />
         <InitVoices />
         {children}
