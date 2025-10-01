@@ -2,7 +2,6 @@ import { pgTable, foreignKey, unique, bigint, text, smallint, numeric, boolean, 
 import { sql } from "drizzle-orm"
 
 
-
 export const lines = pgTable("lines", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity({ name: "lines_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
@@ -27,7 +26,7 @@ export const lines = pgTable("lines", {
 			foreignColumns: [scenes.id],
 			name: "lines_scene_id_fkey"
 		}),
-	unique("lines_order_key").on(table.order),
+	unique("lines_scene_order_key").on(table.scene_id, table.order),
 	unique("lines_audio_url_key").on(table.audio_url),
 ]);
 
