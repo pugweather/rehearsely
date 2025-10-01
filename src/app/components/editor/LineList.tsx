@@ -96,30 +96,24 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   useEffect(() => {
     if (shouldScroll && lineBeingEdited) {
       setTimeout(() => {
-        if (scrollRef.current) {
-          // Find the EditLine element (it should be rendered now)
-          const editLineElement = scrollRef.current.querySelector('[data-edit-line="true"]')
-          if (editLineElement) {
-            const editLineRect = editLineElement.getBoundingClientRect()
-            const scrollRect = scrollRef.current.getBoundingClientRect()
-            const editLineCenter = editLineRect.top + editLineRect.height / 2
-            const scrollCenter = scrollRect.top + scrollRect.height / 2
-            const scrollOffset = editLineCenter - scrollCenter
-
-            scrollRef.current.scrollBy({
-              top: scrollOffset,
-              behavior: 'smooth'
-            })
-          }
+        // Find the EditLine element (it should be rendered now)
+        const editLineElement = document.querySelector('[data-edit-line="true"]')
+        if (editLineElement) {
+          console.log('Found EditLine element, scrolling into view')
+          editLineElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'nearest'
+          })
+        } else {
+          console.log('EditLine element not found')
         }
         setShouldScroll(false)
-      }, 10)
+      }, 100) // Increased timeout to ensure element is rendered
     }
   }, [shouldScroll, lineBeingEdited])
 
   /* Editing line */
-
-
   // Character dropdown data for DaisyUI dropdown
   const maxCharsForScene = 5
   const canAddNewCharacter = characters && characters.length < maxCharsForScene
