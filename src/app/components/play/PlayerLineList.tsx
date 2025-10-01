@@ -34,6 +34,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
     const [currentLineIndex, setCurrentLineIndex] = useState<number>(-1) // Unless playing from a certain line
 
     var audio = useRef<HTMLAudioElement | null>(null)
+    const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null) // Track pending speech timeout
     const lastLineIndex = lineItems ? lineItems.length - 1 : -1 // -1 = invalid index. Easier than using null
     const currentLine = lineItems && (-1 != currentLineIndex) ? lineItems[currentLineIndex] : null
     const currentCharacter = currentLine && (-1 != currentLineIndex) ? characters?.find(char => char.id === currentLine.character_id) : null
@@ -77,7 +78,10 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
 
         const lineDelay = Number(currentLine.delay * 1000) // Convert from s to ms
 
-        setTimeout(function() {
+        speechTimeoutRef.current = setTimeout(function() {
+          // Check if scene is still playing before executing
+          if (!sceneIsPlaying) return;
+          
           console.log(currentLine)
           const characterAudioUrl = currentLine.audio_url
           const currAudio = new Audio(characterAudioUrl)
@@ -145,18 +149,31 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying}:
       setMatchedWordIndices([])
     }, [currentLineIndex])
 
-    // Cleanup audio when player stops
+    // Cleanup audio and timeouts when player stops
     useEffect(() => {
-      if (!sceneIsPlaying && audio.current) {
-        audio.current.pause()
-        audio.current.currentTime = 0
-        audio.current = null
+      if (!sceneIsPlaying) {
+        // Clear any pending speech timeout
+        if (speechTimeoutRef.current) {
+          clearTimeout(speechTimeoutRef.current)
+          speechTimeoutRef.current = null
+        }
+        // Stop any playing audio
+        if (audio.current) {
+          audio.current.pause()
+          audio.current.currentTime = 0
+          audio.current = null
+        }
       }
     }, [sceneIsPlaying])
 
     // Cleanup on unmount
     useEffect(() => {
       return () => {
+        // Clear timeout on unmount
+        if (speechTimeoutRef.current) {
+          clearTimeout(speechTimeoutRef.current)
+        }
+        // Stop audio on unmount
         if (audio.current) {
           audio.current.pause()
           audio.current.currentTime = 0
