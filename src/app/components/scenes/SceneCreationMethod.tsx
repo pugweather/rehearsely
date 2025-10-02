@@ -34,10 +34,7 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
   const handleCreateScene = async () => {
     if (!selectedMethod) return
 
-    if (selectedMethod === 'upload') {
-      // TODO: Navigate to upload flow
-      console.log('Upload selected')
-    } else if (selectedMethod === 'write') {
+    if (selectedMethod === 'write') {
       // Create the scene first, then navigate to editor
       setIsCreatingScene(true)
 
@@ -121,7 +118,30 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
             {/* Upload Option */}
             <div className="flex-1">
               <button
-                onClick={() => setSelectedMethod('upload')}
+                onClick={() => {
+                  // Set as selected for visual feedback
+                  setSelectedMethod('upload')
+                  
+                  // Instantly launch file picker when upload is clicked
+                  const input = document.createElement('input')
+                  input.type = 'file'
+                  input.accept = '.pdf,.docx,.doc,.txt,.fountain,.fdx'
+                  input.onchange = (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0]
+                    if (file) {
+                      // Store file data and navigate to processing screen
+                      sessionStorage.setItem('uploadFile', JSON.stringify({
+                        name: file.name,
+                        size: file.size,
+                        type: file.type
+                      }))
+                      sessionStorage.setItem('uploadFormData', 'file-selected')
+                      
+                      router.push(`/scene-upload-processing?sceneName=${encodeURIComponent(sceneName)}&fileName=${encodeURIComponent(file.name)}`)
+                    }
+                  }
+                  input.click()
+                }}
                 className="w-full group relative"
               >
                 <div className={`bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-2xl p-10 border-4 transition-all duration-300 ${
