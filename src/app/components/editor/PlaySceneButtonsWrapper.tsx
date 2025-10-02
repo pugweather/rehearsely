@@ -54,7 +54,7 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
       } catch (error) {
         console.error('Failed to access microphone:', error);
         // Check the specific error to determine if it's a permission issue or no device
-        if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        if (error instanceof Error && (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError')) {
           setMicErrorType('no_device')
         } else {
           setMicErrorType('permission')
@@ -69,17 +69,22 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
 
   return (
     <>
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 w-60">
-        <div className="relative bg-[#f4efe8] shadow-[0_0_3px_1px_rgba(0,0,0,0.06)] rounded-2xl px-6 py-4 flex items-center justify-center border border-black/10">
-
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30">
+        <div className="bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-2xl p-4 border-4 border-black shadow-xl flex items-center justify-center">
             {
               sceneIsPlaying ?
-              <button className="flex justify-center items-center w-12 h-12 rounded-full bg-black transition-opacity ease-in-out duration-200 hover:opacity-85" onClick={() => setSceneIsPlaying(false)}>
-                <FontAwesomeIcon icon={faStop} className="text-white text-2xl ml-0.5" />
+              <button 
+                className="flex justify-center items-center w-16 h-16 rounded-full bg-black border-2 border-black transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group" 
+                onClick={() => setSceneIsPlaying(false)}
+              >
+                <FontAwesomeIcon icon={faStop} className="text-white text-2xl group-hover:scale-110 transition-transform duration-200" />
               </button>
               :
-              <button className="flex justify-center items-center w-12 h-12 rounded-full bg-black transition-opacity ease-in-out duration-200 hover:opacity-85" onClick={handlePlayClick}>
-                <FontAwesomeIcon icon={faPlay} className="text-white text-2xl ml-0.5" />
+              <button 
+                className="flex justify-center items-center w-16 h-16 rounded-full bg-black border-2 border-black transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group" 
+                onClick={handlePlayClick}
+              >
+                <FontAwesomeIcon icon={faPlay} className="text-white text-2xl ml-0.5 group-hover:scale-110 transition-transform duration-200" />
               </button>
             }
           </div>

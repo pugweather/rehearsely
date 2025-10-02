@@ -65,11 +65,11 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
          <EditorWrapper>
                 {/* Back to scenes button */}
                 <Link href="/scenes" onClick={(e) => e.stopPropagation()}>
-                  <span className="fixed top-20 left-1/2 -translate-x-1/2 ml-[-24rem] max-[1200px]:ml-[-20rem] max-[1000px]:ml-[-16rem] max-[800px]:ml-[-12rem] px-3 py-2 hover:bg-gray-50 text-gray-600 hover:text-gray-900 transition-all duration-200 ease-in-out arrow-slide-on-hover inline-flex items-center gap-2 text-base whitespace-nowrap">
-                    <svg className="arrow-icon w-3.5 h-3.5" viewBox="0 0 16 12" fill="currentColor">
-                      <path d="M8 2L2 8l6 6M4 8h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                    </svg>
-                    <span className={`${sunsetSerialMediumFont.className}`}>Back</span>
+                  <span className="fixed top-20 left-1/2 -translate-x-1/2 ml-[-24rem] max-[1200px]:ml-[-20rem] max-[1000px]:ml-[-16rem] max-[800px]:ml-[-12rem] transition-all duration-200 ease-in-out inline-flex items-center gap-3 text-gray-700 hover:text-gray-900 group">
+                    <div className="w-12 h-12 rounded-full bg-white/70 border-2 border-black flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all duration-200">
+                      <FontAwesomeIcon icon={faArrowLeftLong} className="text-lg" />
+                    </div>
+                    <span className={`text-lg ${sunsetSerialMediumFont.className}`}>Back</span>
                   </span>
                 </Link>
                 {/* Compact Scene Header */}
@@ -77,37 +77,25 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
                   <div className="relative" ref={headerRef}>
                     {/* Compact header button */}
                     <button 
-                      className={`transition-all duration-200 ease-in-out cursor-pointer min-w-32 max-w-48 px-3 py-2 rounded-md ${
+                      className={`flex items-center gap-3 px-6 py-3 rounded-xl border-2 border-black font-semibold transition-all duration-200 ${
                         headerExpanded 
-                          ? 'bg-gray-100 shadow-md' 
-                          : 'hover:bg-gray-50 shadow-sm hover:shadow-md'
-                      }`}
-                      style={{ backgroundColor: headerExpanded ? '#f5f5f5' : 'var(--bg-page)' }}
+                          ? 'bg-[#72a4f2] text-white shadow-xl' 
+                          : 'bg-white text-gray-800 hover:bg-gray-50 shadow-lg hover:shadow-xl'
+                      } ${sunsetSerialMediumFont.className}`}
                       onClick={() => setHeaderExpanded(!headerExpanded)}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className={`text-sm font-medium text-gray-700 truncate pr-2 ${sunsetSerialMediumFont.className}`}>
-                          {scene.name}
-                        </div>
-                        <FontAwesomeIcon 
-                          icon={headerExpanded ? faChevronUp : faChevronDown} 
-                          className="w-3 h-3 text-gray-500 transition-transform duration-200 flex-shrink-0"
-                        />
-                      </div>
+                      <span className="text-lg">{scene.name}</span>
+                      <FontAwesomeIcon 
+                        icon={headerExpanded ? faChevronUp : faChevronDown} 
+                        className="text-sm transition-transform duration-200"
+                      />
                     </button>
                     
-                    {/* Expanded dropdown content */}
+                    {/* Expanded dropdown content - centered */}
                     {headerExpanded && (
-                      <div
-                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[32rem] rounded-xl transition-all duration-300 ease-in-out animate-in slide-in-from-top-2 fade-in zoom-in-95 shadow-sm hover:shadow-md"
-                        style={{
-                          backgroundColor: '#FFF4E6',
-                          border: '2px solid rgba(255, 160, 90, 0.4)'
-                        }}
-                      >
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-96 bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-2xl border-4 border-black shadow-2xl transition-all duration-300 ease-out animate-in slide-in-from-top-2 fade-in zoom-in-95">
                         <div className="p-6">
                           <div className="flex items-center justify-center">
-                            {/* Scene settings */}
                             <div onClick={(e) => e.stopPropagation()}>
                               <SceneSettings />
                             </div>

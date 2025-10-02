@@ -377,30 +377,13 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
         </SortableContext>
       </DndContext>
       <button 
-        className="w-full px-6 py-4 mt-8 rounded-xl font-medium text-sm transition-all duration-300 ease-in-out flex items-center justify-center gap-3 shadow-sm hover:shadow-md"
-        style={{
-          backgroundColor: '#FFF4E6',
-          color: '#CC7A00',
-          border: '2px dashed #FFA05A'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#FFA05A'
-          e.currentTarget.style.color = '#ffffff'
-          e.currentTarget.style.borderColor = '#FFA05A'
-          e.currentTarget.style.borderStyle = 'solid'
-          e.currentTarget.style.transform = 'translateY(-1px)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = '#FFF4E6'
-          e.currentTarget.style.color = '#CC7A00'
-          e.currentTarget.style.borderColor = '#FFA05A'
-          e.currentTarget.style.borderStyle = 'dashed'
-          e.currentTarget.style.transform = 'translateY(0px)'
-        }}
+        className="w-full px-6 py-4 mt-8 rounded-xl border-2 border-[#72a4f2] font-semibold text-base transition-all duration-200 flex items-center justify-center gap-3 bg-[#72a4f2]/5 text-gray-800 shadow-md hover:shadow-lg hover:-translate-y-0.5 hover:border-[#ffa05a] hover:bg-[#ffa05a]/5 group"
         onClick={handleAddLine}
       >
-        <FontAwesomeIcon icon={faPlus} className="text-lg" />
-        Add New Line
+        <div className="w-7 h-7 rounded-full bg-[#72a4f2] group-hover:bg-[#ffa05a] flex items-center justify-center group-hover:rotate-90 transition-all duration-200">
+          <FontAwesomeIcon icon={faPlus} className="text-white text-sm" />
+        </div>
+        <span>Add New Line</span>
       </button>
 
       {isCreateCharModalOpen && <ModalCreateCharacter originalCharForOpenedLine={originalCharForOpenedLine} setIsCreateCharModalOpen={setIsCreateCharModalOpen} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
