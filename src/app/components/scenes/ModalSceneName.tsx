@@ -71,35 +71,45 @@ const ModalSceneName = ({closeEditNameModal, setSceneEditing, setScenes, scene}:
 
   return (
     <Modal width={560} height={280} isOpen={isOpen} onClose={handleClose}>
-        <div className='flex flex-col h-full rounded-2xl' style={{backgroundColor: '#E3D6C6', border: '1px solid rgba(32,32,32,0.1)'}}>
+        <div className='flex flex-col h-full rounded-2xl bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] border-4 border-black shadow-xl'>
           <div className='relative px-6 py-5'>
-            <div className='text-xl font-semibold' style={{color: '#202020'}}>Edit Scene Name</div>
-            <button onClick={handleClose} className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center" style={{backgroundColor: 'rgba(255,255,255,0.2)', color: '#202020'}}>
-              <FontAwesomeIcon icon={faClose} />
+            <div className='text-2xl font-bold text-gray-800'>Edit Scene Name</div>
+            <button 
+              onClick={handleClose} 
+              className="absolute top-4 right-4 w-10 h-10 rounded-full border-2 border-black bg-white hover:bg-gray-50 flex items-center justify-center transition-all duration-200"
+            >
+              <FontAwesomeIcon icon={faClose} className="text-gray-700" />
             </button>
           </div>
 
-          <div className='flex flex-col gap-3 px-6'>
-            <Input placeholder={'Enter scene name...'} value={sceneName || ''} onChange={setSceneName}/>
+          <div className='flex flex-col gap-4 px-6'>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Enter scene name..."
+                value={sceneName || ''}
+                onChange={(e) => setSceneName(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border-3 border-black bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#72a4f2] focus:border-[#72a4f2] transition-all duration-200"
+              />
+            </div>
           </div>
 
           <div className='mt-auto px-6 py-4 flex items-center justify-end gap-3'>
-            <button onClick={handleClose}>
-              <ButtonLink text={'Cancel'} textColor='#CC7A00' bgColor='#FFF4E6' className='px-4 py-2' />
+            <button 
+              onClick={handleClose}
+              className="px-6 py-3 bg-white rounded-xl border-3 border-black font-bold text-gray-700 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+            >
+              Cancel
             </button>
             <button 
               className={clsx(
-                disabled && 'opacity-60 pointer-events-none',
+                "px-6 py-3 bg-gradient-to-br from-[#ffa05a] to-[#ff8a3a] rounded-xl border-3 border-black font-bold text-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1",
+                disabled && 'opacity-60 pointer-events-none cursor-not-allowed',
               )}
               disabled={disabled}
               onClick={handleSubmit}
             >
-              <ButtonLink 
-                icon={faCircleCheck} 
-                text={isLoading ?  'Saving...' : 'Save'}
-                bgColor={'#FFA05A'}
-                className='px-4 py-2'
-              />
+              {isLoading ? 'Saving...' : 'Save'}
             </button>
           </div>
         </div>

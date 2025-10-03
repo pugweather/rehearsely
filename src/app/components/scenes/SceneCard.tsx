@@ -40,7 +40,6 @@ const SceneCard = ({id, name, modified_at, dropdownData, setOpenedDropdownId, op
     if ((e.target as HTMLDivElement).closest(".dropdown")) return
     router.push(`/editor/${id}`)
   }
-
   // Set dropdownid so that we can use it to launch modals
   const handleDropdownClick = (e: React.MouseEvent<HTMLDivElement>) => {
     setOpenedDropdownId(id)
@@ -48,21 +47,21 @@ const SceneCard = ({id, name, modified_at, dropdownData, setOpenedDropdownId, op
 
   return (
     <div
-      className="group relative cursor-pointer transition-all duration-300 ease-out hover:-translate-y-1"
+      className="group relative cursor-pointer transition-all duration-300 ease-out hover:-translate-y-2"
       onClick={handleCardClick}
     >
       
-      {/* Enhanced offset layer with subtle gradient */}
-      <div className="absolute inset-0 translate-x-2 translate-y-2 rounded-lg border-4 border-black bg-gradient-to-br from-[#72a4f2] to-[#5a8de8] group-hover:translate-x-3 group-hover:translate-y-3 transition-all duration-300 ease-out"></div>
+      {/* Enhanced offset layer with playful shadow */}
+      <div className="absolute inset-0 translate-x-3 translate-y-3 rounded-2xl border-4 border-black bg-gradient-to-br from-[#72a4f2] to-[#5a8de8] group-hover:translate-x-4 group-hover:translate-y-4 transition-all duration-300 ease-out"></div>
 
-      {/* main card with improved styling */}
-      <div className="relative z-10 h-full p-6 bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-lg min-h-[8.5rem] border-4 border-black group-hover:shadow-lg transition-all duration-300 ease-out">
+      {/* main card with enhanced styling */}
+      <div className="relative z-10 h-full p-8 bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-2xl min-h-[10rem] border-4 border-black group-hover:shadow-2xl transition-all duration-300 ease-out">
         
         {/* Subtle highlight on hover */}
-        <div className="absolute inset-0 rounded-md bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
         
         <div className="relative z-10 flex flex-col h-full">
-          <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start justify-between mb-6">
             <div className="flex-1 pr-3">
               <h3
                 className={`font-bold text-2xl leading-tight ${marlonProBold.className} group-hover:text-[#2c5aa0] transition-colors duration-300 line-clamp-2`}
@@ -78,7 +77,7 @@ const SceneCard = ({id, name, modified_at, dropdownData, setOpenedDropdownId, op
               <div
                 tabIndex={0}
                 role="button"
-                className="btn btn-ghost btn-sm hover:bg-[#72a4f2]/15 transition-all duration-200 rounded-lg"
+                className="w-10 h-10 rounded-full border-2 border-black bg-white hover:bg-gray-50 transition-all duration-200 flex items-center justify-center"
               >
                 <FontAwesomeIcon 
                   icon={faEllipsis} 
@@ -88,25 +87,22 @@ const SceneCard = ({id, name, modified_at, dropdownData, setOpenedDropdownId, op
 
               <ul
                 tabIndex={0}
-                className="dropdown-content menu bg-white/95 backdrop-blur-sm rounded-xl z-50 w-52 p-3 shadow-xl border-2 border-black/5"
+                className="dropdown-content menu bg-white rounded-xl z-50 w-52 p-2 shadow-xl border border-black overflow-hidden mt-2"
               >
                 {
                   dropdownData.map((item, index) => {
                     return (
                       <li key={index}>
                         <a 
-                          className={`${item.className} hover:bg-[#72a4f2]/10 rounded-lg transition-all duration-200`} 
+                          className={`${item.className} hover:bg-[#72a4f2]/10 rounded-lg transition-all duration-200 px-3 py-2`} 
                           onClick={(e) => {
+                            e.preventDefault();
                             item.onClick();
-                            // Close dropdown by removing focus from all elements
+                            // Close dropdown immediately like character selection
                             const activeElement = document.activeElement as HTMLElement;
                             if (activeElement) {
                               activeElement.blur();
                             }
-                            // Force close by clicking outside
-                            setTimeout(() => {
-                              document.body.click();
-                            }, 10);
                           }}
                         >
                           {item.label}
@@ -126,10 +122,10 @@ const SceneCard = ({id, name, modified_at, dropdownData, setOpenedDropdownId, op
               >
                 {timeAgo(modified_at)}
               </div>
-              <div className="flex space-x-1.5">
-                <div className="w-2 h-2 bg-[#72a4f2] rounded-full opacity-70 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="w-2 h-2 bg-[#ffa05a] rounded-full opacity-50 group-hover:opacity-80 transition-opacity duration-300"></div>
-                <div className="w-2 h-2 bg-[#FFD96E] rounded-full opacity-40 group-hover:opacity-70 transition-opacity duration-300"></div>
+              <div className="flex space-x-2">
+                <div className="w-3 h-3 bg-[#72a4f2] rounded-full opacity-70 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="w-3 h-3 bg-[#ffa05a] rounded-full opacity-50 group-hover:opacity-80 transition-opacity duration-300"></div>
+                <div className="w-3 h-3 bg-[#FFD96E] rounded-full opacity-40 group-hover:opacity-70 transition-opacity duration-300"></div>
               </div>
             </div>
           </div>
