@@ -64,11 +64,13 @@ const Teleprompter = ({ currentLine, currentCharacter, matchedWordIndices, butto
     return result
   }
 
-  // Calculate height: 100vh - (buttons wrapper height + distance from bottom + top padding + bottom padding)
-  const distanceFromBottom = 16 // 1rem = 16px (bottom-4)
-  const topPadding = 32 // 2rem
+  // Calculate height: 100vh - (navbar + buttons wrapper height + distance from bottom + top padding + bottom padding)
+  const navbarHeight = 75 // Navbar is h-[75px]
+  const distanceFromBottom = 40 // More spacing to avoid overlapping play buttons (2.5rem = 40px)
+  const topPadding = 32 // 2rem (top-8)
   const bottomPadding = 32 // 2rem
-  const teleprompterHeight = `calc(100vh - ${buttonsWrapperHeight + distanceFromBottom + topPadding + bottomPadding}px)`
+  const teleprompterHeight = `calc(100vh - ${navbarHeight + buttonsWrapperHeight + distanceFromBottom + topPadding + bottomPadding}px)`
+  const teleprompterTop = navbarHeight + 32 // navbar height + top-8 (32px)
 
   const displayCharacterName = () => {
     if (!currentCharacter) return ''
@@ -77,8 +79,9 @@ const Teleprompter = ({ currentLine, currentCharacter, matchedWordIndices, butto
 
   return (
     <div
-      className="fixed left-8 right-8 top-8 flex flex-col rounded-3xl overflow-hidden"
+      className="fixed left-8 right-8 flex flex-col rounded-3xl overflow-hidden"
       style={{
+        top: `${teleprompterTop}px`,
         height: teleprompterHeight,
         backgroundColor: '#1a2332',
         zIndex: 25,
