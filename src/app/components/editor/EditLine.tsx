@@ -13,7 +13,8 @@ import {
   faStop,
   faRedo,
   faPlay,
-  faPlusCircle
+  faPlusCircle,
+  faPlus
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { DraftLine, Character, LineBeingEditedData, EditLineMode, DropdownData } from "@/app/types";
@@ -46,6 +47,10 @@ type Props = {
 
 const certaSansMedium = localFont({
     src: "../../../../public/fonts/certaSansMedium.otf",
+})
+
+const sunsetSerialMediumFont = localFont({
+    src: "../../../../public/fonts/sunsetSerialMedium.ttf",
 })
 
 const EditLine = ({
@@ -579,46 +584,43 @@ return (
   <div
     data-edit-line="true"
     className={clsx(
-      "rounded-2xl w-full px-6 py-6 space-y-6 relative shadow-md transition-all duration-300 hover:shadow-lg mb-8",
+      "rounded-xl w-full p-4 space-y-4 relative shadow-lg transition-all duration-300 hover:shadow-xl mb-4 bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] border-2 border-black",
       isLoading ? "pointer-events-none opacity-75" : ""
     )}
-    style={{backgroundColor: '#E3D6C6', border: '1px solid rgba(32,32,32,0.1)'}}
   >
     {/* Close Button (X) */}
     <button
       onClick={closeEditLine}
-      className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200"
-      style={{color: '#202020', backgroundColor: 'rgba(255,255,255,0.2)'}} 
-      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.3)'}
-      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'}
+      className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 bg-white border border-black shadow-md hover:shadow-lg hover:-translate-y-0.5 group"
     >
-      <FontAwesomeIcon icon={faXmark} />
+      <FontAwesomeIcon icon={faXmark} className="text-gray-700 text-sm group-hover:scale-110 transition-transform duration-200" />
     </button>
 
     {/* Character Dropdown */}
-    <div className="flex justify-between pr-12">
+    <div className="flex justify-between pr-10">
       {isCharactersLoading ? (
-        <div className="px-4 py-2 rounded-lg bg-gray-100 text-gray-500 text-sm font-medium flex items-center gap-2">
-          <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-          Loading characters...
+        <div className="px-4 py-2 rounded-lg bg-white border border-black text-gray-600 font-medium flex items-center gap-2 shadow-md">
+          <div className="w-4 h-4 border-2 border-[#72a4f2] border-t-transparent rounded-full animate-spin"></div>
+          <span className={sunsetSerialMediumFont.className}>Loading...</span>
         </div>
       ) : (
         <div className="dropdown">
           <div
             tabIndex={0}
             role="button"
-            className="btn btn-outline px-3 py-2 rounded-lg inline-flex items-center gap-2 text-sm w-[11rem]"
-            style={{backgroundColor: 'rgba(244,239,232,0.8)', color: '#202020', border: '1px solid rgba(32,32,32,0.1)'}}
+            className={`px-4 py-2 rounded-lg border border-black font-medium transition-all duration-200 inline-flex items-center gap-2 text-sm bg-white text-gray-800 shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer ${sunsetSerialMediumFont.className}`}
           >
-            <FontAwesomeIcon icon={faUser} style={{color: '#FFA05A'}} className="flex-shrink-0" />
-            <span className="truncate flex-1 text-left min-w-0 pt-1">
+            <div className="w-6 h-6 rounded-full bg-[#72a4f2] border border-black flex items-center justify-center">
+              <FontAwesomeIcon icon={faUser} className="text-white text-xs" />
+            </div>
+            <span className="truncate flex-1 text-left min-w-0 max-w-[120px]">
               {character ? `${character.name}${character.is_me ? " (me)" : ""}` : (isCharactersLoading ? "Loading..." : "Select Character")}
             </span>
-            <FontAwesomeIcon icon={faChevronDown} style={{color: '#202020', opacity: 0.6}} className="flex-shrink-0 ml-1" />
+            <FontAwesomeIcon icon={faChevronDown} className="text-gray-600 text-xs" />
           </div>
           <ul
             tabIndex={0}
-            className="dropdown-content menu bg-base-100 rounded-box z-50 w-48 p-2 shadow overflow-hidden"
+            className="dropdown-content menu bg-white rounded-xl z-50 w-64 p-2 shadow-xl border border-black overflow-hidden mt-2"
           >
             {charsDropdownData?.map((item, index) => {
               // Check if this is a character item (not "New Character")
@@ -629,9 +631,9 @@ return (
               ) : null;
               
               return (
-                <li key={index} className="w-full">
+                <li key={index} className={`w-full ${index > 0 ? 'border-t border-gray-100' : ''}`}>
                   <a 
-                    className={`${item.className} flex items-center w-full pl-3 pr-1 py-2 hover:bg-gray-100 rounded-md cursor-pointer`}
+                    className={`${item.className} flex items-center w-full px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-200 hover:shadow-md ${sunsetSerialMediumFont.className}`}
                     onClick={(e) => {
                       e.preventDefault();
                       item.onClick();
@@ -642,76 +644,44 @@ return (
                       }
                     }}
                   >
-                    {isNewCharacterItem ? (
-                      <div className="flex items-center gap-2 flex-1">
-                        <svg 
-                          width="16" 
-                          height="16" 
-                          viewBox="0 0 16 16" 
-                          fill="none" 
-                          className="flex-shrink-0"
+                    <div className="flex items-center gap-3 flex-1">
+                      {isNewCharacterItem ? (
+                        <>
+                          <div className="w-6 h-6 rounded-full border-2 border-black flex items-center justify-center bg-white">
+                            <FontAwesomeIcon icon={faPlus} className="text-black text-xs" />
+                          </div>
+                          <span className="truncate text-left font-medium text-gray-800 w-32">
+                            New Character
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-6 h-6 rounded-full bg-[#72a4f2] border border-black flex items-center justify-center">
+                            <FontAwesomeIcon icon={faUser} className="text-white text-xs" />
+                          </div>
+                          <span className="truncate text-left font-medium w-32">
+                            {item.label}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    {/* Always reserve space for trash button to align everything */}
+                    <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
+                      {isCharacterItem && character && (
+                        <button
+                          className="w-7 h-7 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-all duration-200 flex items-center justify-center border border-red-200 hover:border-red-300 shadow-sm hover:shadow-md"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setCharacterToDelete(character);
+                            setIsDeleteCharModalOpen(true);
+                          }}
+                          title={`Delete ${character.name}`}
                         >
-                          <circle 
-                            cx="8" 
-                            cy="8" 
-                            r="7" 
-                            stroke="#6B7280" 
-                            strokeWidth="1"
-                            fill="none"
-                          />
-                          <line 
-                            x1="8" 
-                            y1="4" 
-                            x2="8" 
-                            y2="12" 
-                            stroke="#6B7280" 
-                            strokeWidth="1"
-                          />
-                          <line 
-                            x1="4" 
-                            y1="8" 
-                            x2="12" 
-                            y2="8" 
-                            stroke="#6B7280" 
-                            strokeWidth="1"
-                          />
-                        </svg>
-                        <span className="truncate text-left pt-1">
-                          New Character
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="truncate flex-1 text-left">
-                        {item.label}
-                      </span>
-                    )}
-                    {isCharacterItem && character && (
-                      <button
-                        className="ml-auto py-1 px-2 rounded transition-colors flex-shrink-0"
-                        style={{
-                          backgroundColor: 'transparent', 
-                          color: 'rgba(220,38,38,0.4)', 
-                          border: 'none'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = 'rgba(220,38,38,0.1)'
-                          e.currentTarget.style.color = '#dc2626'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = 'transparent'
-                          e.currentTarget.style.color = 'rgba(220,38,38,0.4)'
-                        }}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setCharacterToDelete(character);
-                          setIsDeleteCharModalOpen(true);
-                        }}
-                        title={`Delete ${character.name}`}
-                      >
-                        <FontAwesomeIcon icon={faTrash} className="w-2.5 h-2.5" />
-                      </button>
-                    )}
+                          <FontAwesomeIcon icon={faTrash} className="text-xs" />
+                        </button>
+                      )}
+                    </div>
                   </a>
                 </li>
               );
@@ -729,22 +699,7 @@ return (
       onChange={(e) => {
         setLineBeingEditedData((prev) => ({ ...prev, text: e.target.value }))
       }}
-      className="w-full min-h-[100px] px-4 py-3 rounded-lg text-base resize-none border-0 focus:outline-none transition-all duration-200"
-      style={{
-        backgroundColor: 'rgba(244,239,232,0.9)',
-        color: '#202020',
-        border: '1px solid rgba(32,32,32,0.1)'
-      }}
-      onFocus={(e) => {
-        e.currentTarget.style.backgroundColor = '#ffffff'
-        e.currentTarget.style.boxShadow = `0 0 0 2px #72A5F2`
-        e.currentTarget.style.borderColor = '#72A5F2'
-      }}
-      onBlur={(e) => {
-        e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.9)'
-        e.currentTarget.style.boxShadow = 'none'
-        e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
-      }}
+      className={`w-full min-h-[80px] px-4 py-3 rounded-lg text-sm resize-none border border-black focus:outline-none transition-all duration-200 bg-white text-gray-800 shadow-md focus:shadow-lg focus:border-[#72a4f2] ${sunsetSerialMediumFont.className}`}
     />
 
 
@@ -770,108 +725,72 @@ return (
     )}
 
     {lineMode === "speed" && 
-      <div className="p-4 rounded-xl border-2 animate-in slide-in-from-top-2 fade-in duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-2 data-[state=closed]:fade-out overflow-hidden transition-all duration-300 ease-in-out" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
-        <div className="flex items-center gap-4">
+      <div className="p-3 rounded-lg border-2 border-black bg-white shadow-md animate-in slide-in-from-top-2 fade-in duration-300">
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 rounded-full bg-[#72a4f2] border border-black flex items-center justify-center">
+            <FontAwesomeIcon icon={faPersonRunning} className="text-white text-xs" />
+          </div>
           <div className="flex-1">
-            <label className="text-sm font-semibold mb-2 block" style={{color: '#CC7A00'}}>Speed</label>
             <input 
               type="range" 
               min={0} 
               max={2} 
               step={0.1} 
               value={lineSpeed} 
-              className="range range-warning w-full" 
+              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer" 
               onChange={(e) => setLineSpeed(Number(e.target.value))}
             />
           </div>
-          <div className="px-4 py-2 rounded-lg text-sm font-mono font-bold w-16 text-center" style={{backgroundColor: '#FFA05A', color: '#ffffff', border: '2px solid #FF8A3A'}}>
+          <div className="px-3 py-1 rounded-lg text-xs font-bold w-14 text-center bg-[#72a4f2] border border-black text-white shadow-md">
             {lineSpeed}x
           </div>
           <button
             onClick={handleSaveLineSpeed}
-            className="w-10 h-10 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
-            style={{backgroundColor: '#FFA05A'}}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#FF8A3A'
-              e.currentTarget.style.transform = 'scale(1.05)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#FFA05A'
-              e.currentTarget.style.transform = 'scale(1)'
-            }}
+            className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg bg-[#72a4f2] border border-black group"
           >
-            <FontAwesomeIcon icon={faCheck} className="text-sm" />
+            <FontAwesomeIcon icon={faCheck} className="text-xs group-hover:scale-110 transition-transform duration-200" />
           </button>
-          
-          {/* Close Button */}
           <button
             onClick={() => setLineMode("default")}
-            className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
-            style={{backgroundColor: '#F4F3F0', color: '#FFA05A'}}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#E8E6E1'
-              e.currentTarget.style.transform = 'scale(1.05)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#F4F3F0'
-              e.currentTarget.style.transform = 'scale(1)'
-            }}
+            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg bg-white border border-black text-gray-700 group"
           >
-            <FontAwesomeIcon icon={faXmark} className="text-sm" />
+            <FontAwesomeIcon icon={faXmark} className="text-xs group-hover:scale-110 transition-transform duration-200" />
           </button>
         </div>
       </div>
     }
 
     {lineMode === "delay" && 
-      <div className="p-4 rounded-xl border-2 animate-in slide-in-from-top-2 fade-in duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-2 data-[state=closed]:fade-out overflow-hidden transition-all duration-300 ease-in-out" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
-        <div className="flex items-center gap-4">
+      <div className="p-3 rounded-lg border-2 border-black bg-white shadow-md animate-in slide-in-from-top-2 fade-in duration-300">
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 rounded-full bg-[#ffa05a] border border-black flex items-center justify-center">
+            <FontAwesomeIcon icon={faHand} className="text-white text-xs" />
+          </div>
           <div className="flex-1">
-            <label className="text-sm font-semibold mb-2 block" style={{color: '#CC7A00'}}>Delay</label>
             <input 
               type="range" 
               min={0} 
               max={2} 
               step={0.1} 
               value={lineDelay} 
-              className="range range-warning w-full" 
+              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer" 
               onChange={(e) => setLineDelay(Number(e.target.value))}
             />
           </div>
-          <div className="px-4 py-2 rounded-lg text-sm font-mono font-bold w-16 text-center" style={{backgroundColor: '#FFA05A', color: '#ffffff', border: '2px solid #FF8A3A'}}>
+          <div className="px-3 py-1 rounded-lg text-xs font-bold w-14 text-center bg-[#ffa05a] border border-black text-white shadow-md">
             {lineDelay}s
           </div>
           <button
             onClick={handleSaveLineDelay}
-            className="w-10 h-10 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
-            style={{backgroundColor: '#FFA05A'}}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#FF8A3A'
-              e.currentTarget.style.transform = 'scale(1.05)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#FFA05A'
-              e.currentTarget.style.transform = 'scale(1)'
-            }}
+            className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg bg-[#ffa05a] border border-black group"
           >
-            <FontAwesomeIcon icon={faCheck} className="text-sm" />
+            <FontAwesomeIcon icon={faCheck} className="text-xs group-hover:scale-110 transition-transform duration-200" />
           </button>
-          
-          {/* Close Button */}
           <button
             onClick={() => setLineMode("default")}
-            className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
-            style={{backgroundColor: '#F4F3F0', color: '#FFA05A'}}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#E8E6E1'
-              e.currentTarget.style.transform = 'scale(1.05)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#F4F3F0'
-              e.currentTarget.style.transform = 'scale(1)'
-            }}
+            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg bg-white border border-black text-gray-700 group"
           >
-            <FontAwesomeIcon icon={faXmark} className="text-sm" />
+            <FontAwesomeIcon icon={faXmark} className="text-xs group-hover:scale-110 transition-transform duration-200" />
           </button>
         </div>
       </div>
@@ -995,165 +914,119 @@ return (
       </div>
     )}
 
-    {/* Action Buttons (icon-only) */}
-    <div className="flex items-center justify-between">
-      {character && !character.is_me &&
+    {/* Action Buttons */}
+    {character && !character.is_me && (
       <div className="flex gap-2">
-        {
-        [
+        {[
           {
             img: faScissors,
-            mode: "trim"
+            mode: "trim",
+            label: "Trim",
+            color: "#72a4f2"
           },
           {
             img: faPersonRunning,
-            mode: "speed"
+            mode: "speed",
+            label: "Speed",
+            color: "#72a4f2"
           },
           {
             img: faHand,
-            mode: "delay"
+            mode: "delay",
+            label: "Delay",
+            color: "#ffa05a"
           }
         ].map((item, i) => {
           const isTrimButton = item.mode === "trim";
           const isDisabled = isTrimButton && !hasAudioToTrim();
+          const isActive = lineMode === item.mode;
 
           return (
             <button
               key={i}
               disabled={isDisabled}
-              className={`w-11 h-11 rounded-xl flex items-center flex-col justify-center transition-all duration-200 ${
-                isDisabled ? '!cursor-default' : 'cursor-pointer'
+              className={`px-3 py-2 rounded-lg border border-black font-medium transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg text-xs ${sunsetSerialMediumFont.className} ${
+                isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+              } ${
+                isActive ? 'text-white' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
               }`}
               style={{
-                backgroundColor: lineMode === item.mode ? '#72A5F2' : (isDisabled ? 'rgba(200,200,200,0.6)' : 'rgba(244,239,232,0.8)'),
-                color: lineMode === item.mode ? '#ffffff' : (isDisabled ? 'rgba(80,80,80,0.9)' : '#202020'),
-                border: '1px solid',
-                borderColor: lineMode === item.mode ? '#5B94E8' : (isDisabled ? 'rgba(150,150,150,0.5)' : 'rgba(32,32,32,0.15)'),
-                boxShadow: isDisabled ? 'none' : '0 1px 2px rgba(0,0,0,0.05)',
-                opacity: isDisabled ? 0.75 : 1,
-                cursor: isDisabled ? 'default !important' : 'pointer'
-              }}
-              onMouseEnter={(e) => {
-                if (!isDisabled && lineMode !== item.mode) {
-                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.9)'
-                  e.currentTarget.style.borderColor = 'rgba(32,32,32,0.2)'
-                  e.currentTarget.style.color = '#202020'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isDisabled && lineMode !== item.mode) {
-                  e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
-                  e.currentTarget.style.borderColor = 'rgba(32,32,32,0.15)'
-                  e.currentTarget.style.color = '#202020'
-                }
+                backgroundColor: isActive ? item.color : undefined
               }}
               onClick={() => !isDisabled && toggleLineMode(item.mode as EditLineMode)}
             >
-              <FontAwesomeIcon
-                icon={item.img}
-                className="text-sm"
-              />
-              <div className="uppercase text-[0.5rem] mt-1 tracking-wide font-medium">
-                {item.mode}
-              </div>
+              <FontAwesomeIcon icon={item.img} className="text-sm" />
+              <span>{item.label}</span>
             </button>
           )
         })}
       </div>
-      }
+    )}
 
-        <div className="flex gap-3 ml-auto">
-          {/* Delete */}
-          <button
-            onClick={handleDelete}
-            className="px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 ml-2"
-            style={{backgroundColor: 'rgba(220,38,38,0.1)', color: '#dc2626', border: '1px solid rgba(220,38,38,0.2)'}}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(220,38,38,0.2)'
-              e.currentTarget.style.color = '#b91c1c'
-              e.currentTarget.style.borderColor = 'rgba(220,38,38,0.4)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(220,38,38,0.1)'
-              e.currentTarget.style.color = '#dc2626'
-              e.currentTarget.style.borderColor = 'rgba(220,38,38,0.2)'
-            }}
-          >
-            <FontAwesomeIcon icon={faTrash} />
-            Delete
-          </button>
+    {/* Save and Delete Actions */}
+    <div className="flex items-center justify-between pt-2 border-t border-gray-300">
+      <button
+        onClick={handleDelete}
+        className={`px-3 py-2 rounded-lg border border-black font-medium transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg bg-red-50 text-red-600 hover:bg-red-100 text-sm ${sunsetSerialMediumFont.className}`}
+      >
+        <FontAwesomeIcon icon={faTrash} className="text-sm" />
+        <span>Delete</span>
+      </button>
 
-          {/* Save */}
-          <button
-            onClick={handleSave}
-            disabled={isLoading || !hasChanges || !lineBeingEditedData.character || !text?.trim()}
-            className={`px-6 py-2 rounded-lg text-white transition-colors duration-200 flex items-center gap-2 ${(isLoading || !hasChanges || !lineBeingEditedData.character || !text?.trim()) ? "opacity-50 cursor-not-allowed" : ""}`}
-            style={{
-              backgroundColor: '#FFA05A' // Always orange, opacity handles disabled state
-            }}
-            onMouseEnter={(e) => {
-              if (!isLoading && hasChanges && lineBeingEditedData.character && text?.trim()) e.currentTarget.style.backgroundColor = '#FF8A3A'
-            }}
-            onMouseLeave={(e) => {
-              if (!isLoading && hasChanges && lineBeingEditedData.character && text?.trim()) e.currentTarget.style.backgroundColor = '#FFA05A'
-            }}
-          >
-            {!isLoading && <FontAwesomeIcon icon={faCheck} />}
-            {isLoading ? "Saving..." : "Save"}
-          </button>
-        </div>
-      </div>
+      <button
+        onClick={handleSave}
+        disabled={isLoading || !hasChanges || !lineBeingEditedData.character || !text?.trim()}
+        className={`px-4 py-2 rounded-lg border border-black font-semibold transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl text-white text-sm ${sunsetSerialMediumFont.className} ${
+          (isLoading || !hasChanges || !lineBeingEditedData.character || !text?.trim()) ? "opacity-50 cursor-not-allowed" : ""
+        }`}
+        style={{
+          backgroundColor: '#72a4f2'
+        }}
+      >
+        {isLoading ? (
+          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        ) : (
+          <FontAwesomeIcon icon={faCheck} className="text-sm" />
+        )}
+        <span>{isLoading ? "Saving..." : "Save"}</span>
+      </button>
+    </div>
 
-    {/* Voice Recording Section (Only show if it's not your character and not in voice mode) */}
+    {/* Voice Recording Section */}
     {character && !character.is_me && lineMode !== "voice" && (
-      <div className="space-y-4">
+      <div>
         {/* Recording Controls */}
         {lineMode !== "recording" && !recordedAudioBlob && (
-          <div className="relative">
-            <button
-              onClick={startRecording}
-              className="w-full px-6 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-medium"
-              style={{backgroundColor: 'rgba(244,239,232,0.8)', color: '#202020', border: '1px solid rgba(32,32,32,0.1)'}}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#FFA05A'
-                e.currentTarget.style.color = '#ffffff'
-                e.currentTarget.style.borderColor = '#FFA05A'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(244,239,232,0.8)'
-                e.currentTarget.style.color = '#202020'
-                e.currentTarget.style.borderColor = 'rgba(32,32,32,0.1)'
-              }}
-            >
-              <FontAwesomeIcon icon={faMicrophone} />
-              Record Voice
-            </button>
-          </div>
+          <button
+            onClick={startRecording}
+            className={`w-full px-4 py-2 rounded-lg border border-black font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg bg-[#ffa05a] text-white hover:bg-[#ff8a3a] text-sm ${sunsetSerialMediumFont.className}`}
+          >
+            <FontAwesomeIcon icon={faMicrophone} className="text-sm" />
+            <span>Record Voice</span>
+          </button>
         )}
 
         {/* Recording in Progress */}
         {lineMode === "recording" && isRecording && (
-          <div className="w-full px-6 py-3 rounded-lg border-2 animate-pulse"
-               style={{backgroundColor: '#FFE6E6', borderColor: '#FF4444'}}>
+          <div className="w-full px-4 py-3 rounded-lg border-2 border-red-500 bg-red-50 shadow-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                <span className="font-medium text-red-700">Recording...</span>
-                <span className="font-mono text-lg font-bold text-red-700">
+                <span className={`font-semibold text-red-700 text-sm ${sunsetSerialMediumFont.className}`}>Recording...</span>
+                <span className="font-mono text-sm font-bold text-red-700 bg-white px-2 py-1 rounded border border-red-500">
                   {formatTime(recordingTime)}
                 </span>
               </div>
               <button
                 onClick={stopRecording}
-                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors duration-200 flex items-center gap-2"
+                className={`px-3 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg border border-red-700 font-medium text-sm ${sunsetSerialMediumFont.className}`}
               >
-                <FontAwesomeIcon icon={faStop} />
-                Stop
+                <FontAwesomeIcon icon={faStop} className="text-sm" />
+                <span>Stop</span>
               </button>
             </div>
           </div>
         )}
-
       </div>
     )}
 
