@@ -69,7 +69,7 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
 
   return (
     <>
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30">
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[70]">
         <div className="bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-2xl p-4 border-4 border-black shadow-xl flex items-center justify-center">
             {
               sceneIsPlaying ?
