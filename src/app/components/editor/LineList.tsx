@@ -6,7 +6,7 @@ import SavedLine from './SavedLine'
 import EditLine from './EditLine'
 import Dropdown from '../ui/Dropdown'
 import Overlay from '../ui/Overlay';
-import ModalCreateCharacter from './ModalCreateCharacter';
+import ModalCreateCharacterNew from './ModalCreateCharacterNew';
 import PlaySceneButtonsWrapper from './PlaySceneButtonsWrapper';
 import { Line, DraftLine, LineBeingEditedData, Character, DropdownData } from '@/app/types';
 import Image from 'next/image';
@@ -386,7 +386,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
         <span>Add New Line</span>
       </button>
 
-      {isCreateCharModalOpen && <ModalCreateCharacter originalCharForOpenedLine={originalCharForOpenedLine} setIsCreateCharModalOpen={setIsCreateCharModalOpen} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
+      {isCreateCharModalOpen && <ModalCreateCharacterNew originalCharForOpenedLine={originalCharForOpenedLine} setIsCreateCharModalOpen={setIsCreateCharModalOpen} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
     </>
   )
 }
