@@ -13,6 +13,7 @@ import Image from 'next/image';
 import { scrollToBottom } from '@/app/utils/utils';
 import { useVoicesStore } from '@/app/stores/useVoicesStores';
 import { useCharacters } from '@/app/context/charactersContext';
+import { usePracticeRange } from '@/app/context/practiceRangeContext';
 import {
   DndContext,
   closestCenter,
@@ -51,6 +52,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   const [originalCharForOpenedLine, setOriginalCharForOpenedLine] = useState<Character | null>(null) // When a line is opened, we track the original
   const [isCreateCharModalOpen, setIsCreateCharModalOpen] = useState<boolean>(false)
   const [shouldScroll, setShouldScroll] = useState<boolean>(false)
+  const { isRangeSelectionMode } = usePracticeRange()
 
   const TEMP_LINE_ID = -999
   const voices = useVoicesStore(s => s.voices)
@@ -369,15 +371,17 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
           </div>
         </SortableContext>
       </DndContext>
-      <button 
-        className="w-full px-6 py-4 mt-8 rounded-xl border-2 border-[#72a4f2] font-semibold text-base transition-all duration-200 flex items-center justify-center gap-3 bg-[#72a4f2]/5 text-gray-800 shadow-md hover:shadow-lg hover:-translate-y-0.5 hover:border-[#ffa05a] hover:bg-[#ffa05a]/5 group"
-        onClick={handleAddLine}
-      >
-        <div className="w-7 h-7 rounded-full bg-[#72a4f2] group-hover:bg-[#ffa05a] flex items-center justify-center group-hover:rotate-90 transition-all duration-200">
-          <FontAwesomeIcon icon={faPlus} className="text-white text-sm" />
-        </div>
-        <span>Add New Line</span>
-      </button>
+      {!isRangeSelectionMode && (
+        <button
+          className="w-full px-6 py-4 mt-8 rounded-xl border-2 border-[#72a4f2] font-semibold text-base transition-all duration-200 flex items-center justify-center gap-3 bg-[#72a4f2]/5 text-gray-800 shadow-md hover:shadow-lg hover:-translate-y-0.5 hover:border-[#ffa05a] hover:bg-[#ffa05a]/5 group"
+          onClick={handleAddLine}
+        >
+          <div className="w-7 h-7 rounded-full bg-[#72a4f2] group-hover:bg-[#ffa05a] flex items-center justify-center group-hover:rotate-90 transition-all duration-200">
+            <FontAwesomeIcon icon={faPlus} className="text-white text-sm" />
+          </div>
+          <span>Add New Line</span>
+        </button>
+      )}
 
       {isCreateCharModalOpen && <ModalCreateCharacterNew originalCharForOpenedLine={originalCharForOpenedLine} setIsCreateCharModalOpen={setIsCreateCharModalOpen} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
     </>
