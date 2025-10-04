@@ -5,6 +5,7 @@ import Navbar from "../layout/Navbar";
 import EditorWrapper from "./EditorWrapper";
 import SceneSettings from "./SceneSettings";
 import LineList from "@/app/components/editor/LineList";
+import RangeGradientLine from "@/app/components/editor/RangeGradientLine";
 import ButtonLink from '../ui/ButtonLink';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeftLong, faPlay, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
@@ -93,11 +94,11 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
                     
                     {/* Expanded dropdown content - centered */}
                     {headerExpanded && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-96 bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-2xl border-4 border-black shadow-2xl transition-all duration-300 ease-out animate-in slide-in-from-top-2 fade-in zoom-in-95">
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[480px] bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-2xl border-4 border-black shadow-2xl transition-all duration-300 ease-out animate-in slide-in-from-top-2 fade-in zoom-in-95">
                         <div className="p-6">
                           <div className="flex items-center justify-center">
                             <div onClick={(e) => e.stopPropagation()}>
-                              <SceneSettings />
+                              <SceneSettings onRangeSelectionToggle={() => setHeaderExpanded(false)} />
                             </div>
                           </div>
                         </div>
@@ -119,6 +120,9 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
               </EditorWrapper>
             </div>
         
+              {/* Range Gradient Line */}
+              <RangeGradientLine />
+
               {/* Fixed play button - transparent background so white shows through */}
               <PlaySceneButtonsWrapper setSceneIsPlaying={setSceneIsPlaying} sceneIsPlaying={sceneIsPlaying}/>
           </div>

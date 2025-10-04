@@ -1,7 +1,13 @@
 import React, { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons'
+import { faPlay, faStop, faArrowLeft, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { usePracticeRange } from '@/app/context/practiceRangeContext'
 import MicErrorModal from '../ui/MicErrorModal'
+import localFont from 'next/font/local'
+
+const sunsetSerialMediumFont = localFont({
+    src: "../../../../public/fonts/sunsetSerialMedium.ttf",
+})
 
 type Props = {
     sceneIsPlaying: boolean,
@@ -12,6 +18,8 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
   const [showMicErrorModal, setShowMicErrorModal] = useState(false)
   const [micPermissionGranted, setMicPermissionGranted] = useState(false)
   const [micErrorType, setMicErrorType] = useState<'permission' | 'no_device'>('permission')
+  
+  const { isRangeSelectionMode, setIsRangeSelectionMode, isRangeSet, clearRange, setStartLineId, setEndLineId, setClickedLineId } = usePracticeRange()
 
   // Check if microphones are available
   const checkMicrophoneAvailability = async (): Promise<boolean> => {
@@ -70,8 +78,38 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
   return (
     <>
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[70]">
-        <div className="bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-2xl p-4 border-4 border-black shadow-xl flex items-center justify-center">
+        <div className="bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-2xl p-4 border-4 border-black shadow-xl flex items-center justify-center gap-3">
             {
+              isRangeSelectionMode ?
+              <>
+                <button
+                  className="flex justify-center items-center gap-3 px-6 py-3 rounded-full bg-[#ffa05a] border-2 border-black transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group"
+                  onClick={() => {
+                    setIsRangeSelectionMode(false)
+                    setClickedLineId(null)
+                  }}
+                >
+                  <FontAwesomeIcon icon={faArrowLeft} className="text-white text-lg group-hover:scale-110 transition-transform duration-200" />
+                  <span className={`text-white font-semibold ${sunsetSerialMediumFont.className}`}>
+                    Done
+                  </span>
+                </button>
+                <button
+                  className="flex justify-center items-center gap-3 px-6 py-3 rounded-full bg-[#72a4f2] border-2 border-black transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group"
+                  onClick={() => {
+                    // Clear selection but stay in selection mode
+                    setStartLineId(null)
+                    setEndLineId(null)
+                    setClickedLineId(null)
+                  }}
+                >
+                  <FontAwesomeIcon icon={faXmark} className="text-white text-lg group-hover:scale-110 transition-transform duration-200" />
+                  <span className={`text-white font-semibold ${sunsetSerialMediumFont.className}`}>
+                    Clear Selection
+                  </span>
+                </button>
+              </>
+              :
               sceneIsPlaying ?
               <button 
                 className="flex justify-center items-center w-16 h-16 rounded-full bg-black border-2 border-black transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group" 

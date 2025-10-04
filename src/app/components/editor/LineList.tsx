@@ -51,8 +51,6 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   const [originalCharForOpenedLine, setOriginalCharForOpenedLine] = useState<Character | null>(null) // When a line is opened, we track the original
   const [isCreateCharModalOpen, setIsCreateCharModalOpen] = useState<boolean>(false)
   const [shouldScroll, setShouldScroll] = useState<boolean>(false)
-  
-  console.log("isCreateCharModalOpen:", isCreateCharModalOpen)
 
   const TEMP_LINE_ID = -999
   const voices = useVoicesStore(s => s.voices)
@@ -99,7 +97,6 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
         // Find the EditLine element (it should be rendered now)
         const editLineElement = document.querySelector('[data-edit-line="true"]')
         if (editLineElement) {
-          console.log('Found EditLine element, scrolling into view')
           editLineElement.scrollIntoView({
             behavior: 'smooth',
             block: 'center',
@@ -145,8 +142,6 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
       } 
     })
   ] : undefined
-
-  console.log("charsDropdownData:", charsDropdownData)
 
   /* Lines */ 
 
@@ -252,7 +247,6 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   // Handle drag start
   const handleDragStart = () => {
     setHasMadeSwap(false);
-    console.log('Drag started');
   };
 
   // Handle drag over for smart swapping when items overlap significantly
@@ -269,7 +263,6 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
       const newLines = arrayMove(lineItems, activeIndex, overIndex);
       setLines(newLines);
       setHasMadeSwap(true);
-      console.log('Swapped items during drag');
     }
   };
 

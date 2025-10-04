@@ -1,18 +1,24 @@
 "use client"
 import React, { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faClock, faScroll, faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { faClock, faScroll, faMapMarkerAlt, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { useSceneDelay } from '@/app/context/countdownContext'
 import { useTeleprompter } from '@/app/context/teleprompterContext'
+import { usePracticeRange } from '@/app/context/practiceRangeContext'
 import localFont from 'next/font/local'
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
 })
 
-const SceneSettings = () => {
+type Props = {
+  onRangeSelectionToggle?: () => void
+}
+
+const SceneSettings = ({ onRangeSelectionToggle }: Props) => {
   const { countdown, setCountdown } = useSceneDelay()
   const { isTeleprompterActive, setIsTeleprompterActive } = useTeleprompter()
+  const { isRangeSelectionMode, setIsRangeSelectionMode, isRangeSet, clearRange, setClickedLineId } = usePracticeRange()
   const [showDelayOptions, setShowDelayOptions] = useState(false)
 
   const delayOptions = [
@@ -26,68 +32,123 @@ const SceneSettings = () => {
     <div className="space-y-6">
       
       {/* Instructions Header */}
-      <div className="text-center pb-2">
+      <div className="text-center pb-4">
         <h2 className={`text-xl font-bold text-gray-800 mb-2 ${sunsetSerialMediumFont.className}`}>
           Scene Settings
         </h2>
         <p className="text-sm text-gray-600">
-          Click the options below to customize
+          Customize how your scene will play
         </p>
       </div>
       
-      {/* Delay Section */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 rounded-full bg-[#72a4f2] border-2 border-black flex items-center justify-center">
-            <FontAwesomeIcon icon={faClock} className="text-white text-sm" />
-          </div>
-          <h3 className={`text-lg font-bold text-gray-800 ${sunsetSerialMediumFont.className}`}>
-            Countdown Delay
-          </h3>
-        </div>
+      {/* Horizontal Settings Row */}
+      <div className="grid grid-cols-3 gap-6">
         
-        <div className="grid grid-cols-2 gap-3">
-          {delayOptions.map((option) => (
+        {/* Countdown Delay */}
+        <div className="space-y-3">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-[#72a4f2] border-2 border-black flex items-center justify-center">
+              <FontAwesomeIcon icon={faClock} className="text-white text-sm" />
+            </div>
+            <h3 className={`text-sm font-bold text-gray-800 text-center whitespace-nowrap ${sunsetSerialMediumFont.className}`}>
+              Countdown Delay
+            </h3>
+            <p className="text-xs text-gray-500 text-center whitespace-nowrap">
+              Time before scene starts
+            </p>
+          </div>
+          
+          <div className="relative">
             <button
-              key={option.value}
-              onClick={() => setCountdown(option.value)}
-              className={`px-4 py-3 rounded-xl border-2 border-black font-semibold transition-all duration-200 ${
-                countdown === option.value
-                  ? 'bg-[#72a4f2] text-white shadow-xl'
-                  : 'bg-white text-gray-800 hover:bg-gray-50 shadow-lg hover:shadow-xl hover:-translate-y-0.5'
-              } ${sunsetSerialMediumFont.className}`}
+              onClick={() => setShowDelayOptions(!showDelayOptions)}
+              className={`w-full px-3 py-2 rounded-lg border-2 border-black font-semibold text-sm transition-all duration-200 bg-white text-gray-800 hover:bg-gray-50 ${sunsetSerialMediumFont.className}`}
             >
-              {option.label}
+              {countdown}s <FontAwesomeIcon icon={faChevronDown} className="ml-1 text-xs" />
             </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Divider */}
-      <div className="w-full h-px bg-gray-300"></div>
-
-      {/* Teleprompter Section */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 rounded-full bg-[#ffa05a] border-2 border-black flex items-center justify-center">
-            <FontAwesomeIcon icon={faScroll} className="text-white text-sm" />
+            
+            {showDelayOptions && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-black rounded-lg shadow-xl z-50">
+                {delayOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setCountdown(option.value)
+                      setShowDelayOptions(false)
+                    }}
+                    className={`w-full px-3 py-2 text-sm font-semibold transition-all duration-200 first:rounded-t-md last:rounded-b-md ${
+                      countdown === option.value
+                        ? 'bg-[#72a4f2] text-white'
+                        : 'text-gray-800 hover:bg-gray-50'
+                    } ${sunsetSerialMediumFont.className}`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-          <h3 className={`text-lg font-bold text-gray-800 ${sunsetSerialMediumFont.className}`}>
-            Teleprompter Mode
-          </h3>
         </div>
-        
-        <button
-          onClick={() => setIsTeleprompterActive(!isTeleprompterActive)}
-          className={`w-full px-6 py-4 rounded-xl border-2 border-black font-semibold transition-all duration-200 ${
-            isTeleprompterActive
-              ? 'bg-[#ffa05a] text-white shadow-xl'
-              : 'bg-white text-gray-800 hover:bg-gray-50 shadow-lg hover:shadow-xl hover:-translate-y-0.5'
-          } ${sunsetSerialMediumFont.className}`}
-        >
-          {isTeleprompterActive ? 'Teleprompter ON' : 'Teleprompter OFF'}
-        </button>
+
+        {/* Teleprompter */}
+        <div className="space-y-3">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-[#ffa05a] border-2 border-black flex items-center justify-center">
+              <FontAwesomeIcon icon={faScroll} className="text-white text-sm" />
+            </div>
+            <h3 className={`text-sm font-bold text-gray-800 text-center whitespace-nowrap ${sunsetSerialMediumFont.className}`}>
+              Teleprompter
+            </h3>
+            <p className="text-xs text-gray-500 text-center whitespace-nowrap">
+              Show scrolling text
+            </p>
+          </div>
+          
+          <button
+            onClick={() => setIsTeleprompterActive(!isTeleprompterActive)}
+            className={`w-full px-3 py-2 rounded-lg border-2 border-black font-semibold text-sm transition-all duration-200 ${
+              isTeleprompterActive
+                ? 'bg-[#ffa05a] text-white'
+                : 'bg-white text-gray-800 hover:bg-gray-50'
+            } ${sunsetSerialMediumFont.className}`}
+          >
+            {isTeleprompterActive ? 'ON' : 'OFF'}
+          </button>
+        </div>
+
+        {/* Scene Range */}
+        <div className="space-y-3">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-[#22c55e] border-2 border-black flex items-center justify-center">
+              <FontAwesomeIcon icon={faMapMarkerAlt} className="text-white text-sm" />
+            </div>
+            <h3 className={`text-sm font-bold text-gray-800 text-center whitespace-nowrap ${sunsetSerialMediumFont.className}`}>
+              Set Scene Range
+            </h3>
+            <p className="text-xs text-gray-500 text-center whitespace-nowrap">
+              Focus on specific lines
+            </p>
+          </div>
+          
+          <button
+            onClick={() => {
+              setIsRangeSelectionMode(!isRangeSelectionMode)
+              setClickedLineId(null)
+              // Close the dropdown when toggling ON or OFF
+              if (onRangeSelectionToggle) {
+                onRangeSelectionToggle()
+              }
+            }}
+            className={`w-full px-3 py-2 rounded-lg border-2 border-black font-semibold text-sm transition-all duration-200 whitespace-nowrap ${
+              isRangeSelectionMode
+                ? 'bg-[#22c55e] text-white'
+                : 'bg-white text-gray-800 hover:bg-gray-50'
+            } ${sunsetSerialMediumFont.className}`}
+          >
+            {isRangeSelectionMode ? 'ON' : 'OFF'}
+          </button>
+        </div>
       </div>
+
     </div>
   )
 }
