@@ -24,12 +24,10 @@ const ScenesDashboardPage = async () => {
     .orderBy(desc(scenes.modified_at))
 
   return (
-    <div className="w-full bg-main flex flex-col">
+    <>
       <Navbar />
-      <div className="max-w-[75rem] w-full flex-grow mt-2 m-auto bg-main">
-        <ScenesDashboardClient sceneData={sceneData}/>
-      </div>
-    </div>
+      <ScenesDashboardClient sceneData={sceneData}/>
+    </>
   )
 }
 

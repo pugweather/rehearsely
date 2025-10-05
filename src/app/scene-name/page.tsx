@@ -38,20 +38,17 @@ const SceneNamePage = () => {
   }
 
   return (
-    <div className="flex flex-col relative min-h-screen">
+    <>
       <Navbar />
-      {/* Background with theatrical gradient accents */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc]"></div>
+      <div className="h-[calc(100vh_-_125px)] flex flex-col relative flex-1 bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc]">
+        {/* Subtle background accents */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-[#72a4f2]/8 to-transparent rounded-full blur-3xl"></div>
+          <div className="absolute top-1/3 -right-40 w-96 h-96 bg-gradient-to-bl from-[#ffa05a]/6 to-transparent rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 left-1/3 w-72 h-72 bg-gradient-to-tr from-[#FFD96E]/6 to-transparent rounded-full blur-3xl"></div>
+        </div>
 
-      {/* Subtle background accents */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-[#72a4f2]/8 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute top-1/3 -right-40 w-96 h-96 bg-gradient-to-bl from-[#ffa05a]/6 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 left-1/3 w-72 h-72 bg-gradient-to-tr from-[#FFD96E]/6 to-transparent rounded-full blur-3xl"></div>
-      </div>
-
-      <div className="relative z-10 flex flex-col flex-1">
-        <div className={`flex-1 text-black flex flex-col items-center justify-center py-16 transition-all duration-700 ease-out ${
+        <div className={`relative z-10 flex-1 text-black flex flex-col items-center justify-center transition-all duration-700 ease-out ${
           isTransitioning ? '-translate-x-full opacity-0' : 'translate-x-0 opacity-100'
         }`}>
           <div className='flex flex-col items-center'>
@@ -100,7 +97,7 @@ const SceneNamePage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

@@ -16,7 +16,7 @@ type Props = {
 
 export default function ScenesDashboardHeader({onChange}: Props) {
     return (
-        <div className="flex items-center justify-between px-8 py-4">
+        <div className="flex items-center justify-between px-8 py-4 max-w-7xl mx-auto">
             <div className="flex items-center gap-6">
                 {/* Blue theater masks icon */}
                 <div className="w-12 h-12 rounded-full border-3 border-black bg-gradient-to-br from-[#72a4f2] to-[#5a8de8] flex items-center justify-center shadow-lg">
