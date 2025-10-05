@@ -164,18 +164,36 @@ const SceneUploadProcessing = ({ sceneName, fileName }: SceneUploadProcessingPro
       setProgress(60)
       setCurrentWord('Analyzing characters...')
 
-      // Estimate LLM analysis time based on text length
+      // More realistic estimation based on text length
+      // Typical GPT-4o-mini response time: ~2-15 seconds depending on text length
       const textLength = fullText.length
-      const estimatedSeconds = Math.min(10, Math.max(3, textLength / 1000)) // 3-10 seconds based on text
-      const progressInterval = 40 / estimatedSeconds // 40% progress over estimated time (60% -> 100%)
+      const wordsCount = fullText.split(/\s+/).length
+      // Base time: 3 seconds, add 0.5s per 100 words, max 15 seconds
+      const estimatedSeconds = Math.min(15, Math.max(3, 3 + (wordsCount / 100) * 0.5))
 
-      // Start progress animation
+      console.log(`Estimated analysis time: ${estimatedSeconds.toFixed(1)}s for ${wordsCount} words`)
+
+      // Asymptotic progress from 60% to approach 99.5% (never quite reaches it)
+      // This creates natural slowing without stalling
+      const startProgress = 60
+      const startTime = Date.now()
+      const updateInterval = 50 // Update every 50ms for smoother animation
+
+      // Easing function: starts fast, slows down naturally as it approaches target
+      // Uses exponential decay to asymptotically approach target
+      const easeOutExpo = (elapsed: number, duration: number) => {
+        const progress = Math.min(elapsed / duration, 1)
+        // Exponential easing: fast at first, slows down, never quite reaches 1
+        return 1 - Math.pow(2, -10 * progress)
+      }
+
       const progressTimer = setInterval(() => {
-        setProgress(prev => {
-          const newProgress = prev + progressInterval / 10
-          return Math.min(98, newProgress) // Cap at 98% until actual completion
-        })
-      }, 100)
+        const elapsed = Date.now() - startTime
+        const easedProgress = easeOutExpo(elapsed, estimatedSeconds * 1000)
+        // Map eased progress from 60% to 99.5% (asymptotic approach)
+        const newProgress = startProgress + (easedProgress * 39.5)
+        setProgress(newProgress)
+      }, updateInterval)
 
       const analysisResponse = await fetch('/api/private/scenes/analyze-script', {
         method: 'POST',
@@ -185,9 +203,9 @@ const SceneUploadProcessing = ({ sceneName, fileName }: SceneUploadProcessingPro
         body: JSON.stringify({ scriptText: fullText })
       })
 
-      // Clear progress animation
+      // Clear progress animation and smoothly finish
       clearInterval(progressTimer)
-      setProgress(99)
+      setProgress(100)
 
       if (!analysisResponse.ok) {
         throw new Error('Failed to analyze script')

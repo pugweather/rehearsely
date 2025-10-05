@@ -77,11 +77,11 @@ const SceneCard = ({id, name, modified_at, dropdownData, setOpenedDropdownId, op
               <div
                 tabIndex={0}
                 role="button"
-                className="w-10 h-10 rounded-full border-2 border-black bg-white hover:bg-gray-50 transition-all duration-200 flex items-center justify-center"
+                className="w-10 h-10 rounded-full border-2 border-black bg-white hover:bg-black transition-all duration-300 flex items-center justify-center group/btn"
               >
-                <FontAwesomeIcon 
-                  icon={faEllipsis} 
-                  className="transition-transform duration-200 hover:scale-110 text-sm" 
+                <FontAwesomeIcon
+                  icon={faEllipsis}
+                  className="text-black group-hover/btn:text-white transition-all duration-300 text-sm"
                 />
               </div>
 
