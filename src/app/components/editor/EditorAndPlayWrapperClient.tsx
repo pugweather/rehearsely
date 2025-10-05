@@ -218,7 +218,7 @@ const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
     const isLoading = characters === null
 
     return (
-        <PracticeRangeProvider>
+        <PracticeRangeProvider sceneId={scene.id}>
             <TeleprompterProvider>
                 <CharactersProvider characters={characters} setCharacters={setCharacters}>
                     <CountdownProvider>

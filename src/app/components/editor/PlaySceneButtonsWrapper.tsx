@@ -19,7 +19,7 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
   const [micPermissionGranted, setMicPermissionGranted] = useState(false)
   const [micErrorType, setMicErrorType] = useState<'permission' | 'no_device'>('permission')
   
-  const { isRangeSelectionMode, setIsRangeSelectionMode, isRangeSet, clearRange, setStartLineId, setEndLineId, setClickedLineId } = usePracticeRange()
+  const { isRangeSelectionMode, setIsRangeSelectionMode, isRangeSet, clearRange, setStartLineId, setEndLineId, setClickedLineId, saveRange } = usePracticeRange()
 
   // Check if microphones are available
   const checkMicrophoneAvailability = async (): Promise<boolean> => {
@@ -85,6 +85,7 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
                 <button
                   className="flex justify-center items-center gap-3 px-6 py-3 rounded-full bg-[#ffa05a] border-2 border-black transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group"
                   onClick={() => {
+                    saveRange()
                     setIsRangeSelectionMode(false)
                     setClickedLineId(null)
                   }}
