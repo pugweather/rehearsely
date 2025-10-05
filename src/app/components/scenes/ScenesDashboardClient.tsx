@@ -155,7 +155,7 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
       
       {/* Scrollable Cards Container - Only this scrolls */}
       <div className="relative z-10 flex-1 overflow-hidden">
-        <div className={`h-full overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto px-8 py-6 transition-opacity duration-300 ${
+        <div className={`h-full overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-min gap-8 max-w-7xl mx-auto px-8 py-6 transition-opacity duration-300 ${
           isFiltering ? 'opacity-50' : 'opacity-100'
         }`}>
           {filteredScenes.map((scene, index) => {

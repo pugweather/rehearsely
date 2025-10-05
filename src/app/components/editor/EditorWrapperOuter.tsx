@@ -98,7 +98,10 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
                         <div className="p-6">
                           <div className="flex items-center justify-center">
                             <div onClick={(e) => e.stopPropagation()}>
-                              <SceneSettings onRangeSelectionToggle={() => setHeaderExpanded(false)} />
+                              <SceneSettings
+                                onRangeSelectionToggle={() => setHeaderExpanded(false)}
+                                onClose={() => setHeaderExpanded(false)}
+                              />
                             </div>
                           </div>
                         </div>

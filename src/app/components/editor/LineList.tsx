@@ -113,6 +113,13 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
     }
   }, [shouldScroll, lineBeingEdited])
 
+  // Close EditLine when entering range selection mode
+  useEffect(() => {
+    if (isRangeSelectionMode && lineBeingEdited) {
+      closeEditLine()
+    }
+  }, [isRangeSelectionMode])
+
   /* Editing line */
   // Character dropdown data for DaisyUI dropdown
   const maxCharsForScene = 5

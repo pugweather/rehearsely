@@ -1,7 +1,7 @@
 "use client"
 import React, { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faClock, faScroll, faMapMarkerAlt, faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { faClock, faScroll, faMapMarkerAlt, faChevronDown, faX } from '@fortawesome/free-solid-svg-icons'
 import { useSceneDelay } from '@/app/context/countdownContext'
 import { useTeleprompter } from '@/app/context/teleprompterContext'
 import { usePracticeRange } from '@/app/context/practiceRangeContext'
@@ -13,9 +13,10 @@ const sunsetSerialMediumFont = localFont({
 
 type Props = {
   onRangeSelectionToggle?: () => void
+  onClose?: () => void
 }
 
-const SceneSettings = ({ onRangeSelectionToggle }: Props) => {
+const SceneSettings = ({ onRangeSelectionToggle, onClose }: Props) => {
   const { countdown, setCountdown } = useSceneDelay()
   const { isTeleprompterActive, setIsTeleprompterActive } = useTeleprompter()
   const { isRangeSelectionMode, setIsRangeSelectionMode, isRangeSet, clearRange, setClickedLineId } = usePracticeRange()
@@ -29,8 +30,18 @@ const SceneSettings = ({ onRangeSelectionToggle }: Props) => {
   ]
 
   return (
-    <div className="space-y-6">
-      
+    <div className="space-y-6 relative">
+
+      {/* Close button */}
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-white border-2 border-black flex items-center justify-center hover:bg-gray-50 transition-all duration-200 z-10"
+        >
+          <FontAwesomeIcon icon={faX} className="text-sm" />
+        </button>
+      )}
+
       {/* Instructions Header */}
       <div className="text-center pb-4">
         <h2 className={`text-xl font-bold text-gray-800 mb-2 ${sunsetSerialMediumFont.className}`}>
