@@ -34,13 +34,13 @@ export default function ScenesDashboardHeader({onChange}: Props) {
             </div>
             
             {/* Create button */}
-            <Link 
-                href={"/scene-name"} 
+            <Link
+                href={"/scene-name"}
                 className="px-6 py-3 bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-xl border-3 border-black font-bold text-lg transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group relative overflow-hidden"
             >
                 {/* Subtle shine effect on hover */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
-                
+
                 <span className="flex items-center gap-2 relative z-10">
                     <FontAwesomeIcon icon={faPlus} className="text-base" />
                     Create Scene

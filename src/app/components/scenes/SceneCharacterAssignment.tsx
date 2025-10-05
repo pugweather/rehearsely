@@ -25,13 +25,32 @@ interface Character {
 const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignmentProps) => {
   const [isVisible, setIsVisible] = useState(false)
   const [isCreatingScene, setIsCreatingScene] = useState(false)
-  const [characters, setCharacters] = useState<Character[]>([
-    { name: 'HAMLET', isMe: false },
-    { name: 'OPHELIA', isMe: false },
-    { name: 'CLAUDIUS', isMe: false }
-  ])
+  const [characters, setCharacters] = useState<Character[]>([])
   const [selectedCharacterForVoice, setSelectedCharacterForVoice] = useState<number | null>(null)
   const router = useRouter()
+
+  // Load characters from script analysis
+  useEffect(() => {
+    const analysisStr = sessionStorage.getItem('scriptAnalysis')
+    if (analysisStr) {
+      const analysis = JSON.parse(analysisStr)
+      // Convert character names from analysis to Character objects
+      const characterObjects: Character[] = analysis.characters.map((name: string) => ({
+        name: name.toUpperCase(), // Display in uppercase
+        isMe: false
+      }))
+      setCharacters(characterObjects)
+      console.log('Loaded characters from analysis:', characterObjects)
+    } else {
+      // Fallback to hardcoded if no analysis
+      console.warn('No script analysis found, using fallback characters')
+      setCharacters([
+        { name: 'HAMLET', isMe: false },
+        { name: 'OPHELIA', isMe: false },
+        { name: 'CLAUDIUS', isMe: false }
+      ])
+    }
+  }, [])
 
   // Trigger slide-in animation on mount
   useEffect(() => {
@@ -76,11 +95,16 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
     setIsCreatingScene(true)
 
     try {
-      // In real implementation, this would:
-      // 1. Create the scene with parsed dialogue
-      // 2. Create characters with voice assignments
-      // 3. Generate TTS for non-me characters
-      
+      // Get dialogue data from sessionStorage
+      const dialogueStr = sessionStorage.getItem('scriptDialogue')
+      if (!dialogueStr) {
+        console.error('No dialogue data found')
+        setIsCreatingScene(false)
+        return
+      }
+
+      const dialogue = JSON.parse(dialogueStr)
+
       const res = await fetch("/api/private/scenes/upload", {
         method: "POST",
         headers: {
@@ -89,14 +113,20 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
         body: JSON.stringify({
           name: sceneName,
           fileName: fileName,
-          characters: characters
+          characters: characters,
+          dialogue: dialogue
         })
       })
 
       if (res.ok) {
         const result = await res.json()
-        const { sceneId } = result
-        
+        const { sceneId, linesNeedingAudio } = result
+
+        // Store lines that need audio generation for background processing
+        if (linesNeedingAudio && linesNeedingAudio.length > 0) {
+          sessionStorage.setItem('linesNeedingAudio', JSON.stringify(linesNeedingAudio))
+        }
+
         // Navigate to editor with the newly created scene
         router.push(`/editor/${sceneId}`)
       } else {

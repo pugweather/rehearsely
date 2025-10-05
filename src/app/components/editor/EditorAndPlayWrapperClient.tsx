@@ -93,6 +93,7 @@ const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
 
     const DEFAULT_DELAY_SECONDS = 10
     const [characters, setCharacters] = useState<Character[] | null>(null)
+    const [linesBeingProcessed, setLinesBeingProcessed] = useState<Set<number>>(new Set())
 
     // Fetching characters
     useEffect(() => {
@@ -108,6 +109,66 @@ const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
     }
     fetchSceneCharacters()
     }, [scene.id])
+
+    // Check for lines that need audio generation
+    useEffect(() => {
+        const linesNeedingAudioStr = sessionStorage.getItem('linesNeedingAudio')
+        if (!linesNeedingAudioStr) return
+
+        const linesNeedingAudio = JSON.parse(linesNeedingAudioStr)
+
+        // Clear from sessionStorage so we don't process again on refresh
+        sessionStorage.removeItem('linesNeedingAudio')
+
+        // Start generating audio for each line in the background
+        linesNeedingAudio.forEach((lineInfo: any) => {
+            generateAudioForLine(lineInfo.lineId, lineInfo.text, lineInfo.voiceName)
+        })
+    }, [])
+
+    const generateAudioForLine = async (lineId: number, text: string, voiceName: string) => {
+        setLinesBeingProcessed(prev => new Set(prev).add(lineId))
+
+        try {
+            const response = await fetch(`/api/private/lines/${lineId}/generate-audio`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text, voiceName })
+            })
+
+            if (response.ok) {
+                const result = await response.json()
+                console.log(`Audio generated for line ${lineId}:`, result.audioUrl)
+
+                // Line will be updated via database, we just need to remove from processing set
+                setLinesBeingProcessed(prev => {
+                    const newSet = new Set(prev)
+                    newSet.delete(lineId)
+                    return newSet
+                })
+
+                // Trigger a re-fetch of lines to show the updated line
+                // This could be optimized to update state directly
+                window.location.reload()
+            } else {
+                console.error(`Failed to generate audio for line ${lineId}`)
+                setLinesBeingProcessed(prev => {
+                    const newSet = new Set(prev)
+                    newSet.delete(lineId)
+                    return newSet
+                })
+            }
+        } catch (error) {
+            console.error(`Error generating audio for line ${lineId}:`, error)
+            setLinesBeingProcessed(prev => {
+                const newSet = new Set(prev)
+                newSet.delete(lineId)
+                return newSet
+            })
+        }
+    }
 
     const isLoading = characters === null
 

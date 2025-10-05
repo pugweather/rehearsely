@@ -3,11 +3,19 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFileText, faUsers, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import Tesseract from 'tesseract.js'
 import localFont from 'next/font/local'
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
 })
+
+// Declare global type for pdf.js from CDN
+declare global {
+    interface Window {
+        pdfjsLib: any
+    }
+}
 
 interface SceneUploadProcessingProps {
   sceneName: string
@@ -47,32 +55,170 @@ const SceneUploadProcessing = ({ sceneName, fileName }: SceneUploadProcessingPro
   }, [])
 
   const startProcessing = async () => {
-    // Get the file from sessionStorage (in real implementation, this would be handled differently)
-    const fileData = sessionStorage.getItem('uploadFile')
-    if (!fileData) {
+    // Get the file from sessionStorage
+    const fileDataStr = sessionStorage.getItem('uploadFile')
+    if (!fileDataStr) {
       console.error('No file data found')
       return
     }
 
-    // Simulate processing with fun words
-    for (let i = 0; i <= 100; i += 2) {
-      await new Promise(resolve => setTimeout(resolve, 80))
-      
-      // Update progress
-      setProgress(i)
-      
-      // Change word every 15% or so
-      if (i % 15 === 0) {
-        const randomWord = funWords[Math.floor(Math.random() * funWords.length)]
-        setCurrentWord(randomWord)
+    const fileData = JSON.parse(fileDataStr)
+
+    try {
+      // Load PDF.js if not already loaded
+      if (!window.pdfjsLib) {
+        setCurrentWord('Loading PDF library...')
+        const script = document.createElement('script')
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'
+
+        await new Promise((resolve, reject) => {
+          script.onload = () => {
+            if (window.pdfjsLib) {
+              window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+              resolve(true)
+            }
+          }
+          script.onerror = reject
+          document.head.appendChild(script)
+        })
       }
-      
-      // Instantly navigate when reaching 100%
-      if (i === 100) {
-        setIsComplete(true)
-        router.push(`/scene-character-assignment?sceneName=${encodeURIComponent(sceneName)}&fileName=${encodeURIComponent(fileName)}`)
-        return
+
+      setCurrentWord('Analyzing PDF...')
+
+      // Convert base64 to ArrayBuffer
+      const base64Data = fileData.data.split(',')[1]
+      const binaryString = atob(base64Data)
+      const bytes = new Uint8Array(binaryString.length)
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i)
       }
+
+      // Load PDF document
+      const pdf = await window.pdfjsLib.getDocument({ data: bytes }).promise
+      const numPages = pdf.numPages
+
+      console.log(`PDF has ${numPages} page(s)`)
+
+      let fullText = ''
+
+      // Process each page (OCR takes 0-90%)
+      for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+        setCurrentWord(`Processing page ${pageNum} of ${numPages}...`)
+
+        // Get the page
+        const page = await pdf.getPage(pageNum)
+
+        // Get viewport at 2x scale for better OCR accuracy
+        const viewport = page.getViewport({ scale: 2.0 })
+
+        // Create canvas
+        const canvas = document.createElement('canvas')
+        const context = canvas.getContext('2d')
+        if (!context) continue
+
+        canvas.height = viewport.height
+        canvas.width = viewport.width
+
+        // Render PDF page to canvas
+        await page.render({
+          canvasContext: context,
+          viewport: viewport
+        }).promise
+
+        // Convert canvas to blob for Tesseract
+        const blob = await new Promise<Blob>((resolve) => {
+          canvas.toBlob((blob) => resolve(blob!), 'image/png')
+        })
+
+        // Use Tesseract to extract text from the image
+        const result = await Tesseract.recognize(
+          blob,
+          'eng',
+          {
+            logger: (m) => {
+              if (m.status === 'recognizing text') {
+                // OCR progress takes 0-90% of total progress
+                const pageProgress = ((pageNum - 1) / numPages) * 90
+                const ocrProgress = (m.progress / numPages) * 90
+                const totalProgress = Math.min(90, Math.round(pageProgress + ocrProgress))
+                setProgress(totalProgress)
+              }
+            }
+          }
+        )
+
+        // Add page text to full text
+        fullText += `\n--- PAGE ${pageNum} ---\n`
+        fullText += result.data.text
+        fullText += '\n'
+
+        console.log(`Page ${pageNum} extracted (Confidence: ${result.data.confidence}%)`)
+      }
+
+      // Log the complete extracted text
+      console.log('TEXT EXTRACTED FROM PDF:')
+      console.log(fullText)
+
+      // Analyze script with OpenAI (LLM analysis takes 90-100%)
+      setProgress(90)
+      setCurrentWord('Analyzing characters...')
+
+      // Estimate LLM analysis time based on text length
+      const textLength = fullText.length
+      const estimatedSeconds = Math.min(10, Math.max(3, textLength / 1000)) // 3-10 seconds based on text
+      const progressInterval = 100 / estimatedSeconds // Progress per 100ms
+
+      // Start progress animation
+      const progressTimer = setInterval(() => {
+        setProgress(prev => {
+          const newProgress = prev + progressInterval / 10
+          return Math.min(98, newProgress) // Cap at 98% until actual completion
+        })
+      }, 100)
+
+      const analysisResponse = await fetch('/api/private/scenes/analyze-script', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ scriptText: fullText })
+      })
+
+      // Clear progress animation
+      clearInterval(progressTimer)
+      setProgress(99)
+
+      if (!analysisResponse.ok) {
+        throw new Error('Failed to analyze script')
+      }
+
+      const { analysis } = await analysisResponse.json()
+
+      console.log('SCRIPT ANALYSIS:')
+      console.log('Characters:', analysis.characters)
+      console.log('Dialogue lines:', analysis.dialogue.length)
+
+      // Store analysis in sessionStorage for the next screen
+      sessionStorage.setItem('scriptAnalysis', JSON.stringify(analysis))
+      sessionStorage.setItem('extractedText', fullText)
+
+      // Store ordered character-line mapping for scene creation
+      // This will be used to create lines in the editor with proper ordering
+      sessionStorage.setItem('scriptDialogue', JSON.stringify(analysis.dialogue))
+
+      // Complete!
+      setProgress(100)
+      setCurrentWord('Complete!')
+      setIsComplete(true)
+
+      // Navigate to character assignment
+      await new Promise(resolve => setTimeout(resolve, 500))
+      router.push(`/scene-character-assignment?sceneName=${encodeURIComponent(sceneName)}&fileName=${encodeURIComponent(fileName)}`)
+
+    } catch (error) {
+      console.error('❌ Error extracting text from PDF:', error)
+      setCurrentWord('Error processing PDF')
     }
   }
 

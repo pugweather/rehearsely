@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { faChessKing, faPlus, faEllipsis, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SavedLine from './SavedLine'
+import LoadingLine from './LoadingLine'
 import EditLine from './EditLine'
 import Dropdown from '../ui/Dropdown'
 import Overlay from '../ui/Overlay';
@@ -327,46 +328,65 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
           strategy={verticalListSortingStrategy}
         >
           <div className='w-full'>
-            { 
+            {
             lineItems?.map((line, index) => {
-              return line.id == lineBeingEdited?.id ? 
-              (false ? (
-                // Show loading state instead of EditLine when characters haven't loaded
-                <div key={line.id} className="rounded-2xl w-full px-6 py-6 mb-8 flex items-center justify-center" style={{backgroundColor: '#E3D6C6', border: '1px solid rgba(32,32,32,0.1)'}}>
-                  <div className="flex items-center gap-3 text-gray-600">
-                    <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-lg font-medium">Loading characters...</span>
+              // Check if this line is being edited
+              if (line.id == lineBeingEdited?.id) {
+                return false ? (
+                  // Show loading state instead of EditLine when characters haven't loaded
+                  <div key={line.id} className="rounded-2xl w-full px-6 py-6 mb-8 flex items-center justify-center" style={{backgroundColor: '#E3D6C6', border: '1px solid rgba(32,32,32,0.1)'}}>
+                    <div className="flex items-center gap-3 text-gray-600">
+                      <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-lg font-medium">Loading characters...</span>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <EditLine 
+                ) : (
+                  <EditLine
+                    key={line.id}
+                    line={line}
+                    characters={characters}
+                    lineBeingEditedData={lineBeingEditedData}
+                    newLineOrder={newLineOrder}
+                    setLines={setLines}
+                    setLineBeingEditedData={setLineBeingEditedData}
+                    charsDropdownData={charsDropdownData}
+                    closeEditLine={closeEditLine}
+                    onCascadeDelete={handleCascadeDelete}
+                  />
+                )
+              }
+
+              // Check if this line is waiting for audio generation
+              const character = characters?.find(c => c.id === line.character_id)
+              const needsAudio = !line.is_saved && !character?.is_me && !line.audio_url
+
+              if (needsAudio && character) {
+                return (
+                  <LoadingLine
+                    key={line.id}
+                    characterName={character.name}
+                    order={line.order || 0}
+                  />
+                )
+              }
+
+              // Show saved line
+              return (
+                <SavedLine
                   key={line.id}
-                  line={line} 
-                  characters={characters} 
-                  lineBeingEditedData={lineBeingEditedData}
-                  newLineOrder={newLineOrder}
+                  line={line}
+                  lines={lineItems}
+                  characters={characters}
                   setLines={setLines}
+                  setLineBeingEdited={setLineBeingEdited}
                   setLineBeingEditedData={setLineBeingEditedData}
-                  charsDropdownData={charsDropdownData}
-                  closeEditLine={closeEditLine}
-                  onCascadeDelete={handleCascadeDelete}
+                  setShouldScroll={setShouldScroll}
+                  setOriginalCharForOpenedLine={setOriginalCharForOpenedLine}
+                  index={index}
+                  isDragDisabled={isDragDisabled}
                 />
-              ))
-                : 
-              <SavedLine
-                key={line.id}
-                line={line}
-                lines={lineItems}
-                characters={characters}
-                setLines={setLines}
-                setLineBeingEdited={setLineBeingEdited}
-                setLineBeingEditedData={setLineBeingEditedData}
-                setShouldScroll={setShouldScroll}
-                setOriginalCharForOpenedLine={setOriginalCharForOpenedLine}
-                index={index}
-                isDragDisabled={isDragDisabled}
-                />
-            }) 
+              )
+            })
             }
           </div>
         </SortableContext>

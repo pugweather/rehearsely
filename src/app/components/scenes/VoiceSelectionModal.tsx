@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react'
 import Modal from '../ui/Modal'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faClose, faPlay, faVolumeUp } from '@fortawesome/free-solid-svg-icons'
+import { faClose, faPlay, faStop, faVolumeUp } from '@fortawesome/free-solid-svg-icons'
 import localFont from 'next/font/local'
 import { useVoicesStore } from '@/app/stores/useVoicesStores'
 import { Voice } from '@/app/types'
@@ -111,17 +111,20 @@ const VoiceSelectionModal = ({ isOpen, characterName, onClose, onVoiceSelected }
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        playSelectedVoiceAudio(voice)
+                        if (playingVoice === voice.voice_id) {
+                          stopSelectedVoiceAudio()
+                        } else {
+                          playSelectedVoiceAudio(voice)
+                        }
                       }}
                       className={`w-10 h-10 rounded-full border-2 border-black text-white flex items-center justify-center transition-all duration-200 flex-shrink-0 ml-3 ${
                         playingVoice === voice.voice_id
-                          ? 'bg-[#FFA05A] animate-pulse'
+                          ? 'bg-[#FFA05A] hover:bg-[#FF8A3A] hover:shadow-md hover:-translate-y-0.5'
                           : 'bg-[#72a4f2] hover:bg-[#5a8ae8] hover:shadow-md hover:-translate-y-0.5'
                       }`}
-                      disabled={playingVoice === voice.voice_id}
                     >
                       {playingVoice === voice.voice_id ? (
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <FontAwesomeIcon icon={faStop} className="text-sm" />
                       ) : (
                         <FontAwesomeIcon icon={faPlay} className="text-sm ml-0.5" />
                       )}

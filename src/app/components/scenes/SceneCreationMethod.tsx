@@ -121,23 +121,30 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
                 onClick={() => {
                   // Set as selected for visual feedback
                   setSelectedMethod('upload')
-                  
+
                   // Instantly launch file picker when upload is clicked
                   const input = document.createElement('input')
                   input.type = 'file'
-                  input.accept = '.pdf,.docx,.doc,.txt,.fountain,.fdx'
-                  input.onchange = (e) => {
+                  input.accept = '.pdf'
+                  input.onchange = async (e) => {
                     const file = (e.target as HTMLInputElement).files?.[0]
                     if (file) {
-                      // Store file data and navigate to processing screen
-                      sessionStorage.setItem('uploadFile', JSON.stringify({
-                        name: file.name,
-                        size: file.size,
-                        type: file.type
-                      }))
-                      sessionStorage.setItem('uploadFormData', 'file-selected')
-                      
-                      router.push(`/scene-upload-processing?sceneName=${encodeURIComponent(sceneName)}&fileName=${encodeURIComponent(file.name)}`)
+                      // Store file as base64 in sessionStorage for the processing screen
+                      const reader = new FileReader()
+                      reader.onload = (event) => {
+                        const base64 = event.target?.result as string
+                        sessionStorage.setItem('uploadFile', JSON.stringify({
+                          name: file.name,
+                          size: file.size,
+                          type: file.type,
+                          data: base64
+                        }))
+                        sessionStorage.setItem('uploadFormData', 'file-selected')
+
+                        // Navigate to processing screen
+                        router.push(`/scene-upload-processing?sceneName=${encodeURIComponent(sceneName)}&fileName=${encodeURIComponent(file.name)}`)
+                      }
+                      reader.readAsDataURL(file)
                     }
                   }
                   input.click()
