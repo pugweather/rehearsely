@@ -24,10 +24,10 @@ const SceneCharacterAssignmentPage = () => {
   }
 
   return (
-    <>
+    <div className="overflow-hidden">
       <Navbar />
       <SceneCharacterAssignment sceneName={sceneName} fileName={fileName} />
-    </>
+    </div>
   )
 }
 

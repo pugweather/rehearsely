@@ -24,10 +24,10 @@ const SceneCreationMethodPage = () => {
   }
 
   return (
-    <>
+    <div className="overflow-hidden">
       <Navbar />
       <SceneCreationMethod sceneId={sceneId} sceneName={sceneName} />
-    </>
+    </div>
   )
 }
 

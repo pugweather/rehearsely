@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClose, faPlay, faStop, faVolumeUp, faUser, faCircleCheck } from '@fortawesome/free-solid-svg-icons'
 import localFont from 'next/font/local'
@@ -19,12 +19,12 @@ interface ModalCreateCharacterNewProps {
   originalCharForOpenedLine: Character | null
 }
 
-const ModalCreateCharacterNew = ({ 
-  sceneId, 
-  lineBeingEditedData, 
-  setLineBeingEditedData, 
-  setIsCreateCharModalOpen, 
-  originalCharForOpenedLine 
+const ModalCreateCharacterNew = ({
+  sceneId,
+  lineBeingEditedData,
+  setLineBeingEditedData,
+  setIsCreateCharModalOpen,
+  originalCharForOpenedLine
 }: ModalCreateCharacterNewProps) => {
   const { characters, setCharacters } = useCharacters()
   const [characterName, setCharacterName] = useState<string>("")
@@ -32,26 +32,38 @@ const ModalCreateCharacterNew = ({
   const [playingVoice, setPlayingVoice] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [errorText, setErrorText] = useState<string | null>(null)
-  
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+
   // Get real voices from the store
   const voices = useVoicesStore(s => s.voices)
   const voicesCategorized = useVoicesStore(s => s.voicesCategorized)
-  
+
   const currentAudio = useRef<HTMLAudioElement | null>(null)
 
+  // Trigger fade-in animation on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsOpen(true)
+    }, 10)
+    return () => clearTimeout(timer)
+  }, [])
+
   const handleClose = () => {
-    setSelectedVoice(null)
-    setPlayingVoice('')
-    setCharacterName("")
-    setErrorText(null)
-    stopSelectedVoiceAudio()
-    // Reset to original character
-    setLineBeingEditedData(prev => ({
-      ...prev,
-      voice: null,
-      character: originalCharForOpenedLine
-    }))
-    setIsCreateCharModalOpen(false)
+    setIsOpen(false)
+    setTimeout(() => {
+      setSelectedVoice(null)
+      setPlayingVoice('')
+      setCharacterName("")
+      setErrorText(null)
+      stopSelectedVoiceAudio()
+      // Reset to original character
+      setLineBeingEditedData(prev => ({
+        ...prev,
+        voice: null,
+        character: originalCharForOpenedLine
+      }))
+      setIsCreateCharModalOpen(false)
+    }, 200)
   }
 
   const handleSave = async () => {
@@ -224,15 +236,19 @@ const ModalCreateCharacterNew = ({
   const femaleCharBtns = getVoicesJSX("female")
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+    <div className={`fixed inset-0 z-[9999] flex items-center justify-center p-4 transition-opacity duration-200 ${
+      isOpen ? 'opacity-100' : 'opacity-0'
+    }`}>
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={handleClose}
       ></div>
-      
+
       {/* Modal */}
-      <div className="relative w-full max-w-4xl max-h-[85vh] bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-2xl border-4 border-black shadow-2xl overflow-hidden flex flex-col">
+      <div className={`relative w-full max-w-4xl max-h-[85vh] bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-2xl border-4 border-black shadow-2xl overflow-hidden flex flex-col transition-all duration-200 ${
+        isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-4'
+      }`}>
         
         {/* Subtle background accents */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">

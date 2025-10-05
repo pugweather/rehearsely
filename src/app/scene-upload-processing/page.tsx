@@ -24,10 +24,10 @@ const SceneUploadProcessingPage = () => {
   }
 
   return (
-    <>
+    <div className="overflow-hidden">
       <Navbar />
       <SceneUploadProcessing sceneName={sceneName} fileName={fileName} />
-    </>
+    </div>
   )
 }
 

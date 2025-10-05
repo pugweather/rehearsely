@@ -138,10 +138,10 @@ const SceneUploadProcessing = ({ sceneName, fileName }: SceneUploadProcessingPro
           {
             logger: (m) => {
               if (m.status === 'recognizing text') {
-                // OCR progress takes 0-90% of total progress
-                const pageProgress = ((pageNum - 1) / numPages) * 90
-                const ocrProgress = (m.progress / numPages) * 90
-                const totalProgress = Math.min(90, Math.round(pageProgress + ocrProgress))
+                // OCR progress takes 0-60% of total progress (so analysis gets 60-100%)
+                const pageProgress = ((pageNum - 1) / numPages) * 60
+                const ocrProgress = (m.progress / numPages) * 60
+                const totalProgress = Math.min(60, Math.round(pageProgress + ocrProgress))
                 setProgress(totalProgress)
               }
             }
@@ -160,14 +160,14 @@ const SceneUploadProcessing = ({ sceneName, fileName }: SceneUploadProcessingPro
       console.log('TEXT EXTRACTED FROM PDF:')
       console.log(fullText)
 
-      // Analyze script with OpenAI (LLM analysis takes 90-100%)
-      setProgress(90)
+      // Analyze script with OpenAI (LLM analysis takes 60-100%)
+      setProgress(60)
       setCurrentWord('Analyzing characters...')
 
       // Estimate LLM analysis time based on text length
       const textLength = fullText.length
       const estimatedSeconds = Math.min(10, Math.max(3, textLength / 1000)) // 3-10 seconds based on text
-      const progressInterval = 100 / estimatedSeconds // Progress per 100ms
+      const progressInterval = 40 / estimatedSeconds // 40% progress over estimated time (60% -> 100%)
 
       // Start progress animation
       const progressTimer = setInterval(() => {
