@@ -35,24 +35,28 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
   // Load characters from script analysis
   useEffect(() => {
     const analysisStr = sessionStorage.getItem('scriptAnalysis')
-    if (analysisStr) {
-      const analysis = JSON.parse(analysisStr)
-      // Convert character names from analysis to Character objects
-      const characterObjects: Character[] = analysis.characters.map((name: string) => ({
-        name: name.toUpperCase(), // Display in uppercase
-        isMe: false
-      }))
-      setCharacters(characterObjects)
-      console.log('Loaded characters from analysis:', characterObjects)
-    } else {
-      // Fallback to hardcoded if no analysis
-      console.warn('No script analysis found, using fallback characters')
-      setCharacters([
-        { name: 'HAMLET', isMe: false },
-        { name: 'OPHELIA', isMe: false },
-        { name: 'CLAUDIUS', isMe: false }
-      ])
+    const dialogueStr = sessionStorage.getItem('scriptDialogue')
+
+    // Check if required data exists
+    if (!analysisStr || !dialogueStr) {
+      console.error('❌ Missing required session data')
+      console.error('Has scriptAnalysis:', !!analysisStr)
+      console.error('Has scriptDialogue:', !!dialogueStr)
+
+      alert('⚠️ Session Data Missing\n\nThe script analysis data is not available. This usually happens if:\n• The page was refreshed\n• The session timed out\n• You navigated here directly without uploading a script\n\nRedirecting to Scenes page...')
+
+      router.push('/scenes')
+      return
     }
+
+    const analysis = JSON.parse(analysisStr)
+    // Convert character names from analysis to Character objects
+    const characterObjects: Character[] = analysis.characters.map((name: string) => ({
+      name: name.toUpperCase(), // Display in uppercase
+      isMe: false
+    }))
+    setCharacters(characterObjects)
+    console.log('✅ Loaded characters from analysis:', characterObjects)
   }, [])
 
   // Trigger slide-in animation on mount
@@ -107,8 +111,16 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
       // Get dialogue data from sessionStorage
       const dialogueStr = sessionStorage.getItem('scriptDialogue')
       if (!dialogueStr) {
-        console.error('No dialogue data found')
+        console.error('No dialogue data found in sessionStorage')
         setIsCreatingScene(false)
+
+        // Show user-friendly error message
+        alert('⚠️ Session data expired\n\nYour script analysis data has been lost (possibly due to page refresh or timeout).\n\nPlease go back to the Scenes page and re-upload your script.\n\nTip: Complete character assignment within 30 minutes of uploading to avoid this issue.')
+
+        // Redirect back to scenes page
+        setTimeout(() => {
+          router.push('/scenes')
+        }, 1000)
         return
       }
 
@@ -294,6 +306,11 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
               Please select which character is you and assign voices to all other characters
             </div>
           )}
+
+          {/* Session timeout warning */}
+          <div className="text-center text-xs text-gray-500 mb-4 max-w-md mx-auto">
+            ⏱️ Complete character assignment soon - session data expires after inactivity
+          </div>
 
           {/* Decorative accent dots */}
           <div className="flex justify-center space-x-2">

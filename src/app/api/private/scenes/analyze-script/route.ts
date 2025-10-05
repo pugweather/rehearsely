@@ -24,31 +24,46 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: 'system',
-          content: `You are a script analysis expert. Analyze the provided script and extract:
-1. A list of all character names that appear in the script
-2. For each line of dialogue, identify which character is speaking
+          content: `You are a script analysis expert. Analyze the provided script and extract character names and dialogue that actors will speak aloud.
 
-Handle typos and variations in character names (e.g., "HAMLET" vs "Hamlet" vs "HAMLEt" should all be treated as the same character).
+CRITICAL: Extract ONLY the words that would be spoken out loud by actors. Remove ALL stage directions and actions.
 
-Return your analysis in valid JSON format with this structure:
+CHARACTER NAMES:
+- Keep original case (usually ALL CAPS in scripts)
+- Merge variations/typos (e.g., "HAMLET", "Hamlet", "HAMLEt" → "HAMLET")
+- Fix obvious OCR errors in names
+
+DIALOGUE EXTRACTION:
+1. REMOVE stage directions completely:
+   - Parenthetical actions: (POINTS TO HERSELF), (laughs), (to John), (exits)
+   - Quoted references: ("CONFUCIOUS"), ("INSERT QUOTE")
+   - Any non-spoken instructions in parentheses or brackets
+
+2. CLEAN the dialogue text:
+   - Fix obvious typos (e.g., "favorite fay" → "favorite day")
+   - Keep natural speech patterns and intentional grammar
+   - Only fix clear errors that would confuse an actor
+
+3. ONLY include words an actor speaks into the microphone:
+   - YES: "Connelly, remember, you're the student and I'm the teacher. Sometimes the lesson isn't learned until well after the lesson is taught."
+   - NO: "Connelly, remember, you're the student and I'm the teacher. ("CONFUCIOUS") Sometimes the lesson isn't learned until well after the lesson is taught."
+
+   - YES: "Didn't you hear Miranda? If we don't hit the quota someone's getting fired, and you know who that's going to be? The new person."
+   - NO: "Didn't you hear Miranda? If we don't hit the quota someone's getting fired, and you know who that's going to be...? (POINTS TO HERSELF) The new person."
+
+RETURN FORMAT (valid JSON):
 {
-  "characters": ["Character1", "Character2", ...],
+  "characters": ["CHARACTER1", "CHARACTER2", ...],
   "dialogue": [
     {
-      "character": "Character1",
-      "text": "The actual dialogue text",
+      "character": "CHARACTER1",
+      "text": "Only the spoken words, typos fixed, stage directions removed",
       "line_number": 1
-    },
-    ...
+    }
   ]
 }
 
-Important:
-- Normalize all character names to proper case (first letter uppercase, rest lowercase)
-- Combine duplicate characters (handle typos/variations)
-- Only include actual dialogue (no stage directions unless they're part of the dialogue)
-- Preserve the original dialogue text exactly as written
-- Number lines sequentially starting from 1`
+Remember: Actors read this in the teleprompter. They never say stage directions out loud!`
         },
         {
           role: 'user',
