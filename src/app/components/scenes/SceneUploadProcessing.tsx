@@ -259,14 +259,105 @@ const SceneUploadProcessing = ({ sceneName, fileName }: SceneUploadProcessingPro
             
             {/* Processing icon */}
             <div className="text-center mb-8">
-              <div className="w-24 h-24 mx-auto rounded-full border-4 border-black bg-white flex items-center justify-center">
+              <div className="relative w-24 h-24 mx-auto rounded-full border-4 border-black bg-white flex items-center justify-center">
                 {isComplete ? (
-                  <FontAwesomeIcon icon={faUsers} className="text-3xl text-[#72a4f2]" />
+                  <>
+                    {/* Animated green checkmark */}
+                    <svg className="w-16 h-16" viewBox="0 0 52 52">
+                      <circle
+                        className="checkmark-circle"
+                        cx="26"
+                        cy="26"
+                        r="25"
+                        fill="none"
+                        stroke="#4ade80"
+                        strokeWidth="2"
+                      />
+                      <path
+                        className="checkmark-check"
+                        fill="none"
+                        stroke="#4ade80"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        d="M14 27l7 7 16-16"
+                      />
+                    </svg>
+                    {/* Sparkles */}
+                    <div className="absolute inset-0 pointer-events-none">
+                      <div className="sparkle sparkle-1 absolute top-2 right-2 w-2 h-2 bg-[#FFD96E] rounded-full"></div>
+                      <div className="sparkle sparkle-2 absolute bottom-3 left-3 w-1.5 h-1.5 bg-[#72a4f2] rounded-full"></div>
+                      <div className="sparkle sparkle-3 absolute top-4 left-2 w-1 h-1 bg-[#FFA05A] rounded-full"></div>
+                      <div className="sparkle sparkle-4 absolute bottom-2 right-4 w-1.5 h-1.5 bg-[#4ade80] rounded-full"></div>
+                    </div>
+                  </>
                 ) : (
                   <FontAwesomeIcon icon={faSpinner} className="text-3xl text-[#FFA05A] animate-spin" />
                 )}
               </div>
             </div>
+
+            <style jsx>{`
+              @keyframes checkmark-circle {
+                0% {
+                  stroke-dashoffset: 166;
+                }
+                100% {
+                  stroke-dashoffset: 0;
+                }
+              }
+
+              @keyframes checkmark-check {
+                0% {
+                  stroke-dashoffset: 48;
+                }
+                100% {
+                  stroke-dashoffset: 0;
+                }
+              }
+
+              @keyframes sparkle {
+                0%, 100% {
+                  transform: scale(0) rotate(0deg);
+                  opacity: 0;
+                }
+                50% {
+                  transform: scale(1) rotate(180deg);
+                  opacity: 1;
+                }
+              }
+
+              .checkmark-circle {
+                stroke-dasharray: 166;
+                stroke-dashoffset: 166;
+                animation: checkmark-circle 0.6s ease-in-out forwards;
+              }
+
+              .checkmark-check {
+                stroke-dasharray: 48;
+                stroke-dashoffset: 48;
+                animation: checkmark-check 0.3s 0.3s ease-in-out forwards;
+              }
+
+              .sparkle {
+                animation: sparkle 0.8s ease-in-out forwards;
+              }
+
+              .sparkle-1 {
+                animation-delay: 0.6s;
+              }
+
+              .sparkle-2 {
+                animation-delay: 0.7s;
+              }
+
+              .sparkle-3 {
+                animation-delay: 0.65s;
+              }
+
+              .sparkle-4 {
+                animation-delay: 0.75s;
+              }
+            `}</style>
 
             {/* Title */}
             <div className="text-center mb-8">

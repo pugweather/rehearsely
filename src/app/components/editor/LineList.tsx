@@ -358,7 +358,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
 
               // Check if this line is waiting for audio generation
               const character = characters?.find(c => c.id === line.character_id)
-              const needsAudio = !line.is_saved && !character?.is_me && !line.audio_url
+              const needsAudio = !character?.is_me && !line.audio_url
 
               if (needsAudio && character) {
                 return (

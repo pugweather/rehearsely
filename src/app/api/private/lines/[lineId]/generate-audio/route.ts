@@ -22,20 +22,20 @@ export async function POST(
     }
 
     const lineId = parseInt(params.lineId)
-    const { text, voiceName } = await request.json()
+    const { text, voiceId } = await request.json()
 
-    if (!text || !voiceName) {
+    if (!text || !voiceId) {
       return NextResponse.json(
-        { error: 'Missing text or voice name' },
+        { error: 'Missing text or voiceId' },
         { status: 400 }
       )
     }
 
-    console.log(`Generating audio for line ${lineId} with voice ${voiceName}`)
+    console.log(`Generating audio for line ${lineId} with voice ${voiceId}`)
 
     // Generate audio using ElevenLabs
     const audioStream = await elevenlabs.generate({
-      voice: voiceName,
+      voice: voiceId,
       text: text,
       model_id: 'eleven_monolingual_v1'
     })
@@ -48,9 +48,9 @@ export async function POST(
     const audioBuffer = Buffer.concat(chunks)
 
     // Upload to Supabase Storage
-    const fileName = `line_${lineId}_${Date.now()}.mp3`
+    const fileName = `${user.id}/line_${lineId}_${Date.now()}.mp3`
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('line-audio')
+      .from('audio-urls')
       .upload(fileName, audioBuffer, {
         contentType: 'audio/mpeg',
         upsert: true
@@ -63,15 +63,15 @@ export async function POST(
 
     // Get public URL
     const { data: urlData } = supabase.storage
-      .from('line-audio')
+      .from('audio-urls')
       .getPublicUrl(fileName)
 
     const audioUrl = urlData.publicUrl
 
-    // Update line in database
+    // Update line in database with audio URL
     await db
       .update(lines)
-      .set({ audio_url: audioUrl, is_saved: true })
+      .set({ audio_url: audioUrl })
       .where(eq(lines.id, lineId))
 
     console.log(`Audio generated and saved for line ${lineId}`)

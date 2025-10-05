@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeftLong, faArrowRight, faUser, faVolumeUp } from '@fortawesome/free-solid-svg-icons'
 import localFont from 'next/font/local'
 import VoiceSelectionModal from './VoiceSelectionModal'
+import { useVoicesStore } from '@/app/stores/useVoicesStores'
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
@@ -19,7 +20,8 @@ interface SceneCharacterAssignmentProps {
 interface Character {
   name: string
   isMe: boolean
-  selectedVoice?: string
+  selectedVoiceId?: string
+  selectedVoiceName?: string
 }
 
 const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignmentProps) => {
@@ -28,6 +30,7 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
   const [characters, setCharacters] = useState<Character[]>([])
   const [selectedCharacterForVoice, setSelectedCharacterForVoice] = useState<number | null>(null)
   const router = useRouter()
+  const voices = useVoicesStore(s => s.voices)
 
   // Load characters from script analysis
   useEffect(() => {
@@ -70,21 +73,27 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
     setCharacters(prev => prev.map((char, i) => ({
       ...char,
       isMe: i === index,
-      selectedVoice: i === index ? undefined : char.selectedVoice
+      selectedVoiceId: i === index ? undefined : char.selectedVoiceId,
+      selectedVoiceName: i === index ? undefined : char.selectedVoiceName
     })))
   }
 
-  const handleVoiceSelected = (voiceName: string) => {
+  const handleVoiceSelected = (voiceId: string) => {
     if (selectedCharacterForVoice !== null) {
-      handleCharacterUpdate(selectedCharacterForVoice, { selectedVoice: voiceName })
+      // Find the voice object to get the name
+      const voice = voices?.find(v => v.voice_id === voiceId)
+      handleCharacterUpdate(selectedCharacterForVoice, {
+        selectedVoiceId: voiceId,
+        selectedVoiceName: voice?.name || voiceId
+      })
       setSelectedCharacterForVoice(null)
     }
   }
 
   const canCreateScene = () => {
     const hasMyCharacter = characters.some(char => char.isMe)
-    const allNonMeHaveVoices = characters.filter(char => !char.isMe).every(char => 
-      char.selectedVoice
+    const allNonMeHaveVoices = characters.filter(char => !char.isMe).every(char =>
+      char.selectedVoiceId
     )
     return hasMyCharacter && allNonMeHaveVoices
   }
@@ -113,7 +122,11 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
         body: JSON.stringify({
           name: sceneName,
           fileName: fileName,
-          characters: characters,
+          characters: characters.map(char => ({
+            name: char.name,
+            isMe: char.isMe,
+            selectedVoice: char.selectedVoiceId // Send voice ID to API
+          })),
           dialogue: dialogue
         })
       })
@@ -230,13 +243,13 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
                         <button
                           onClick={() => setSelectedCharacterForVoice(index)}
                           className={`px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center gap-2 ${
-                            character.selectedVoice
+                            character.selectedVoiceName
                               ? 'bg-[#72a4f2] text-white border-2 border-[#72a4f2]'
                               : 'bg-white border-2 border-black hover:bg-gray-50'
                           }`}
                         >
                           <FontAwesomeIcon icon={faVolumeUp} />
-                          {character.selectedVoice || 'Select Voice'}
+                          {character.selectedVoiceName || 'Select Voice'}
                         </button>
                       )}
                     </div>

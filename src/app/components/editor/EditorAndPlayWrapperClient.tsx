@@ -18,11 +18,12 @@ type Props = {
 // Inner component that has access to PracticeRangeContext
 const EditorAndPlayWrapperInner = ({scene, lineItems}: Props) => {
     const [sceneIsPlaying, setSceneIsPlaying] = useState<boolean>(false)
-    const [lines, setLines] = useState<DraftLine[] | null>(
-        lineItems
-          ? [...lineItems].sort((a, b) => (a?.order ?? Infinity) - (b?.order ?? Infinity))
-          : null
-    );
+    const [lines, setLines] = useState<DraftLine[] | null>(lineItems);
+
+    // Update lines when lineItems prop changes (e.g., when audio is generated)
+    useEffect(() => {
+        setLines(lineItems)
+    }, [lineItems])
 
     const { startLineId, endLineId } = usePracticeRange()
 
@@ -93,6 +94,11 @@ const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
 
     const DEFAULT_DELAY_SECONDS = 10
     const [characters, setCharacters] = useState<Character[] | null>(null)
+    const [lines, setLines] = useState<DraftLine[] | null>(
+        lineItems
+          ? [...lineItems].sort((a, b) => (a?.order ?? Infinity) - (b?.order ?? Infinity))
+          : null
+    )
     const [linesBeingProcessed, setLinesBeingProcessed] = useState<Set<number>>(new Set())
 
     // Fetching characters
@@ -120,53 +126,92 @@ const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
         // Clear from sessionStorage so we don't process again on refresh
         sessionStorage.removeItem('linesNeedingAudio')
 
-        // Start generating audio for each line in the background
-        linesNeedingAudio.forEach((lineInfo: any) => {
-            generateAudioForLine(lineInfo.lineId, lineInfo.text, lineInfo.voiceName)
+        // Start generating audio for each line with staggered delays to avoid rate limiting
+        linesNeedingAudio.forEach((lineInfo: any, index: number) => {
+            // Stagger requests by 500ms each to avoid overwhelming the API
+            setTimeout(() => {
+                generateAudioForLine(lineInfo.lineId, lineInfo.text, lineInfo.voiceId)
+            }, index * 500)
         })
     }, [])
 
-    const generateAudioForLine = async (lineId: number, text: string, voiceName: string) => {
+    const generateAudioForLine = async (lineId: number, text: string, voiceId: string, retryCount = 0) => {
+        const MAX_RETRIES = 3
+        const RETRY_DELAY = 2000 // 2 seconds
+
         setLinesBeingProcessed(prev => new Set(prev).add(lineId))
 
         try {
+            console.log(`🎵 Generating audio for line ${lineId} (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`)
+
             const response = await fetch(`/api/private/lines/${lineId}/generate-audio`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ text, voiceName })
+                body: JSON.stringify({ text, voiceId })
             })
 
             if (response.ok) {
                 const result = await response.json()
-                console.log(`Audio generated for line ${lineId}:`, result.audioUrl)
+                console.log(`✅ Audio generated for line ${lineId}:`, result.audioUrl)
 
-                // Line will be updated via database, we just need to remove from processing set
+                // Update the line in state with the new audio URL
+                setLines(prev => {
+                    if (!prev) return prev
+                    return prev.map(line =>
+                        line.id === lineId
+                            ? { ...line, audio_url: result.audioUrl }
+                            : line
+                    )
+                })
+
+                // Remove from processing set
                 setLinesBeingProcessed(prev => {
                     const newSet = new Set(prev)
                     newSet.delete(lineId)
                     return newSet
                 })
-
-                // Trigger a re-fetch of lines to show the updated line
-                // This could be optimized to update state directly
-                window.location.reload()
             } else {
-                console.error(`Failed to generate audio for line ${lineId}`)
-                setLinesBeingProcessed(prev => {
-                    const newSet = new Set(prev)
-                    newSet.delete(lineId)
-                    return newSet
-                })
+                const errorData = await response.json()
+                console.error(`❌ Failed to generate audio for line ${lineId}:`, errorData)
+
+                // Retry if we haven't exceeded max retries
+                if (retryCount < MAX_RETRIES) {
+                    console.log(`🔄 Retrying line ${lineId} in ${RETRY_DELAY}ms...`)
+                    setTimeout(() => {
+                        generateAudioForLine(lineId, text, voiceId, retryCount + 1)
+                    }, RETRY_DELAY)
+                } else {
+                    // Max retries exceeded
+                    console.error(`💥 Max retries exceeded for line ${lineId}`)
+                    setLinesBeingProcessed(prev => {
+                        const newSet = new Set(prev)
+                        newSet.delete(lineId)
+                        return newSet
+                    })
+                    alert(`Failed to generate audio for line ${lineId} after ${MAX_RETRIES + 1} attempts: ${errorData.details || errorData.error}`)
+                }
             }
         } catch (error) {
-            console.error(`Error generating audio for line ${lineId}:`, error)
-            setLinesBeingProcessed(prev => {
-                const newSet = new Set(prev)
-                newSet.delete(lineId)
-                return newSet
-            })
+            console.error(`❌ Error generating audio for line ${lineId}:`, error)
+
+            // Retry if we haven't exceeded max retries
+            if (retryCount < MAX_RETRIES) {
+                console.log(`🔄 Retrying line ${lineId} in ${RETRY_DELAY}ms...`)
+                setTimeout(() => {
+                    generateAudioForLine(lineId, text, voiceId, retryCount + 1)
+                }, RETRY_DELAY)
+            } else {
+                // Max retries exceeded
+                console.error(`💥 Max retries exceeded for line ${lineId}`)
+                setLinesBeingProcessed(prev => {
+                    const newSet = new Set(prev)
+                    newSet.delete(lineId)
+                    return newSet
+                })
+                alert(`Error generating audio for line ${lineId} after ${MAX_RETRIES + 1} attempts. Check console for details.`)
+            }
         }
     }
 
@@ -178,7 +223,7 @@ const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
                 <CharactersProvider characters={characters} setCharacters={setCharacters}>
                     <CountdownProvider>
                         <CurtainReveal isLoading={isLoading} loadingText="Loading scene">
-                            <EditorAndPlayWrapperInner scene={scene} lineItems={lineItems} />
+                            <EditorAndPlayWrapperInner scene={scene} lineItems={lines} />
                         </CurtainReveal>
                     </CountdownProvider>
                 </CharactersProvider>
