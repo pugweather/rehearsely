@@ -41,7 +41,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col items-center relative overflow-hidden">
       {/* Background with theatrical gradient accents */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc]"></div>
+      <div className="absolute inset-0"></div>
 
       {/* Subtle background accents matching scenes dashboard */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

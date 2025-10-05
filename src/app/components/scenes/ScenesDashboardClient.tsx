@@ -140,7 +140,7 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
     ]
 
   return (
-    <div className="flex-1 bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] relative overflow-hidden flex flex-col">
+    <div className="flex-1 relative overflow-hidden flex flex-col">
       {/* Enhanced background accents matching new theme */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-[#72a4f2]/8 to-transparent rounded-full blur-3xl"></div>
