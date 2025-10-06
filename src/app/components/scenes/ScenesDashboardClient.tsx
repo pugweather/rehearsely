@@ -135,27 +135,32 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
             setSceneDeleting(scene)
           }
         },
-        className: "color-red",
+        className: "color-red"
       }
     ]
 
   return (
-    <div className="flex-1 relative overflow-hidden flex flex-col">
+    <div className="h-[calc(100vh-125px)] relative flex flex-col overflow-hidden">
       {/* Enhanced background accents matching new theme */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-[#72a4f2]/8 to-transparent rounded-full blur-3xl"></div>
         <div className="absolute top-1/3 -right-40 w-96 h-96 bg-gradient-to-bl from-[#ffa05a]/6 to-transparent rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 left-1/3 w-72 h-72 bg-gradient-to-tr from-[#FFD96E]/6 to-transparent rounded-full blur-3xl"></div>
       </div>
-
       {/* Fixed Header - Never scrolls */}
       <div className="relative z-10 flex-shrink-0">
         <ScenesDashboardHeader onChange={setQuery}/>
       </div>
       
       {/* Scrollable Cards Container - Only this scrolls */}
-      <div className="relative z-10 flex-1 overflow-hidden">
-        <div className={`h-full overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-min gap-8 max-w-7xl mx-auto px-8 py-6 transition-opacity duration-300 ${
+      <div 
+        className="relative z-10 flex-1 overflow-y-auto"
+        style={{
+          maskImage: 'linear-gradient(to bottom, transparent 0px, rgba(0,0,0,0.3) 8px, black 24px, black calc(100% - 80px), rgba(0,0,0,0.8) calc(100% - 64px), rgba(0,0,0,0.1) calc(100% - 32px), transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, rgba(0,0,0,0.3) 8px, black 24px, black calc(100% - 80px), rgba(0,0,0,0.8) calc(100% - 64px), rgba(0,0,0,0.1) calc(100% - 32px), transparent 100%)'
+        }}
+      >
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-min gap-8 max-w-7xl mx-auto px-8 pt-6 pb-32 transition-opacity duration-300 ${
           isFiltering ? 'opacity-50' : 'opacity-100'
         }`}>
           {filteredScenes.map((scene, index) => {

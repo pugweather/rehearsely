@@ -52,13 +52,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full overflow-hidden">
       <head>
       </head>
-      <body className={`${yeseva.variable} ${quicksand.variable} ${marlonProBold.className} antialiased pt-[125px]`}>
+      <body className={`${yeseva.variable} ${quicksand.variable} ${marlonProBold.className} antialiased h-full overflow-hidden`}>
         <InitUser />
         <InitVoices />
-        {children}
+        <div className="h-full pt-[125px]">
+          {children}
+        </div>
       </body>
     </html>
   );
