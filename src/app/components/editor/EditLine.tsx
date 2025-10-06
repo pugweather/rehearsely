@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   faMicrophone,
   faScissors,
@@ -79,6 +79,10 @@ const EditLine = ({
   const [lineSpeed, setLineSpeed] = useState<number>(lineBeingEditedData.speed); // 1.0x is the default
   const [lineDelay, setLineDelay] = useState<number>(lineBeingEditedData.delay); // 1 second is the default
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  
+  // Animation state for smooth open/close
+  const [isVisible, setIsVisible] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   
   // Track if any changes have been made
   const [hasChanges, setHasChanges] = useState(false);
@@ -546,6 +550,24 @@ const EditLine = ({
     };
   }, []); // Empty dependency array - only run on unmount
 
+  // Animation useEffect - trigger opening animation on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 30); // Faster entrance delay
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Animated close function
+  const handleAnimatedClose = () => {
+    setIsClosing(true);
+    setIsVisible(false);
+    // Wait for animation to complete before actually closing
+    setTimeout(() => {
+      closeEditLine();
+    }, 200); // Faster animation duration
+  };
+
   const toggleLineMode = (btnMode: EditLineMode) => {
     // If recording is active, stop it when switching to other modes
     if (isRecording && btnMode !== "recording") {
@@ -584,13 +606,17 @@ return (
   <div
     data-edit-line="true"
     className={clsx(
-      "rounded-xl w-full p-4 space-y-4 relative shadow-lg transition-all duration-300 hover:shadow-xl mb-4 bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] border-2 border-black",
+      "rounded-xl w-full p-4 space-y-4 relative shadow-lg mb-4 bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] border-2 border-black",
+      "transition-all duration-200 ease-out transform-gpu",
+      isVisible && !isClosing 
+        ? "opacity-100 scale-100 translate-y-0 shadow-xl" 
+        : "opacity-0 scale-95 translate-y-2 shadow-lg",
       isLoading ? "pointer-events-none opacity-75" : ""
     )}
   >
     {/* Close Button (X) */}
     <button
-      onClick={closeEditLine}
+      onClick={handleAnimatedClose}
       className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 bg-white border border-black shadow-md hover:shadow-lg hover:-translate-y-0.5 group"
     >
       <FontAwesomeIcon icon={faXmark} className="text-gray-700 text-sm group-hover:scale-110 transition-transform duration-200" />
