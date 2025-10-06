@@ -48,7 +48,7 @@ const SceneNamePage = () => {
           <div className="absolute -bottom-40 left-1/3 w-72 h-72 bg-gradient-to-tr from-[#FFD96E]/6 to-transparent rounded-full blur-3xl"></div>
         </div>
 
-        <div className={`relative z-10 flex-1 text-black flex flex-col items-center justify-center transition-all duration-700 ease-out ${
+        <div className={`relative z-10 -m-11 flex-1 text-black flex flex-col items-center justify-center transition-all duration-700 ease-out ${
           isTransitioning ? '-translate-x-full opacity-0' : 'translate-x-0 opacity-100'
         }`}>
           <div className='flex flex-col items-center'>
