@@ -18,6 +18,10 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
   const [showMicErrorModal, setShowMicErrorModal] = useState(false)
   const [micPermissionGranted, setMicPermissionGranted] = useState(false)
   const [micErrorType, setMicErrorType] = useState<'permission' | 'no_device'>('permission')
+  const [isPlayLoading, setIsPlayLoading] = useState(false)
+  const [isStopLoading, setIsStopLoading] = useState(false)
+  const [isDoneLoading, setIsDoneLoading] = useState(false)
+  const [isClearLoading, setIsClearLoading] = useState(false)
   
   const { isRangeSelectionMode, setIsRangeSelectionMode, isRangeSet, clearRange, setStartLineId, setEndLineId, setClickedLineId, saveRange } = usePracticeRange()
 
@@ -34,6 +38,8 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
   }
 
   const handlePlayClick = async () => {
+    setIsPlayLoading(true)
+    
     // If permission not yet granted, request it
     if (!micPermissionGranted) {
       // First check if microphones are available
@@ -41,6 +47,7 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
       if (!hasMicrophone) {
         setMicErrorType('no_device')
         setShowMicErrorModal(true)
+        setIsPlayLoading(false)
         return
       }
 
@@ -58,7 +65,10 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
         stream.getTracks().forEach(track => track.stop())
         setMicPermissionGranted(true)
         // Auto-start scene after permission is granted
-        setSceneIsPlaying(true)
+        setTimeout(() => {
+          setSceneIsPlaying(true)
+          setIsPlayLoading(false)
+        }, 300)
       } catch (error) {
         console.error('Failed to access microphone:', error);
         // Check the specific error to determine if it's a permission issue or no device
@@ -68,11 +78,43 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
           setMicErrorType('permission')
         }
         setShowMicErrorModal(true)
+        setIsPlayLoading(false)
       }
     } else {
       // Permission already granted, start the scene
-      setSceneIsPlaying(true)
+      setTimeout(() => {
+        setSceneIsPlaying(true)
+        setIsPlayLoading(false)
+      }, 300)
     }
+  }
+
+  const handleStopClick = () => {
+    setIsStopLoading(true)
+    setTimeout(() => {
+      setSceneIsPlaying(false)
+      setIsStopLoading(false)
+    }, 300)
+  }
+
+  const handleDoneClick = () => {
+    setIsDoneLoading(true)
+    setTimeout(() => {
+      saveRange()
+      setIsRangeSelectionMode(false)
+      setClickedLineId(null)
+      setIsDoneLoading(false)
+    }, 300)
+  }
+
+  const handleClearClick = () => {
+    setIsClearLoading(true)
+    setTimeout(() => {
+      setStartLineId(null)
+      setEndLineId(null)
+      setClickedLineId(null)
+      setIsClearLoading(false)
+    }, 300)
   }
 
   return (
@@ -83,47 +125,82 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
               isRangeSelectionMode ?
               <>
                 <button
-                  className="flex justify-center items-center gap-3 px-6 py-3 rounded-full bg-[#ffa05a] border-2 border-black transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group"
-                  onClick={() => {
-                    saveRange()
-                    setIsRangeSelectionMode(false)
-                    setClickedLineId(null)
-                  }}
+                  className={`flex justify-center items-center gap-3 px-6 py-3 rounded-full bg-[#ffa05a] border-2 border-black transition-all duration-200 group ${
+                    isDoneLoading ? 'cursor-not-allowed opacity-80 scale-95' : 'hover:shadow-xl hover:-translate-y-1'
+                  }`}
+                  onClick={handleDoneClick}
+                  disabled={isDoneLoading}
                 >
-                  <FontAwesomeIcon icon={faArrowLeft} className="text-white text-lg group-hover:scale-110 transition-transform duration-200" />
+                  {isDoneLoading ? (
+                    <div className="flex gap-1">
+                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" style={{animationDelay: '0ms'}}></div>
+                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" style={{animationDelay: '150ms'}}></div>
+                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" style={{animationDelay: '300ms'}}></div>
+                    </div>
+                  ) : (
+                    <FontAwesomeIcon icon={faArrowLeft} className="text-white text-lg group-hover:scale-110 transition-transform duration-200" />
+                  )}
                   <span className={`text-white font-semibold ${sunsetSerialMediumFont.className}`}>
-                    Done
+                    {isDoneLoading ? 'Saving...' : 'Done'}
                   </span>
                 </button>
                 <button
-                  className="flex justify-center items-center gap-3 px-6 py-3 rounded-full bg-[#72a4f2] border-2 border-black transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group"
-                  onClick={() => {
-                    // Clear selection but stay in selection mode
-                    setStartLineId(null)
-                    setEndLineId(null)
-                    setClickedLineId(null)
-                  }}
+                  className={`flex justify-center items-center gap-3 px-6 py-3 rounded-full bg-[#72a4f2] border-2 border-black transition-all duration-200 group ${
+                    isClearLoading ? 'cursor-not-allowed opacity-80 scale-95' : 'hover:shadow-xl hover:-translate-y-1'
+                  }`}
+                  onClick={handleClearClick}
+                  disabled={isClearLoading}
                 >
-                  <FontAwesomeIcon icon={faXmark} className="text-white text-lg group-hover:scale-110 transition-transform duration-200" />
+                  {isClearLoading ? (
+                    <div className="flex gap-1">
+                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" style={{animationDelay: '0ms'}}></div>
+                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" style={{animationDelay: '150ms'}}></div>
+                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" style={{animationDelay: '300ms'}}></div>
+                    </div>
+                  ) : (
+                    <FontAwesomeIcon icon={faXmark} className="text-white text-lg group-hover:scale-110 transition-transform duration-200" />
+                  )}
                   <span className={`text-white font-semibold ${sunsetSerialMediumFont.className}`}>
-                    Clear Selection
+                    {isClearLoading ? 'Clearing...' : 'Clear Selection'}
                   </span>
                 </button>
               </>
               :
               sceneIsPlaying ?
               <button 
-                className="flex justify-center items-center w-16 h-16 rounded-full bg-black border-2 border-black transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group" 
-                onClick={() => setSceneIsPlaying(false)}
+                className={`flex justify-center items-center w-16 h-16 rounded-full bg-black border-2 border-black transition-all duration-200 group ${
+                  isStopLoading ? 'cursor-not-allowed opacity-80 scale-95' : 'hover:shadow-xl hover:-translate-y-1'
+                }`}
+                onClick={handleStopClick}
+                disabled={isStopLoading}
               >
-                <FontAwesomeIcon icon={faStop} className="text-white text-2xl group-hover:scale-110 transition-transform duration-200" />
+                {isStopLoading ? (
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{animationDelay: '0ms'}}></div>
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{animationDelay: '150ms'}}></div>
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{animationDelay: '300ms'}}></div>
+                  </div>
+                ) : (
+                  <FontAwesomeIcon icon={faStop} className="text-white text-2xl group-hover:scale-110 transition-transform duration-200" />
+                )}
               </button>
               :
               <button 
-                className="flex justify-center items-center w-16 h-16 rounded-full bg-black border-2 border-black transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group" 
+                className={`flex justify-center items-center w-16 h-16 rounded-full bg-black border-2 border-black transition-all duration-200 group ${
+                  isPlayLoading ? 'cursor-not-allowed opacity-80 scale-95' : 'hover:shadow-xl hover:-translate-y-1'
+                }`}
                 onClick={handlePlayClick}
+                disabled={isPlayLoading}
               >
-                <FontAwesomeIcon icon={faPlay} className="text-white text-2xl ml-0.5 group-hover:scale-110 transition-transform duration-200" />
+                {isPlayLoading ? (
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{animationDelay: '0ms'}}></div>
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{animationDelay: '150ms'}}></div>
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{animationDelay: '300ms'}}></div>
+                  </div>
+                ) : (
+                  <FontAwesomeIcon icon={faPlay} className="text-white text-2xl ml-0.5 group-hover:scale-110 transition-transform duration-200" />
+                )}
               </button>
             }
           </div>

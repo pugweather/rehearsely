@@ -27,6 +27,7 @@ interface Character {
 const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignmentProps) => {
   const [isVisible, setIsVisible] = useState(false)
   const [isCreatingScene, setIsCreatingScene] = useState(false)
+  const [isBackLoading, setIsBackLoading] = useState(false)
   const [characters, setCharacters] = useState<Character[]>([])
   const [selectedCharacterForVoice, setSelectedCharacterForVoice] = useState<number | null>(null)
   const router = useRouter()
@@ -100,6 +101,13 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
       char.selectedVoiceId
     )
     return hasMyCharacter && allNonMeHaveVoices
+  }
+
+  const handleBack = () => {
+    setIsBackLoading(true)
+    setTimeout(() => {
+      router.push('/scenes')
+    }, 300)
   }
 
   const handleCreateScene = async () => {
@@ -180,15 +188,26 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
         
         {/* Header */}
         <div className="flex items-center justify-between p-8">
-          <Link
-            href="/scenes"
+          <button
+            onClick={handleBack}
+            disabled={isBackLoading}
             className="flex items-center gap-3 text-gray-700 hover:text-gray-900 transition-colors duration-200 group"
           >
-            <div className="w-12 h-12 rounded-full bg-white/70 border-2 border-black flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all duration-200">
-              <FontAwesomeIcon icon={faArrowLeftLong} className="text-lg" />
+            <div className={`w-12 h-12 rounded-full bg-white/70 border-2 border-black flex items-center justify-center transition-all duration-200 ${
+              isBackLoading 
+                ? 'cursor-not-allowed opacity-70 scale-95' 
+                : 'group-hover:bg-white group-hover:shadow-md group-hover:-translate-y-0.5'
+            }`}>
+              {isBackLoading ? (
+                <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <FontAwesomeIcon icon={faArrowLeftLong} className="text-lg" />
+              )}
             </div>
-            <span className={`text-lg ${sunsetSerialMediumFont.className}`}>Back</span>
-          </Link>
+            <span className={`text-lg ${sunsetSerialMediumFont.className} ${isBackLoading ? 'opacity-70' : ''}`}>
+              {isBackLoading ? 'Loading...' : 'Back'}
+            </span>
+          </button>
 
           <div className="w-32"></div> {/* Spacer for centering */}
         </div>
@@ -285,8 +304,12 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
               <span className="flex items-center gap-3">
                 {isCreatingScene ? (
                   <>
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{animationDelay: '0ms'}}></div>
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{animationDelay: '200ms'}}></div>
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{animationDelay: '400ms'}}></div>
+                    </div>
                     Creating Scene...
-                    <div className="w-5 h-5 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"></div>
                   </>
                 ) : (
                   <>

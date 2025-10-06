@@ -1,6 +1,7 @@
 "use client"
 import React, { PropsWithChildren, useRef, useState, useEffect } from 'react'
 import Link from "next/link";
+import { useRouter } from 'next/navigation';
 import Navbar from "../layout/Navbar";
 import EditorWrapper from "./EditorWrapper";
 import SceneSettings from "./SceneSettings";
@@ -28,9 +29,19 @@ type Props = {
 
 const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setSceneIsPlaying}: Props) => {
 
+    const router = useRouter()
     const scrollRef = useRef<HTMLDivElement | null>(null)
     const [headerExpanded, setHeaderExpanded] = useState(false)
+    const [isBackLoading, setIsBackLoading] = useState(false)
     const headerRef = useRef<HTMLDivElement | null>(null)
+    
+    // Handle back button click with loading animation
+    const handleBack = () => {
+        setIsBackLoading(true)
+        setTimeout(() => {
+            router.push('/scenes')
+        }, 300)
+    }
     
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -65,14 +76,22 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
             <div ref={scrollRef}>
          <EditorWrapper>
                 {/* Back to scenes button */}
-                <Link href="/scenes" onClick={(e) => e.stopPropagation()}>
-                  <span className="fixed top-20 left-1/2 -translate-x-1/2 ml-[-24rem] max-[1200px]:ml-[-20rem] max-[1000px]:ml-[-16rem] max-[800px]:ml-[-12rem] transition-all duration-200 ease-in-out inline-flex items-center gap-3 text-gray-700 hover:text-gray-900 group">
-                    <div className="w-12 h-12 rounded-full bg-white/70 border-2 border-black flex items-center justify-center group-hover:bg-white group-hover:shadow-md transition-all duration-200">
+                <button onClick={handleBack} className="fixed top-20 left-[calc(50%-24rem)] max-[1200px]:left-[calc(50%-20rem)] max-[1000px]:left-[calc(50%-16rem)] max-[800px]:left-[calc(50%-12rem)] transition-all duration-200 ease-in-out inline-flex items-center gap-3 text-gray-700 hover:text-gray-900 group">
+                  <div className={`w-12 h-12 rounded-full bg-white/70 border-2 border-black flex items-center justify-center transition-all duration-200 ${
+                    isBackLoading 
+                      ? 'cursor-not-allowed opacity-70 scale-95' 
+                      : 'group-hover:bg-white group-hover:shadow-md group-hover:-translate-y-0.5'
+                  }`}>
+                    {isBackLoading ? (
+                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
                       <FontAwesomeIcon icon={faArrowLeftLong} className="text-lg" />
-                    </div>
-                    <span className={`text-lg ${sunsetSerialMediumFont.className}`}>Back</span>
+                    )}
+                  </div>
+                  <span className={`text-lg ${sunsetSerialMediumFont.className} ${isBackLoading ? 'opacity-70' : ''} w-[5rem] text-left`}>
+                    {isBackLoading ? 'Loading...' : 'Back'}
                   </span>
-                </Link>
+                </button>
                 {/* Compact Scene Header */}
                 <div className="fixed left-1/2 -translate-x-1/2 top-20 text-black z-999">
                   <div className="relative" ref={headerRef}>

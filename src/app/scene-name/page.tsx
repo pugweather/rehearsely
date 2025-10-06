@@ -17,13 +17,13 @@ const SceneNamePage = () => {
 
   const [sceneName, setSceneName] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isBackLoading, setIsBackLoading] = useState<boolean>(false)
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false)
   const router = useRouter()
 
   const saveDisabled = sceneName.length === 0
 
   const handleSubmit = async () => {
-
     if (isLoading) return true
 
     setIsLoading(true)
@@ -34,6 +34,13 @@ const SceneNamePage = () => {
     // Navigate after a short delay to show the swipe effect
     setTimeout(() => {
       router.push(`/scene-creation-method?sceneName=${encodeURIComponent(sceneName)}`)
+    }, 300)
+  }
+
+  const handleBack = () => {
+    setIsBackLoading(true)
+    setTimeout(() => {
+      router.push('/scenes')
     }, 300)
   }
 
@@ -54,11 +61,21 @@ const SceneNamePage = () => {
           <div className='flex flex-col items-center'>
               <h1 className={`text-4xl mb-8 font-semibold ${sunsetSerialMediumFont.className}`}>Enter the name for your scene</h1>
               <div className='flex items-center gap-3'>
-                  <Link href="/scenes">
-                    <div className="w-12 h-12 rounded-full bg-white/70 border-2 border-black flex items-center justify-center hover:bg-white hover:shadow-md transition-all duration-200">
+                  <button
+                    onClick={handleBack}
+                    disabled={isBackLoading}
+                    className={`w-12 h-12 rounded-full bg-white/70 border-2 border-black flex items-center justify-center transition-all duration-200 ${
+                      isBackLoading 
+                        ? 'cursor-not-allowed opacity-70 scale-95' 
+                        : 'hover:bg-white hover:shadow-md hover:-translate-y-0.5'
+                    }`}
+                  >
+                    {isBackLoading ? (
+                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
                       <FontAwesomeIcon icon={faArrowLeftLong} className="text-lg" />
-                    </div>
-                  </Link>
+                    )}
+                  </button>
                   <input
                     type="text"
                     placeholder="Enter scene name"
@@ -73,15 +90,18 @@ const SceneNamePage = () => {
                   <button
                     onClick={handleSubmit}
                     className={clsx(
-                      'w-12 h-12 rounded-full bg-black text-white flex items-center justify-center hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5',
-                      (saveDisabled || isLoading) && "opacity-50 pointer-events-none"
+                      'w-12 h-12 rounded-full bg-black text-white flex items-center justify-center transition-all duration-200',
+                      (saveDisabled || isLoading) ? "opacity-50 cursor-not-allowed scale-95" : "hover:shadow-lg hover:-translate-y-0.5"
                     )}
-                    style={(saveDisabled || isLoading) ? {cursor: "auto"} : undefined}
                     disabled={saveDisabled || isLoading}
                     title="Next"
                   >
                     {isLoading ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="flex gap-0.5">
+                        <div className="w-1 h-1 bg-white rounded-full animate-pulse" style={{animationDelay: '0ms'}}></div>
+                        <div className="w-1 h-1 bg-white rounded-full animate-pulse" style={{animationDelay: '150ms'}}></div>
+                        <div className="w-1 h-1 bg-white rounded-full animate-pulse" style={{animationDelay: '300ms'}}></div>
+                      </div>
                     ) : (
                       <FontAwesomeIcon icon={faArrowRight} className="text-lg" />
                     )}
