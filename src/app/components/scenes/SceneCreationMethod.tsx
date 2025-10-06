@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeftLong, faArrowRight } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeftLong, faArrowRight, faFileText } from '@fortawesome/free-solid-svg-icons'
 import localFont from 'next/font/local'
 
 const sunsetSerialMediumFont = localFont({
@@ -21,6 +21,7 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
   const [isVisible, setIsVisible] = useState(false)
   const [selectedMethod, setSelectedMethod] = useState<CreationMethod>(null)
   const [isCreatingScene, setIsCreatingScene] = useState(false)
+  const [uploadedFile, setUploadedFile] = useState<{name: string, data: string} | null>(null)
   const router = useRouter()
 
   // Trigger slide-in animation on mount
@@ -34,10 +35,10 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
   const handleCreateScene = async () => {
     if (!selectedMethod) return
 
+    setIsCreatingScene(true)
+
     if (selectedMethod === 'write') {
       // Create the scene first, then navigate to editor
-      setIsCreatingScene(true)
-
       try {
         const res = await fetch("/api/private/scenes", {
           method: "POST",
@@ -61,6 +62,23 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
         }
       } catch (error) {
         console.error("Error creating scene:", error)
+        setIsCreatingScene(false)
+      }
+    } else if (selectedMethod === 'upload' && uploadedFile) {
+      // Navigate to processing screen with uploaded file
+      try {
+        sessionStorage.setItem('uploadFile', JSON.stringify({
+          name: uploadedFile.name,
+          size: 0, // We don't have size info from base64
+          type: 'application/pdf',
+          data: uploadedFile.data
+        }))
+        sessionStorage.setItem('uploadFormData', 'file-selected')
+
+        // Navigate to processing screen
+        router.push(`/scene-upload-processing?sceneName=${encodeURIComponent(sceneName)}&fileName=${encodeURIComponent(uploadedFile.name)}`)
+      } catch (error) {
+        console.error("Error processing upload:", error)
         setIsCreatingScene(false)
       }
     }
@@ -105,6 +123,22 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
             </div>
           </div>
 
+          {/* Reserved space for file name with animation */}
+          <div className="text-center mb-8 h-8 flex items-center justify-center">
+            <div className={`transition-all duration-500 ease-out ${
+              uploadedFile 
+                ? 'opacity-100 translate-y-0 scale-100' 
+                : 'opacity-0 translate-y-2 scale-95'
+            }`}>
+              {uploadedFile && (
+                <div className="text-lg text-gray-600 flex items-center gap-2 justify-center">
+                  <FontAwesomeIcon icon={faFileText} className="text-[#FFA05A]" />
+                  {uploadedFile.name}
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Main instruction */}
           <div className="text-center mb-12">
             <h1 className={`text-4xl font-bold text-gray-800 ${sunsetSerialMediumFont.className}`}>
@@ -119,32 +153,28 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
             <div className="flex-1">
               <button
                 onClick={() => {
-                  // Set as selected for visual feedback
-                  setSelectedMethod('upload')
-
-                  // Instantly launch file picker when upload is clicked
+                  // Launch file picker when upload is clicked
                   const input = document.createElement('input')
                   input.type = 'file'
                   input.accept = '.pdf'
                   input.onchange = async (e) => {
                     const file = (e.target as HTMLInputElement).files?.[0]
                     if (file) {
-                      // Store file as base64 in sessionStorage for the processing screen
+                      // Store file data and set upload method
                       const reader = new FileReader()
                       reader.onload = (event) => {
                         const base64 = event.target?.result as string
-                        sessionStorage.setItem('uploadFile', JSON.stringify({
+                        setUploadedFile({
                           name: file.name,
-                          size: file.size,
-                          type: file.type,
                           data: base64
-                        }))
-                        sessionStorage.setItem('uploadFormData', 'file-selected')
-
-                        // Navigate to processing screen
-                        router.push(`/scene-upload-processing?sceneName=${encodeURIComponent(sceneName)}&fileName=${encodeURIComponent(file.name)}`)
+                        })
+                        setSelectedMethod('upload')
                       }
                       reader.readAsDataURL(file)
+                    } else {
+                      // If they cancelled the file picker, disable create button
+                      setSelectedMethod(null)
+                      setUploadedFile(null)
                     }
                   }
                   input.click()
@@ -205,7 +235,10 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
             {/* Write Option */}
             <div className="flex-1">
               <button
-                onClick={() => setSelectedMethod('write')}
+                onClick={() => {
+                  setSelectedMethod('write')
+                  setUploadedFile(null) // Clear any uploaded file
+                }}
                 className="w-full group relative"
               >
                 <div className={`bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-2xl p-10 border-4 transition-all duration-300 ${
@@ -254,9 +287,9 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
           <div className="mb-8">
             <button
               onClick={handleCreateScene}
-              disabled={!selectedMethod || isCreatingScene}
+              disabled={(!selectedMethod || (selectedMethod === 'upload' && !uploadedFile)) || isCreatingScene}
               className={`group relative px-8 py-4 rounded-xl border-4 border-black font-bold text-xl transition-all duration-300 ${
-                selectedMethod && !isCreatingScene
+                (selectedMethod === 'write' || (selectedMethod === 'upload' && uploadedFile)) && !isCreatingScene
                   ? 'bg-black text-white hover:shadow-xl hover:-translate-y-1 cursor-pointer'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
               } ${sunsetSerialMediumFont.className}`}
@@ -270,7 +303,7 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
                 ) : (
                   <>
                     Create Scene
-                    {selectedMethod && (
+                    {(selectedMethod === 'write' || (selectedMethod === 'upload' && uploadedFile)) && (
                       <FontAwesomeIcon icon={faArrowRight} className="text-lg group-hover:translate-x-1 transition-transform" />
                     )}
                   </>
