@@ -56,10 +56,18 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
   // Track hover state for "Add line below" button
   const [isHovered, setIsHovered] = React.useState(false)
 
-  // Reset hover state when EditLine opens or closes
+  // Track ref to the element to reset styles
+  const lineRef = React.useRef<HTMLDivElement>(null)
+
+  // Reset hover state and styles when EditLine opens or closes
   React.useEffect(() => {
     if (isDragDisabled) {
       setIsHovered(false)
+      // Reset inline styles
+      if (lineRef.current) {
+        lineRef.current.style.backgroundColor = 'transparent'
+        lineRef.current.style.borderColor = 'transparent'
+      }
     }
   }, [isDragDisabled])
 
@@ -292,7 +300,10 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
 
   return (
     <div
-      ref={setNodeRef}
+      ref={(node) => {
+        setNodeRef(node)
+        lineRef.current = node
+      }}
       data-line-id={line?.id}
       {...(isRangeSelectionMode ? {} : attributes)}
       {...(isRangeSelectionMode ? {} : listeners)}
