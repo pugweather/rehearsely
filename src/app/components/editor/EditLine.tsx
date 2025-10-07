@@ -32,6 +32,7 @@ import { useVoicesStore } from '@/app/stores/useVoicesStores';
 import Dropdown from '../ui/Dropdown';
 import MicErrorModal from '../ui/MicErrorModal';
 import ModalDeleteCharacter from './ModalDeleteCharacter';
+import { Poppins } from "next/font/google";
 
 type Props = {
   line: DraftLine | null;
@@ -51,6 +52,19 @@ const certaSansMedium = localFont({
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
+})
+
+const noyhSlimMedium = localFont({
+    src: "../../../../public/fonts/noyhSlimMedium.ttf",
+})
+
+const nunitoVariable = localFont({
+    src: "../../../../public/fonts/Nunito-Variable.ttf",
+})
+
+const poppins = Poppins({
+    subsets: ["latin"],
+    weight: ["400", "500", "600"],
 })
 
 const EditLine = ({
@@ -633,14 +647,14 @@ return (
       {isCharactersLoading ? (
         <div className="px-4 py-2 rounded-lg bg-white border border-black text-gray-600 font-medium flex items-center gap-2 shadow-md">
           <div className="w-4 h-4 border-2 border-[#72a4f2] border-t-transparent rounded-full animate-spin"></div>
-          <span className={sunsetSerialMediumFont.className}>Loading...</span>
+          <span className="font-quicksand">Loading...</span>
         </div>
       ) : (
         <div className="dropdown">
           <div
             tabIndex={0}
             role="button"
-            className={`px-4 py-2 rounded-lg border border-black font-medium transition-all duration-200 inline-flex items-center gap-2 text-sm bg-white text-gray-800 shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer ${sunsetSerialMediumFont.className}`}
+            className="px-4 py-2 rounded-lg border border-black font-medium transition-all duration-200 inline-flex items-center gap-2 text-sm bg-white text-gray-800 shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer font-quicksand"
           >
             <div className="w-6 h-6 rounded-full bg-[#72a4f2] border border-black flex items-center justify-center">
               <FontAwesomeIcon icon={faUser} className="text-white text-xs" />
@@ -664,8 +678,8 @@ return (
               
               return (
                 <li key={index} className={`w-full ${index > 0 ? 'border-t border-gray-100' : ''}`}>
-                  <a 
-                    className={`${item.className} flex items-center w-full px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-200 hover:shadow-md ${sunsetSerialMediumFont.className}`}
+                  <a
+                    className={`${item.className} flex items-center w-full px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-200 hover:shadow-md font-quicksand`}
                     onClick={(e) => {
                       e.preventDefault();
                       item.onClick();
@@ -731,7 +745,8 @@ return (
       onChange={(e) => {
         setLineBeingEditedData((prev) => ({ ...prev, text: e.target.value }))
       }}
-      className={`w-full min-h-[80px] px-4 py-3 rounded-lg text-sm resize-none border border-black focus:outline-none transition-all duration-200 bg-white text-gray-800 shadow-md focus:shadow-lg focus:border-[#72a4f2] ${sunsetSerialMediumFont.className}`}
+      className={`w-full min-h-[80px] px-4 py-3 rounded-lg text-base resize-none border border-black focus:outline-none transition-all duration-200 bg-white text-gray-800 shadow-md focus:shadow-lg focus:border-[#72a4f2] ${poppins.className}`}
+      style={{ fontWeight: 500 }}
     />
 
 
@@ -977,7 +992,7 @@ return (
             <button
               key={i}
               disabled={isDisabled}
-              className={`px-3 py-2 rounded-lg border border-black font-medium transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg text-xs ${sunsetSerialMediumFont.className} ${
+              className={`px-3 py-2 rounded-lg border border-black font-medium transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg text-sm font-quicksand ${
                 isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
               } ${
                 isActive ? 'text-white' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
@@ -999,7 +1014,7 @@ return (
     <div className="flex items-center justify-between pt-2 border-t border-gray-300">
       <button
         onClick={handleDelete}
-        className={`px-3 py-2 rounded-lg border border-black font-medium transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg bg-red-50 text-red-600 hover:bg-red-100 text-sm ${sunsetSerialMediumFont.className}`}
+        className="px-3 py-2 rounded-lg border border-black font-medium transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg bg-red-50 text-red-600 hover:bg-red-100 text-sm font-quicksand"
       >
         <FontAwesomeIcon icon={faTrash} className="text-sm" />
         <span>Delete</span>
@@ -1008,7 +1023,7 @@ return (
       <button
         onClick={handleSave}
         disabled={isLoading || !hasChanges || !lineBeingEditedData.character || !text?.trim()}
-        className={`px-4 py-2 rounded-lg border border-black font-semibold transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl text-white text-sm ${sunsetSerialMediumFont.className} ${
+        className={`px-4 py-2 rounded-lg border border-black font-semibold transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl text-white text-sm font-quicksand ${
           (isLoading || !hasChanges || !lineBeingEditedData.character || !text?.trim()) ? "opacity-50 cursor-not-allowed" : ""
         }`}
         style={{
@@ -1035,7 +1050,7 @@ return (
         {lineMode !== "recording" && !recordedAudioBlob && (
           <button
             onClick={startRecording}
-            className={`w-full px-4 py-2 rounded-lg border border-black font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg bg-[#ffa05a] text-white hover:bg-[#ff8a3a] text-sm ${sunsetSerialMediumFont.className}`}
+            className="w-full px-4 py-2 rounded-lg border border-black font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg bg-[#ffa05a] text-white hover:bg-[#ff8a3a] text-sm font-quicksand"
           >
             <FontAwesomeIcon icon={faMicrophone} className="text-sm" />
             <span>Record Voice</span>
@@ -1048,14 +1063,14 @@ return (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                <span className={`font-semibold text-red-700 text-sm ${sunsetSerialMediumFont.className}`}>Recording...</span>
+                <span className="font-semibold text-red-700 text-sm font-quicksand">Recording...</span>
                 <span className="font-mono text-sm font-bold text-red-700 bg-white px-2 py-1 rounded border border-red-500">
                   {formatTime(recordingTime)}
                 </span>
               </div>
               <button
                 onClick={stopRecording}
-                className={`px-3 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg border border-red-700 font-medium text-sm ${sunsetSerialMediumFont.className}`}
+                className="px-3 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg border border-red-700 font-medium text-sm font-quicksand"
               >
                 <FontAwesomeIcon icon={faStop} className="text-sm" />
                 <span>Stop</span>
