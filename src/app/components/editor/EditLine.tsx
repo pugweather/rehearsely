@@ -230,7 +230,13 @@ const EditLine = ({
       console.log(result)
       if (isNewLine) {
         const insertedLine = result.insertedLine[0];
-        setLines((prev) => (prev ? [...prev, insertedLine] : [insertedLine]));
+        // Replace the temporary line with the actual saved line from the database
+        setLines((prev) => {
+          if (!prev) return [insertedLine];
+          return prev.map(line => 
+            line.id === -999 ? insertedLine : line
+          ).sort((a, b) => (a.order || 0) - (b.order || 0));
+        });
       } else {
         const { id, updates } = result;
         console.log('API Response updates:', updates);

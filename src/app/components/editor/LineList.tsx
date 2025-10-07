@@ -180,6 +180,86 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
     }
   }
 
+  // Adding line below a specific line
+  const handleAddLineBelow = (afterLineOrder: number) => {
+    console.log('handleAddLineBelow called with order:', afterLineOrder)
+    console.log('lineItems:', lineItems)
+    console.log('existing temp line:', lineItems?.find(l => l.text == null))
+    
+    if (lineItems && !lineItems.find(l => l.text == null)) {
+      // Update orders for all lines that come after the insertion point
+      const updatedLines = lineItems.map(line => {
+        if (line.order && line.order > afterLineOrder) {
+          return { ...line, order: line.order + 1 }
+        }
+        return line
+      })
+
+      // Create new line with order right after the specified line
+      const newLine: DraftLine = {
+        id: TEMP_LINE_ID,
+        character_id: null,
+        order: afterLineOrder + 1,
+        scene_id: sceneId,
+        text: null,
+        speed: 1,
+        delay: 1,
+        audio_url: undefined
+      }
+
+      // Add the new line and update the state
+      const newLines = [...updatedLines, newLine].sort((a, b) => (a.order || 0) - (b.order || 0))
+      
+      console.log('New line created:', newLine)
+      console.log('Updated lines array:', newLines)
+      
+      setLineBeingEdited(newLine)
+      setLineBeingEditedData({
+        voice: null,
+        character: null,
+        text: null,
+        speed: 1,
+        delay: 1,
+        order: afterLineOrder + 1
+      })
+      setLines(newLines)
+      setOriginalCharForOpenedLine(null)
+      setShouldScroll(true)
+      
+      console.log('Line being edited set to:', newLine)
+
+      // Update backend with new order for existing lines
+      updateLineOrdersInBackground(updatedLines.filter(l => l.id !== TEMP_LINE_ID))
+    } else {
+      console.log("Can only add one new line at a time")
+    }
+  }
+
+  // Helper function to update line orders in the background
+  const updateLineOrdersInBackground = async (linesToUpdate: DraftLine[]) => {
+    const lineUpdates = linesToUpdate
+      .filter(l => l.id != null && l.id !== TEMP_LINE_ID)
+      .map(l => ({ id: l.id as number, order: l.order || 0 }))
+
+    if (lineUpdates.length === 0) return
+
+    try {
+      const response = await fetch(`/api/private/scenes/${sceneId}/lines/reorder`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ lineUpdates }),
+      })
+
+      if (!response.ok) {
+        console.error('Failed to update line order in background')
+      }
+    } catch (error) {
+      console.error('Error updating line order in background:', error)
+    }
+  }
+
   const closeEditLine = () => {
     // Remove temp line from lines array. Line isn't in db so no need to hit delete endpoint
     if (lineItems?.find(l => Number(l.id) == TEMP_LINE_ID)) {
@@ -391,6 +471,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
                   setOriginalCharForOpenedLine={setOriginalCharForOpenedLine}
                   index={index}
                   isDragDisabled={isDragDisabled}
+                  onAddLineBelow={handleAddLineBelow}
                 />
               )
             })

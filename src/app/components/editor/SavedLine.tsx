@@ -3,7 +3,7 @@ import { Character, DraftLine, LineBeingEditedData } from '@/app/types';
 import { useVoicesStore } from '@/app/stores/useVoicesStores'
 import { usePracticeRange } from '@/app/context/practiceRangeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faStop, faPlus } from '@fortawesome/free-solid-svg-icons';
 import localFont from "next/font/local";
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -29,9 +29,10 @@ type Props = {
   setOriginalCharForOpenedLine: React.Dispatch<React.SetStateAction<Character | null>>;
   index: number;
   isDragDisabled: boolean;
+  onAddLineBelow: (afterLineOrder: number) => void;
 }
 
-const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLineBeingEditedData, setShouldScroll, setOriginalCharForOpenedLine, index, isDragDisabled}: Props) => {
+const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLineBeingEditedData, setShouldScroll, setOriginalCharForOpenedLine, index, isDragDisabled, onAddLineBelow}: Props) => {
 
   const TEMP_LINE_ID = -999
   const currCharacter = characters?.find(char => Number(char.id) === Number(line?.character_id)) ||  null
@@ -51,6 +52,23 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
 
   // Track mouse position for click vs drag detection
   const [mouseDownPos, setMouseDownPos] = React.useState<{x: number, y: number} | null>(null)
+  
+  // Track hover state for "Add line below" button
+  const [isHovered, setIsHovered] = React.useState(false)
+
+  // Reset hover state when EditLine opens or closes
+  React.useEffect(() => {
+    if (isDragDisabled) {
+      setIsHovered(false)
+    }
+  }, [isDragDisabled])
+
+  // Reset hover state when range selection mode changes
+  React.useEffect(() => {
+    if (isRangeSelectionMode) {
+      setIsHovered(false)
+    }
+  }, [isRangeSelectionMode])
 
   if (line == null) return
 
@@ -142,6 +160,17 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
       setEndLineId(line.id)
     }
     setClickedLineId(null)
+  }
+
+  const handleAddLineBelow = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    console.log('Add line below clicked for line:', line?.id, 'order:', line?.order)
+    if (!line?.order) {
+      console.error('Line order is missing:', line)
+      return
+    }
+    onAddLineBelow(line.order)
   }
 
   // Close buttons when clicking outside or when range selection mode is turned off
@@ -298,18 +327,19 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
                    'none'
       }}
       onMouseEnter={(e) => {
-        if (!isDragging && !isCharactersLoading && !line?.isDeleting && !isRangeSelectionMode) {
+        if (!isDragging && !isCharactersLoading && !line?.isDeleting && !isRangeSelectionMode && !isDragDisabled) {
           e.currentTarget.style.backgroundColor = 'rgba(255,160,90,0.08)'
           e.currentTarget.style.borderColor = 'rgba(255,160,90,0.2)'
           e.currentTarget.style.borderRadius = '12px'
+          setIsHovered(true)
         }
       }}
       onMouseLeave={(e) => {
-        if (!isDragging && !isCharactersLoading && !line?.isDeleting && !isRangeSelectionMode) {
-          e.currentTarget.style.backgroundColor = 'transparent'
-          e.currentTarget.style.borderColor = 'transparent'
-          e.currentTarget.style.borderRadius = '12px'
-        }
+        // Always reset hover state and styles on mouse leave, regardless of conditions
+        e.currentTarget.style.backgroundColor = 'transparent'
+        e.currentTarget.style.borderColor = 'transparent'
+        e.currentTarget.style.borderRadius = '12px'
+        setIsHovered(false)
       }}
       onMouseDown={isRangeSelectionMode ? undefined : handleMouseDown}
       onMouseUp={isRangeSelectionMode ? undefined : handleMouseUp}
@@ -455,6 +485,53 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
               />
             </circle>
           </svg>
+        </div>
+      )}
+
+      {/* Add Line Below Button - Only show on hover and when not in special states */}
+      {isHovered && !line?.isDeleting && !isCharactersLoading && !isRangeSelectionMode && !isDragDisabled && (
+        <div 
+          className="absolute left-1/2 transform -translate-x-1/2 animate-in fade-in duration-300 ease-in-out"
+          style={{
+            bottom: '-16px', // Lowered even more
+            zIndex: 30
+          }}
+          onClick={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+          }}
+        >
+          <button
+            onClick={handleAddLineBelow}
+            onMouseDown={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+            }}
+            className="px-3 py-1 rounded-full font-bold text-xs transition-all duration-300 ease-in-out flex items-center justify-center gap-2 text-white hover:text-white group cursor-pointer"
+            style={{
+              backgroundColor: '#ffa05a',
+              border: '2px solid #ffa05a',
+              boxShadow: '0 4px 12px rgba(255, 160, 90, 0.3)',
+              zIndex: 40
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#ff8a3a'
+              e.currentTarget.style.borderColor = '#ff8a3a'
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(255, 138, 58, 0.4)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#ffa05a'
+              e.currentTarget.style.borderColor = '#ffa05a'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 160, 90, 0.3)'
+            }}
+          >
+            <FontAwesomeIcon icon={faPlus} className="text-white text-xs group-hover:rotate-90 transition-transform duration-300" />
+            <span className="text-xs font-bold">Add line below</span>
+          </button>
         </div>
       )}
     </div>
