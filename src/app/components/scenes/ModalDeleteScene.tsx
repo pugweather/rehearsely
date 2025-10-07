@@ -18,6 +18,7 @@ const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, s
 
   console.log(scene.id)
   const [isOpen, setIsOpen] = useState<boolean>(true)
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
 
   const handleClose = () => {
     setIsOpen(false)
@@ -29,6 +30,7 @@ const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, s
   }
 
   const handleDelete = async () => {
+    setIsDeleting(true)
     const res = await fetch("/api/private/scenes", {
       method: "DELETE",
       headers:{
@@ -48,6 +50,8 @@ const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, s
         })
 
         handleClose()
+    } else {
+      setIsDeleting(false)
     }
   }
   
@@ -85,10 +89,22 @@ const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, s
             </button>
             <button
               onClick={handleDelete}
-              className="px-6 py-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl border-3 border-black font-bold transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex items-center gap-2"
+              disabled={isDeleting}
+              className={`px-6 py-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl border-3 border-black font-bold transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex items-center gap-2 ${
+                isDeleting ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
-              <FontAwesomeIcon icon={faTrashCan} />
-              <span>Delete</span>
+              {isDeleting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span>Deleting...</span>
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon icon={faTrashCan} />
+                  <span>Delete</span>
+                </>
+              )}
             </button>
           </div>
         </div>
