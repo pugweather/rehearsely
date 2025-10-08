@@ -7,7 +7,7 @@ export async function signInWithGoogle(redirectTo: string) {
   // Get the correct port dynamically
   const baseURL = process.env.NODE_ENV === 'production'
     ? process.env.NEXT_PUBLIC_SITE_URL || 'https://yoursite.com'
-    : 'http://localhost:3001' // Use this for dev port
+    : 'http://localhost:3000' // Use this for dev port
 
   const redirectURL = `${baseURL}/auth/callback?next=${redirectTo}`
 

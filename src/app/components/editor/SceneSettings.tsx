@@ -110,7 +110,7 @@ const SceneSettings = ({ onRangeSelectionToggle, onClose }: Props) => {
               Teleprompter
             </h3>
             <p className="text-xs text-gray-500 text-center whitespace-nowrap">
-              Show scrolling text
+              Show teleprompter
             </p>
           </div>
           

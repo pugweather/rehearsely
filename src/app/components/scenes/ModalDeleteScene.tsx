@@ -83,14 +83,14 @@ const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, s
           <div className='mt-auto px-6 py-4 flex items-center justify-end gap-3'>
             <button 
               onClick={handleClose}
-              className="px-6 py-3 bg-white rounded-xl border-3 border-black font-bold text-gray-700 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+              className="px-6 py-3 bg-white rounded-xl border-3 border-black font-bold text-gray-700 transition-all duration-200 hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className={`px-6 py-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl border-3 border-black font-bold transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex items-center gap-2 ${
+              className={`px-6 py-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl border-3 border-black font-bold transition-all duration-200 flex items-center gap-2 ${
                 isDeleting ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >

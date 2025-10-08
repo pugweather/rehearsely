@@ -97,13 +97,13 @@ const ModalSceneName = ({closeEditNameModal, setSceneEditing, setScenes, scene}:
           <div className='mt-auto px-6 py-4 flex items-center justify-end gap-3'>
             <button 
               onClick={handleClose}
-              className="px-6 py-3 bg-white rounded-xl border-3 border-black font-bold text-gray-700 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+              className="px-6 py-3 bg-white rounded-xl border-3 border-black font-bold text-gray-700 transition-all duration-200 hover:bg-gray-50"
             >
               Cancel
             </button>
             <button 
               className={clsx(
-                "px-6 py-3 bg-gradient-to-br from-[#ffa05a] to-[#ff8a3a] rounded-xl border-3 border-black font-bold text-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1",
+                "px-6 py-3 bg-gradient-to-br from-[#ffa05a] to-[#ff8a3a] rounded-xl border-3 border-black font-bold text-white transition-all duration-200 hover:from-[#ff8a3a] hover:to-[#ff7a2a]",
                 disabled && 'opacity-60 pointer-events-none cursor-not-allowed',
               )}
               disabled={disabled}

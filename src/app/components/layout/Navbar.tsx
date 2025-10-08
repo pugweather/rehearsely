@@ -6,8 +6,8 @@ import Image from "next/image";
 import localFont from 'next/font/local';
 import ButtonLink from "../ui/ButtonLink";
 import { useUserStore } from "@/app/stores/useUserStores";
-import { createClient } from "../../../../utils/supabase/client";
 import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button} from "@heroui/react";
+import ProfileDropdown from "../ui/ProfileDropdown";
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
@@ -23,31 +23,6 @@ export default function Navbar2() {
   const isLoading = useUserStore((s) => s.isLoading); 
 
   const router = useRouter()
-
-  
-  const handleLogout = async () => {
-    const supabase = createClient();
-
-    const { error } = await supabase.auth.signOut({ scope: 'global' }); // ✅ more aggressive logout
-
-    if (error) {
-      console.error("Logout error:", error.message);
-      return;
-    } else {
-      console.log("logged out!")
-    }
-
-    useUserStore.getState().setUser(null);
-
-    // Let Supabase finish clearing local session
-    setTimeout(() => {
-      router.push('/signin');
-    }, 300);
-  };
-
-  const goToLogin = () => {
-    router.push("/login")
-  }
 
 {/* <Link
         href="/"
@@ -85,7 +60,7 @@ const AcmeLogo = () => {
          {isLoading ? (
            <div className="btn btn-lg default-btn black relative z-0 opacity-50 cursor-not-allowed">Loading...</div>
          ) : user ? (
-           <a className="btn btn-lg default-btn black grow-on-hover relative z-0" onClick={handleLogout}>Log out</a>
+           <ProfileDropdown />
          ) : (
            <Link href="/login" className="btn btn-lg default-btn black relative z-0">Log in</Link>
          )}
