@@ -664,9 +664,9 @@ return (
             </span>
             <FontAwesomeIcon icon={faChevronDown} className="text-gray-600 text-xs" />
           </div>
-          <ul
+          <div
             tabIndex={0}
-            className="dropdown-content menu bg-white rounded-xl z-50 w-64 p-2 shadow-xl border border-black overflow-hidden mt-2"
+            className="dropdown-content bg-white rounded-xl z-50 w-64 shadow-xl border-2 border-black overflow-hidden mt-2"
           >
             {charsDropdownData?.map((item, index) => {
               // Check if this is a character item (not "New Character")
@@ -677,9 +677,13 @@ return (
               ) : null;
               
               return (
-                <li key={index} className={`w-full ${index > 0 ? 'border-t border-gray-100' : ''}`}>
-                  <a
-                    className={`${item.className} flex items-center w-full px-3 py-2 hover:bg-gray-100 rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-200 hover:shadow-md font-quicksand`}
+                <div key={index} className="w-full">
+                  <button
+                    className={`${item.className} flex items-center w-full px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors duration-200 font-quicksand text-left ${
+                      index === 0 ? 'rounded-t-xl' : ''
+                    } ${
+                      index === charsDropdownData.length - 1 ? 'rounded-b-xl' : 'border-b border-gray-100'
+                    }`}
                     onClick={(e) => {
                       e.preventDefault();
                       item.onClick();
@@ -715,7 +719,7 @@ return (
                     <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
                       {isCharacterItem && character && (
                         <button
-                          className="w-7 h-7 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-all duration-200 flex items-center justify-center border border-red-200 hover:border-red-300 shadow-sm hover:shadow-md"
+                          className="w-7 h-7 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors duration-200 flex items-center justify-center border border-red-200 hover:border-red-300"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -728,11 +732,11 @@ return (
                         </button>
                       )}
                     </div>
-                  </a>
-                </li>
+                  </button>
+                </div>
               );
             })}
-          </ul>
+          </div>
         </div>
       )}
     </div>

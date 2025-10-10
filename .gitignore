@@ -11,6 +11,10 @@
 !.yarn/versions
 
 # testing
+
+# claude
+.claude/settings.local.json
+
 /coverage
 
 # next.js

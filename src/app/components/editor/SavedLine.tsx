@@ -357,12 +357,12 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
       onClick={isRangeSelectionMode ? handleRangeSelection : undefined}
     >
       {/* Character Name */}
-      <div className="text-sm tracking-widest uppercase text-gray-600 mb-3 font-semibold transition-opacity duration-300 ease-in-out">
+      <div className={`text-lg uppercase mb-3 transition-opacity duration-300 ease-in-out ${courierPrimeRegular.className}`} style={{ color: '#0a0a0a', letterSpacing: '0.05em' }}>
         {displaySelectedCharacterName()}
       </div>
-  
+
       {/* Line Text */}
-      <div className="text-lg leading-relaxed text-gray-900 whitespace-pre-wrap">
+      <div className={`text-lg leading-relaxed whitespace-pre-wrap ${courierPrimeRegular.className}`} style={{ color: '#0a0a0a' }}>
         {line.text}
       </div>
 
