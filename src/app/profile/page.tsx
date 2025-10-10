@@ -10,6 +10,7 @@ import Navbar from '../components/layout/Navbar'
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState<'subscription' | 'logout'>('subscription')
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [isNavigatingBack, setIsNavigatingBack] = useState(false)
   const router = useRouter()
   const user = useUserStore((s) => s.user)
 
@@ -32,7 +33,11 @@ const ProfilePage = () => {
   }
 
   const handleBack = () => {
-    router.back()
+    setIsNavigatingBack(true)
+    // Small delay to show loading state before navigation
+    setTimeout(() => {
+      router.back()
+    }, 150)
   }
 
   const tabs = [
@@ -57,9 +62,18 @@ const ProfilePage = () => {
         <div className="flex items-center gap-4 mb-6">
           <button
             onClick={handleBack}
-            className="w-12 h-12 rounded-full border-2 border-black bg-white hover:bg-gray-50 flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
+            disabled={isNavigatingBack}
+            className={`w-12 h-12 rounded-full border-2 border-black bg-white flex items-center justify-center transition-all duration-200 shadow-md ${
+              isNavigatingBack 
+                ? 'opacity-70 cursor-not-allowed' 
+                : 'hover:bg-gray-50 hover:shadow-lg'
+            }`}
           >
-            <FontAwesomeIcon icon={faArrowLeft} className="text-gray-700" />
+            {isNavigatingBack ? (
+              <div className="w-4 h-4 border-2 border-gray-700 border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <FontAwesomeIcon icon={faArrowLeft} className="text-gray-700" />
+            )}
           </button>
           <h1 className="text-4xl font-bold text-gray-800">Profile Settings</h1>
         </div>
