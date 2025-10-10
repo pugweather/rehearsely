@@ -35,10 +35,14 @@ const SceneCard = ({id, name, modified_at, dropdownData, setOpenedDropdownId, op
 
   const router = useRouter()
   const dropdownBtnRef = useRef<HTMLDivElement | null>(null);
+  const [isClicking, setIsClicking] = useState(false);
 
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if ((e.target as HTMLDivElement).closest(".dropdown")) return
-    router.push(`/editor/${id}`)
+    setIsClicking(true)
+    setTimeout(() => {
+      router.push(`/editor/${id}`)
+    }, 150)
   }
   // Set dropdownid so that we can use it to launch modals
   const handleDropdownClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -47,15 +51,21 @@ const SceneCard = ({id, name, modified_at, dropdownData, setOpenedDropdownId, op
 
   return (
     <div
-      className="group relative cursor-pointer transition-all duration-300 ease-out hover:-translate-y-2"
+      className={`group relative cursor-pointer transition-all duration-300 ease-out hover:-translate-y-2 ${
+        isClicking ? 'scale-95 -rotate-1' : ''
+      }`}
       onClick={handleCardClick}
     >
-      
+
       {/* Enhanced offset layer with playful shadow */}
-      <div className="absolute inset-0 translate-x-3 translate-y-3 rounded-2xl border-4 border-black bg-gradient-to-br from-[#72a4f2] to-[#5a8de8] group-hover:translate-x-4 group-hover:translate-y-4 transition-all duration-300 ease-out"></div>
+      <div className={`absolute inset-0 translate-x-3 translate-y-3 rounded-2xl border-4 border-black bg-gradient-to-br from-[#72a4f2] to-[#5a8de8] group-hover:translate-x-4 group-hover:translate-y-4 transition-all duration-300 ease-out ${
+        isClicking ? 'translate-x-1 translate-y-1' : ''
+      }`}></div>
 
       {/* main card with enhanced styling */}
-      <div className="relative z-10 h-full p-8 bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-2xl min-h-[10rem] border-4 border-black group-hover:shadow-2xl transition-all duration-300 ease-out">
+      <div className={`relative z-10 h-full p-8 bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-2xl min-h-[10rem] border-4 border-black group-hover:shadow-2xl transition-all duration-150 ease-out ${
+        isClicking ? 'shadow-sm' : ''
+      }`}>
         
         {/* Subtle highlight on hover */}
         <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
