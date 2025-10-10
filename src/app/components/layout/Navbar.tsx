@@ -17,7 +17,7 @@ const marlonProBold = localFont({
   src: "../../../../public/fonts/marlonProBold.ttf",
 })
 
-export default function Navbar2() {
+export default function Navbar() {
 
   const user = useUserStore((s) => s.user);
   const isLoading = useUserStore((s) => s.isLoading); 

@@ -1,16 +1,18 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft, faCreditCard, faSignOut, faTrashCan } from '@fortawesome/free-solid-svg-icons'
 import { useRouter } from 'next/navigation'
 import { useUserStore } from '@/app/stores/useUserStores'
 import { createClient } from '../../../utils/supabase/client'
+import Navbar from '../components/layout/Navbar'
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState<'subscription' | 'logout'>('subscription')
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const router = useRouter()
   const user = useUserStore((s) => s.user)
+
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
@@ -47,9 +49,11 @@ const ProfilePage = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] p-6">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc]">
+      <Navbar />
+      <div className="pt-20 p-6">
+        {/* Header */}
+        <div className="max-w-6xl mx-auto mb-8">
         <div className="flex items-center gap-4 mb-6">
           <button
             onClick={handleBack}
@@ -74,20 +78,35 @@ const ProfilePage = () => {
 
             {/* Tabs */}
             <div className='flex-1 p-6'>
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-4 px-6 py-4 rounded-xl border-2 transition-all duration-200 mb-4 text-lg ${
-                    activeTab === tab.id
-                      ? 'bg-white border-black shadow-md text-gray-800 font-bold'
-                      : 'bg-transparent border-transparent text-gray-600 hover:bg-white/50 hover:border-gray-300'
-                  }`}
-                >
-                  <FontAwesomeIcon icon={tab.icon} className="text-lg" />
-                  <span>{tab.label}</span>
-                </button>
-              ))}
+              {tabs.map((tab) => {
+                const isLogout = tab.id === 'logout'
+                const isSelected = activeTab === tab.id
+                
+                return (
+                  <button
+                    key={tab.id}
+                    data-tab={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`relative flex items-center gap-4 py-4 px-6 rounded-xl border-2 border-black transition-all duration-200 text-lg font-bold mb-4 ${
+                      isLogout
+                        ? isSelected
+                          ? 'bg-red-600 text-white shadow-md' // Selected logout - dark red
+                          : 'bg-red-100 text-red-600 hover:bg-red-200' // Unselected logout - light red
+                        : 'bg-white text-gray-800 shadow-md hover:bg-gray-50' // All other tabs - white
+                    }`}
+                  >
+                    {/* Orange indicator inside button for non-logout tabs */}
+                    {!isLogout && (
+                      <div className={`absolute left-0 top-0 bottom-0 w-1 bg-[#FFA05A] transition-all duration-150 ease-out ${
+                        isSelected ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'
+                      }`} />
+                    )}
+                    
+                    <FontAwesomeIcon icon={tab.icon} className="text-lg" />
+                    <span>{tab.label}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
 
@@ -145,6 +164,7 @@ const ProfilePage = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )
