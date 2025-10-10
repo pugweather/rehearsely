@@ -78,7 +78,7 @@ const SceneSettings = ({ onRangeSelectionToggle, onClose }: Props) => {
             </button>
             
             {showDelayOptions && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-black rounded-lg shadow-xl z-50">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-black rounded-lg shadow-xl z-50 animate-in slide-in-from-top-2 fade-in duration-300 ease-out">
                 {delayOptions.map((option) => (
                   <button
                     key={option.value}
@@ -86,7 +86,7 @@ const SceneSettings = ({ onRangeSelectionToggle, onClose }: Props) => {
                       setCountdown(option.value)
                       setShowDelayOptions(false)
                     }}
-                    className={`w-full px-3 py-2 text-sm font-semibold transition-all duration-200 first:rounded-t-md last:rounded-b-md ${
+                    className={`w-full px-3 py-2 text-sm font-semibold transition-all duration-300 ease-in-out first:rounded-t-md last:rounded-b-md transform hover:scale-[1.02] ${
                       countdown === option.value
                         ? 'bg-[#72a4f2] text-white'
                         : 'text-gray-800 hover:bg-gray-50'

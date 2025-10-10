@@ -11,6 +11,7 @@ interface PracticeRangeContextType {
   clickedLineId: number | null
   setClickedLineId: (value: number | null) => void
   isRangeSet: () => boolean
+  hasSelection: () => boolean
   clearRange: () => void
   saveRange: () => void
 }
@@ -77,6 +78,10 @@ export const PracticeRangeProvider: React.FC<PracticeRangeProviderProps> = ({ ch
     return startLineId !== null && endLineId !== null
   }
 
+  const hasSelection = () => {
+    return startLineId !== null || endLineId !== null
+  }
+
   const saveRange = () => {
     // Save current range to savedState and localStorage
     setSavedStartLineId(startLineId)
@@ -115,7 +120,9 @@ export const PracticeRangeProvider: React.FC<PracticeRangeProviderProps> = ({ ch
     clickedLineId,
     setClickedLineId,
     isRangeSet,
+    hasSelection,
     clearRange,
+    saveRange,
   }
 
   return (

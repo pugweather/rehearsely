@@ -23,7 +23,7 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
   const [isDoneLoading, setIsDoneLoading] = useState(false)
   const [isClearLoading, setIsClearLoading] = useState(false)
   
-  const { isRangeSelectionMode, setIsRangeSelectionMode, isRangeSet, clearRange, setStartLineId, setEndLineId, setClickedLineId, saveRange } = usePracticeRange()
+  const { isRangeSelectionMode, setIsRangeSelectionMode, isRangeSet, hasSelection, clearRange, setStartLineId, setEndLineId, setClickedLineId, saveRange } = usePracticeRange()
 
   // Check if microphones are available
   const checkMicrophoneAvailability = async (): Promise<boolean> => {
@@ -126,10 +126,10 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
               <>
                 <button
                   className={`flex justify-center items-center gap-3 px-6 py-3 rounded-full bg-[#ffa05a] border-2 border-black transition-all duration-200 group ${
-                    isDoneLoading ? 'cursor-not-allowed opacity-80 scale-95' : 'hover:shadow-xl hover:-translate-y-1'
+                    (isDoneLoading || isClearLoading) ? 'cursor-not-allowed opacity-80 scale-95' : 'hover:shadow-xl hover:-translate-y-1'
                   }`}
                   onClick={handleDoneClick}
-                  disabled={isDoneLoading}
+                  disabled={isDoneLoading || isClearLoading}
                 >
                   {isDoneLoading ? (
                     <div className="flex gap-1">
@@ -145,11 +145,11 @@ const PlaySceneButtonsWrapper = ({sceneIsPlaying, setSceneIsPlaying}:  Props) =>
                   </span>
                 </button>
                 <button
-                  className={`flex justify-center items-center gap-3 px-6 py-3 rounded-full bg-[#72a4f2] border-2 border-black transition-all duration-200 group ${
-                    isClearLoading ? 'cursor-not-allowed opacity-80 scale-95' : 'hover:shadow-xl hover:-translate-y-1'
+                  className={`flex justify-center items-center gap-3 px-6 py-3 rounded-full border-2 border-black transition-all duration-200 group ${
+                    (isClearLoading || !hasSelection()) ? 'cursor-not-allowed opacity-60 scale-95 bg-blue-300' : 'bg-[#72a4f2] hover:shadow-xl hover:-translate-y-1'
                   }`}
                   onClick={handleClearClick}
-                  disabled={isClearLoading}
+                  disabled={isClearLoading || !hasSelection()}
                 >
                   {isClearLoading ? (
                     <div className="flex gap-1">

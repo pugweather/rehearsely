@@ -11,6 +11,11 @@ import { LineBeingEditedData, Voice } from '@/app/types'
 import { Character } from '@/app/types'
 import "dotenv/config";
 import { useCharacters } from '@/app/context/charactersContext'
+import localFont from 'next/font/local'
+
+const sunsetSerialMediumFont = localFont({
+    src: "../../../../public/fonts/sunsetSerialMedium.ttf",
+})
 
 type Props =  {
   sceneId: number;
@@ -280,24 +285,28 @@ const ModalCreateCharacter = ({setIsCreateCharModalOpen, setLineBeingEditedData,
                                 placeholder="Enter character name..."
                                 value={characterName || ''}
                                 onChange={(e) => handleTypingInInputBox(e.target.value)}
-                                className="w-full px-4 py-4 rounded-xl text-base border-0 focus:outline-none transition-all duration-300"
+                                className={`w-full px-8 py-8 rounded-xl text-2xl border-0 focus:outline-none transition-all duration-500 ease-out ${sunsetSerialMediumFont.className}`}
                                 style={{
                                     backgroundColor: 'rgba(255, 255, 255, 0.8)',
                                     color: '#202020',
                                     border: '2px solid rgba(255, 160, 90, 0.3)',
-                                    boxShadow: '0 4px 12px rgba(255, 160, 90, 0.1)'
+                                    boxShadow: '0 4px 12px rgba(255, 160, 90, 0.1)',
+                                    fontSize: '1.5rem',
+                                    lineHeight: '1.4',
+                                    fontWeight: '500',
+                                    letterSpacing: '0.025em'
                                 }}
                                 onFocus={(e) => {
                                     e.currentTarget.style.backgroundColor = '#ffffff'
-                                    e.currentTarget.style.boxShadow = `0 8px 25px rgba(255, 160, 90, 0.2)`
+                                    e.currentTarget.style.boxShadow = `0 12px 35px rgba(255, 160, 90, 0.25)`
                                     e.currentTarget.style.borderColor = '#FFA05A'
-                                    e.currentTarget.style.transform = 'translateY(-2px)'
+                                    e.currentTarget.style.transform = 'translateY(-3px) scale(1.01)'
                                 }}
                                 onBlur={(e) => {
                                     e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.8)'
                                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 160, 90, 0.1)'
                                     e.currentTarget.style.borderColor = 'rgba(255, 160, 90, 0.3)'
-                                    e.currentTarget.style.transform = 'translateY(0px)'
+                                    e.currentTarget.style.transform = 'translateY(0px) scale(1)'
                                 }}
                             />
                         </div>

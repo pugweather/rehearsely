@@ -307,7 +307,7 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
       data-line-id={line?.id}
       {...(isRangeSelectionMode ? {} : attributes)}
       {...(isRangeSelectionMode ? {} : listeners)}
-      className={`w-full text-center mb-8 px-8 py-6 rounded-xl transition-all duration-300 ease-in-out font-medium border border-transparent relative ${courierPrimeRegular.className} ${
+      className={`w-full text-center mb-8 px-8 py-6 rounded-xl transition-all duration-300 ease-out font-medium border border-transparent relative ${courierPrimeRegular.className} ${
         isDragging ? 'shadow-lg scale-105' : 'shadow-none scale-100'
       } ${
         line?.isDeleting ? 'cursor-not-allowed opacity-60' :
@@ -316,10 +316,13 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
         isDragDisabled ? 'cursor-pointer' : 'cursor-grab'
       } ${
         isOutsideRange ? 'opacity-50' : ''
+      } ${
+        (isRangeSelectionMode && isClickedLine) ? 'transform scale-[1.02]' : ''
       }`}
       style={{
         ...style,
         border: '1px solid transparent',
+        transition: 'all 0.3s ease-out',
         // Different backgrounds for different states
         backgroundColor: line?.isDeleting ? 'rgba(200,200,200,0.3)' :
                         isDragging ? 'rgba(255,160,90,0.15)' :
@@ -327,14 +330,12 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
                         'transparent',
         borderColor: line?.isDeleting ? 'rgba(150,150,150,0.4)' :
                     isDragging ? 'rgba(255,160,90,0.3)' :
-                    (isRangeSelectionMode && isClickedLine) ? '#3b82f6' :
                     (isRangeSelectionMode && isStartPoint) ? '#86efac' :
                     (isRangeSelectionMode && isEndPoint) ? '#fca5a5' :
                     'transparent',
-        borderWidth: (isRangeSelectionMode && (isStartPoint || isEndPoint || isClickedLine)) ? '3px' : '1px',
+        borderWidth: (isRangeSelectionMode && (isStartPoint || isEndPoint)) ? '3px' : '1px',
         boxShadow: (isRangeSelectionMode && isStartPoint) ? '0 0 0 3px rgba(134, 239, 172, 0.3)' :
                    (isRangeSelectionMode && isEndPoint) ? '0 0 0 3px rgba(252, 165, 165, 0.3)' :
-                   (isRangeSelectionMode && isClickedLine) ? '0 0 0 3px rgba(59, 130, 246, 0.2)' :
                    'none'
       }}
       onMouseEnter={(e) => {
@@ -346,9 +347,15 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
         }
       }}
       onMouseLeave={(e) => {
-        // Always reset hover state and styles on mouse leave, regardless of conditions
-        e.currentTarget.style.backgroundColor = 'transparent'
-        e.currentTarget.style.borderColor = 'transparent'
+        // Reset hover state and styles on mouse leave, but preserve clicked state in range selection mode
+        if (isRangeSelectionMode && isClickedLine) {
+          // Keep the clicked line background
+          e.currentTarget.style.backgroundColor = 'rgba(59,130,246,0.1)'
+          e.currentTarget.style.borderColor = 'transparent'
+        } else {
+          e.currentTarget.style.backgroundColor = 'transparent'
+          e.currentTarget.style.borderColor = 'transparent'
+        }
         e.currentTarget.style.borderRadius = '12px'
         setIsHovered(false)
       }}
@@ -368,10 +375,10 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
 
       {/* Range Selection Buttons - Show when line is clicked */}
       {isRangeSelectionMode && isClickedLine && (
-        <div className="mt-4 flex items-center justify-center gap-3">
+        <div className="mt-4 flex items-center justify-center gap-3 animate-in fade-in duration-300 ease-out">
           <button
             onClick={handleSetAsStart}
-            className={`px-4 py-2 rounded-lg border-2 font-semibold text-sm transition-all duration-200 ${
+            className={`px-4 py-2 rounded-lg border-2 font-semibold text-sm transition-all duration-300 ease-out ${
               isStartPoint
                 ? 'bg-green-500 text-white border-green-500'
                 : 'bg-green-50 text-green-700 border-green-300 hover:bg-green-100'
@@ -381,7 +388,7 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
           </button>
           <button
             onClick={handleSetAsEnd}
-            className={`px-4 py-2 rounded-lg border-2 font-semibold text-sm transition-all duration-200 ${
+            className={`px-4 py-2 rounded-lg border-2 font-semibold text-sm transition-all duration-300 ease-out ${
               isEndPoint
                 ? 'bg-red-500 text-white border-red-500'
                 : 'bg-red-50 text-red-700 border-red-300 hover:bg-red-100'
