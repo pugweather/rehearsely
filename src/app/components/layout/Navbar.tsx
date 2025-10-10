@@ -6,7 +6,7 @@ import Image from "next/image";
 import localFont from 'next/font/local';
 import ButtonLink from "../ui/ButtonLink";
 import { useUserStore } from "@/app/stores/useUserStores";
-import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button} from "@heroui/react";
+import {NavbarBrand, NavbarContent, NavbarItem, Link, Button} from "@heroui/react";
 import ProfileDropdown from "../ui/ProfileDropdown";
 
 const sunsetSerialMediumFont = localFont({
