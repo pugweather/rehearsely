@@ -1,8 +1,9 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import localFont from "next/font/local";
+import { motion, useInView } from "framer-motion";
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
@@ -17,15 +18,68 @@ const bogue = localFont({
 })
 
 export default function FAQ() {
-  const [isVisible, setIsVisible] = useState(false);
   const [openItems, setOpenItems] = useState<number[]>([]);
+  
+  // Refs for scroll animations
+  const containerRef = useRef(null);
+  const headerRef = useRef(null);
+  const ctaRef = useRef(null);
+  
+  // InView hooks
+  const containerInView = useInView(containerRef, { once: false });
+  const headerInView = useInView(headerRef, { once: false });
+  const ctaInView = useInView(ctaRef, { once: false });
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
+  // Animation variants - FASTER!
+  const containerVariants = {
+    hidden: { opacity: 0, scale: 0.98, y: 20 },
+    visible: { 
+      opacity: 1, 
+      scale: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.4,
+        ease: [0.25, 0.46, 0.45, 0.94] as const
+      }
+    }
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.3,
+        ease: "easeOut" as const
+      }
+    }
+  };
+
+  const faqItemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      transition: { 
+        duration: 0.3,
+        ease: "easeOut" as const
+      }
+    }
+  };
+
+  const ctaVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.3,
+        delay: 0.1,
+        ease: "easeOut" as const
+      }
+    }
+  };
 
   const toggleItem = (index: number) => {
     setOpenItems(prev => 
@@ -79,29 +133,40 @@ export default function FAQ() {
         <div className="absolute w-32 h-32 bg-[#FFD96E] rounded-full opacity-15 top-1/3 right-1/4 animate-pulse" style={{animationDelay: '2s'}}></div>
       </div>
 
-      <div className={`rounded-3xl z-10 w-full max-w-4xl bg-white p-6 md:p-12 border-4 border-black shadow-2xl transition-all duration-1000 ease-out ${
-        isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-12 scale-95'
-      }`}>
+      <motion.div 
+        ref={containerRef}
+        variants={containerVariants}
+        initial="hidden"
+        animate={containerInView ? "visible" : "hidden"}
+        className="rounded-3xl z-10 w-full max-w-4xl bg-white p-6 md:p-12 border-4 border-black shadow-2xl"
+      >
         
         {/* Header */}
-        <div className="text-center mb-12">
+        <motion.div 
+          ref={headerRef}
+          variants={headerVariants}
+          initial="hidden"
+          animate={headerInView ? "visible" : "hidden"}
+          className="text-center mb-12"
+        >
           <h2 className={`text-5xl md:text-6xl font-bold mb-4 ${bogue.className}`}>
             Frequently Asked <span className="text-[#72a4f2]">Questions</span>
           </h2>
           <p className={`text-xl text-gray-600 ${nunito.className}`}>
             Everything you need to know about your AI scene partner
           </p>
-        </div>
+        </motion.div>
 
         {/* FAQ Items */}
         <div className="flex flex-col gap-4">
           {faqItems.map((item, index) => (
-            <div 
+            <motion.div 
               key={index}
-              className={`faq-item transition-all duration-700 ease-out ${
-                isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
-              }`}
-              style={{ transitionDelay: `${index * 100}ms` }}
+              variants={faqItemVariants}
+              initial="hidden"
+              animate={containerInView ? "visible" : "hidden"}
+              transition={{ delay: index * 0.1 }}
+              className="faq-item"
             >
               {/* Question Button */}
               <button
@@ -146,29 +211,42 @@ export default function FAQ() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
         {/* Bottom CTA */}
-        <div className={`text-center mt-12 transition-all duration-1000 ease-out ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} style={{ transitionDelay: '800ms' }}>
+        <motion.div 
+          ref={ctaRef}
+          variants={ctaVariants}
+          initial="hidden"
+          animate={ctaInView ? "visible" : "hidden"}
+          className="text-center mt-12"
+        >
           <p className={`text-lg text-gray-600 mb-6 ${nunito.className}`}>
             Still have questions? We're here to help!
           </p>
-          <button className={`
-            px-8 py-4 rounded-2xl font-bold text-lg border-3 border-black
-            bg-gradient-to-r from-[#72a4f2] to-[#5b8ce8] text-white
-            transition-all duration-300 ease-out transform
-            hover:-translate-y-1 hover:scale-105 hover:shadow-xl
-            active:translate-y-0 active:scale-100
-            shadow-lg ${sunsetSerialMediumFont.className}
-          `}>
+          <motion.button 
+            whileHover={{ 
+              scale: 1.05, 
+              y: -2,
+              transition: { duration: 0.2 }
+            }}
+            whileTap={{ 
+              scale: 0.98,
+              y: 0
+            }}
+            className={`
+              px-8 py-4 rounded-2xl font-bold text-lg border-3 border-black
+              bg-gradient-to-r from-[#72a4f2] to-[#5b8ce8] text-white
+              transition-all duration-300 ease-out transform
+              shadow-lg ${sunsetSerialMediumFont.className}
+            `}
+          >
             Contact Support
-          </button>
-        </div>
-      </div>
+          </motion.button>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

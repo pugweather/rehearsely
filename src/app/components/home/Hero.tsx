@@ -7,6 +7,8 @@ import Image from "next/image";
 import localFont from "next/font/local";
 import { useUserStore } from "@/app/stores/useUserStores";
 import { useRouter, usePathname } from "next/navigation";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
@@ -27,12 +29,18 @@ export default function Hero() {
     const pathname = usePathname()
     const [isLoaded, setIsLoaded] = useState(false)
     const [isButtonLoading, setIsButtonLoading] = useState(false)
-    const [showElements, setShowElements] = useState({
-        title: false,
-        subtitle: false,
-        button: false,
-        image: false
-    })
+    
+    // Refs for scroll animations
+    const titleRef = useRef(null)
+    const subtitleRef = useRef(null)
+    const buttonRef = useRef(null)
+    const imageRef = useRef(null)
+    
+    // InView hooks for each element
+    const titleInView = useInView(titleRef, { once: false })
+    const subtitleInView = useInView(subtitleRef, { once: false })
+    const buttonInView = useInView(buttonRef, { once: false })
+    const imageInView = useInView(imageRef, { once: false })
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -60,21 +68,64 @@ export default function Hero() {
         return () => authListener.subscription.unsubscribe()
     }, [pathname])
 
-    // Animation sequence
-    useEffect(() => {
-        // Wait for everything to load first
-        const timer = setTimeout(() => {
-            setIsLoaded(true)
-            
-            // Staggered animation sequence
-            setTimeout(() => setShowElements(prev => ({...prev, title: true})), 100)
-            setTimeout(() => setShowElements(prev => ({...prev, subtitle: true})), 300)
-            setTimeout(() => setShowElements(prev => ({...prev, button: true})), 500)
-            setTimeout(() => setShowElements(prev => ({...prev, image: true})), 700)
-        }, 200)
-        
-        return () => clearTimeout(timer)
-    }, [])
+    // Animation variants - FASTER!
+    const titleVariants = {
+        hidden: { opacity: 0, y: 30, scale: 0.95 },
+        visible: { 
+            opacity: 1, 
+            y: 0, 
+            scale: 1,
+            transition: { 
+                duration: 0.4, 
+                ease: [0.25, 0.46, 0.45, 0.94] as const,
+                type: "spring" as const,
+                stiffness: 200
+            }
+        }
+    }
+
+    const subtitleVariants = {
+        hidden: { opacity: 0, y: 20, x: -15 },
+        visible: { 
+            opacity: 1, 
+            y: 0, 
+            x: 0,
+            transition: { 
+                duration: 0.3, 
+                delay: 0.1,
+                ease: "easeOut" as const
+            }
+        }
+    }
+
+    const buttonVariants = {
+        hidden: { opacity: 0, scale: 0.9, rotateX: -10 },
+        visible: { 
+            opacity: 1, 
+            scale: 1, 
+            rotateX: 0,
+            transition: { 
+                duration: 0.3, 
+                delay: 0.2,
+                type: "spring" as const,
+                stiffness: 200
+            }
+        }
+    }
+
+    const imageVariants = {
+        hidden: { opacity: 0, scale: 0.9, rotate: -3 },
+        visible: { 
+            opacity: 1, 
+            scale: 1, 
+            rotate: 0,
+            transition: { 
+                duration: 0.4, 
+                delay: 0.3,
+                ease: [0.25, 0.46, 0.45, 0.94] as const
+            }
+        }
+    }
 
     // Handle button click with loading animation
     const handleGoToScenes = () => {
@@ -88,31 +139,36 @@ export default function Hero() {
     return (
         <section className="flex flex-grow flex-col items-center justify-center h-screen w-full text-center">
 
-            <h1 className={`text-7xl font-bold transition-all duration-700 ease-out ${bogue.className} ${
-                showElements.title 
-                    ? 'opacity-100 translate-y-0' 
-                    : 'opacity-0 translate-y-8'
-            }`}>
+            <motion.h1 
+                ref={titleRef}
+                variants={titleVariants}
+                initial="hidden"
+                animate={titleInView ? "visible" : "hidden"}
+                className={`text-7xl font-bold ${bogue.className}`}
+            >
                 Your Digital Scene Partner.
                 <br></br>
                 <span className="text-black">Anytime, Anywhere.</span>
-            </h1>
+            </motion.h1>
             
-            <p className={`mt-12 text-3xl font-semibold transition-all duration-700 ease-out ${user ? "mb-10" : "mb-5"} ${nunito.className} ${
-                showElements.subtitle 
-                    ? 'opacity-100 translate-y-0' 
-                    : 'opacity-0 translate-y-8'
-            }`}>
+            <motion.p 
+                ref={subtitleRef}
+                variants={subtitleVariants}
+                initial="hidden"
+                animate={subtitleInView ? "visible" : "hidden"}
+                className={`mt-12 text-3xl font-semibold ${user ? "mb-10" : "mb-5"} ${nunito.className}`}
+            >
                 Less stress, more callbacks. Self-taping made easy.
-            </p>
+            </motion.p>
 
             {
                 user &&
-                <div className={`transition-all duration-700 ease-out ${
-                    showElements.button 
-                        ? 'opacity-100 translate-y-0 scale-100' 
-                        : 'opacity-0 translate-y-8 scale-95'
-                }`}>
+                <motion.div 
+                    ref={buttonRef}
+                    variants={buttonVariants}
+                    initial="hidden"
+                    animate={buttonInView ? "visible" : "hidden"}
+                >
                     <button
                     onClick={handleGoToScenes}
                     disabled={isButtonLoading}
@@ -155,21 +211,23 @@ export default function Hero() {
                         )}
                     </div>
                     </button>
-                </div>
+                </motion.div>
             }
 
-            <div className={`relative min-w-[600px] min-h-[300px] transition-all duration-700 ease-out ${
-                showElements.image 
-                    ? 'opacity-100 translate-y-0 scale-100' 
-                    : 'opacity-0 translate-y-12 scale-95'
-            }`}>
+            <motion.div 
+                ref={imageRef}
+                variants={imageVariants}
+                initial="hidden"
+                animate={imageInView ? "visible" : "hidden"}
+                className="relative min-w-[600px] min-h-[300px]"
+            >
                 <Image
                     src="/hero-image.png"
                     alt="add line"
                     fill
                     style={{objectFit: "contain"}}
                 />
-            </div>
+            </motion.div>
     
         </section>
 

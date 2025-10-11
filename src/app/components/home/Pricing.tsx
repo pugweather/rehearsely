@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
   faCheck, 
@@ -12,6 +12,7 @@ import {
   faRocket
 } from "@fortawesome/free-solid-svg-icons";
 import localFont from "next/font/local";
+import { motion, useInView } from "framer-motion";
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
@@ -26,15 +27,67 @@ const bogue = localFont({
 })
 
 export default function Pricing() {
-  const [isVisible, setIsVisible] = useState(false);
   const [activeCard, setActiveCard] = useState<number | null>(null);
+  
+  // Refs for scroll animations
+  const headerRef = useRef(null);
+  const cardsRef = useRef(null);
+  const ctaRef = useRef(null);
+  
+  // InView hooks
+  const headerInView = useInView(headerRef, { once: false });
+  const cardsInView = useInView(cardsRef, { once: false });
+  const ctaInView = useInView(ctaRef, { once: false });
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
+  // Animation variants - FASTER!
+  const headerVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.4,
+        ease: "easeOut" as const
+      }
+    }
+  };
+
+  const cardsContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.05
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { 
+        duration: 0.3,
+        ease: [0.25, 0.46, 0.45, 0.94] as const
+      }
+    }
+  };
+
+  const ctaVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.3,
+        delay: 0.1,
+        ease: "easeOut" as const
+      }
+    }
+  };
 
   const plans = [
     {
@@ -109,28 +162,41 @@ export default function Pricing() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <div className={`text-center mb-16 transition-all duration-1000 ease-out ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`}>
+        <motion.div 
+          ref={headerRef}
+          variants={headerVariants}
+          initial="hidden"
+          animate={headerInView ? "visible" : "hidden"}
+          className="text-center mb-16"
+        >
           <h2 className={`text-6xl font-bold mb-6 ${bogue.className}`}>
             Choose Your <span className="text-[#72a4f2]">Stage</span>
           </h2>
           <p className={`text-2xl text-gray-600 max-w-3xl mx-auto ${nunito.className}`}>
             From first audition to Broadway dreams, we've got the perfect plan for every performer
           </p>
-        </div>
+        </motion.div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <motion.div 
+          ref={cardsRef}
+          variants={cardsContainerVariants}
+          initial="hidden"
+          animate={cardsInView ? "visible" : "hidden"}
+          className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto"
+        >
           {plans.map((plan, index) => (
-            <div
+            <motion.div
               key={index}
-              className={`relative group transition-all duration-700 ease-out ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-              }`}
-              style={{ transitionDelay: `${index * 200}ms` }}
+              variants={cardVariants}
+              className="relative group"
               onMouseEnter={() => setActiveCard(index)}
               onMouseLeave={() => setActiveCard(null)}
+              whileHover={{ 
+                scale: 1.05, 
+                y: -8,
+                transition: { duration: 0.3 }
+              }}
             >
               {/* Popular badge */}
               {plan.popular && (
@@ -212,14 +278,18 @@ export default function Pricing() {
                   {plan.popular ? 'Start Free Trial' : 'Get Started'}
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Bottom CTA */}
-        <div className={`text-center mt-16 transition-all duration-1000 ease-out ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`} style={{ transitionDelay: '800ms' }}>
+        <motion.div 
+          ref={ctaRef}
+          variants={ctaVariants}
+          initial="hidden"
+          animate={ctaInView ? "visible" : "hidden"}
+          className="text-center mt-16"
+        >
           <p className={`text-lg text-gray-600 mb-6 ${nunito.className}`}>
             All plans include a 14-day free trial. No credit card required.
           </p>
@@ -237,7 +307,7 @@ export default function Pricing() {
               <span>24/7 support</span>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
