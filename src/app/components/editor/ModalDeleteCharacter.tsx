@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTriangleExclamation, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faTriangleExclamation, faClose, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { Character } from '@/app/types';
 import { useCharacters } from '@/app/context/charactersContext';
 
@@ -74,86 +74,55 @@ const ModalDeleteCharacter = ({ character, sceneId, setIsDeleteCharModalOpen, on
             ? 'opacity-100 scale-100 translate-y-0' 
             : 'opacity-0 scale-90 translate-y-4'
         }`}
-        style={{ width: '520px', height: '250px' }}
+        style={{ width: '560px', height: '260px' }}
       >
-        <div 
-          className="flex flex-col h-full rounded-2xl"
-          style={{
-            backgroundColor: 'rgb(227, 214, 198)',
-            border: '1px solid rgb(220, 38, 38)'
-          }}
-        >
+        <div className='flex flex-col h-full rounded-2xl bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] shadow-xl border-4 border-red-600'>
           {/* Header */}
-          <div className="relative px-6 py-5">
-            <div className="text-xl font-semibold" style={{color: 'rgb(32, 32, 32)'}}>
-              Delete Character
-            </div>
-            <button
-              onClick={handleCancel}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center"
-              style={{backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'rgb(32, 32, 32)'}}
+          <div className='relative px-6 py-5'>
+            <div className='text-2xl font-bold text-gray-800'>Confirm Deletion</div>
+            <button 
+              onClick={handleCancel} 
+              className="absolute top-4 right-4 w-10 h-10 rounded-full border-2 border-black bg-white hover:bg-gray-50 flex items-center justify-center transition-all duration-200"
               disabled={isDeleting}
             >
-              <FontAwesomeIcon icon={faXmark} />
+              <FontAwesomeIcon icon={faClose} className="text-gray-700" />
             </button>
           </div>
 
           {/* Body */}
-          <div className="px-6 py-4 flex items-start gap-3">
-            <FontAwesomeIcon
-              icon={faTriangleExclamation}
-              className="text-xl"
-              style={{color: 'rgb(220, 38, 38)'}}
-            />
-            <div className="text-base" style={{color: 'rgb(32, 32, 32)'}}>
-              Are you sure you want to delete{' '}
-              <span className="font-semibold">
-                "{character.name}{character.is_me ? ' (me)' : ''}"
-              </span>
+          <div className='px-6 py-4 flex items-start gap-4'>
+            <div className="w-12 h-12 rounded-full border-3 border-black bg-red-50 flex items-center justify-center flex-shrink-0">
+              <FontAwesomeIcon icon={faTriangleExclamation} className='text-xl text-red-600' />
+            </div>
+            <div className='text-lg text-gray-800 leading-relaxed'>
+              Are you sure you want to delete <span className="font-bold text-red-600">"{character.name}{character.is_me ? ' (me)' : ''}"</span>?
             </div>
           </div>
 
           {/* Footer */}
-          <div className="mt-auto px-6 py-4 flex items-center justify-end gap-3">
-            <button
+          <div className='mt-auto px-6 py-4 flex items-center justify-end gap-3'>
+            <button 
               onClick={handleCancel}
               disabled={isDeleting}
+              className="px-6 py-3 bg-white rounded-xl border-3 border-black font-bold text-gray-700 transition-all duration-200 hover:bg-gray-50"
             >
-              <span 
-                className="inline-flex items-center justify-center rounded-lg font-semibold transition-all duration-200 ease-in-out text-white hover:opacity-85 hover:shadow-sm tracking-wider px-4 py-2"
-                style={{backgroundColor: 'rgba(255, 255, 255, 0.3)', color: 'rgb(32, 32, 32)', border: '1px solid rgba(32,32,32,0.1)'}}
-              >
-                <span>Cancel</span>
-              </span>
+              Cancel
             </button>
             <button
               onClick={handleDeleteCharacter}
               disabled={isDeleting}
-              className="px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2"
-              style={{backgroundColor: 'rgba(220,38,38,0.1)', color: '#dc2626', border: '1px solid rgba(220,38,38,0.2)'}}
-              onMouseEnter={(e) => {
-                if (!isDeleting) {
-                  e.currentTarget.style.backgroundColor = 'rgba(220,38,38,0.2)'
-                  e.currentTarget.style.color = '#b91c1c'
-                  e.currentTarget.style.borderColor = 'rgba(220,38,38,0.4)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isDeleting) {
-                  e.currentTarget.style.backgroundColor = 'rgba(220,38,38,0.1)'
-                  e.currentTarget.style.color = '#dc2626'
-                  e.currentTarget.style.borderColor = 'rgba(220,38,38,0.2)'
-                }
-              }}
+              className={`px-6 py-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl border-3 border-black font-bold transition-all duration-200 flex items-center gap-2 ${
+                isDeleting ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
               {isDeleting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
                   <span>Deleting...</span>
                 </>
               ) : (
                 <>
-                  <FontAwesomeIcon icon={faTriangleExclamation} />
+                  <FontAwesomeIcon icon={faTrashCan} />
                   <span>Delete</span>
                 </>
               )}

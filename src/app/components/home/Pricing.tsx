@@ -1,5 +1,6 @@
 "use client"
 import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
   faCheck, 
@@ -9,10 +10,11 @@ import {
   faUsers, 
   faInfinity,
   faCrown,
-  faRocket
+  faRocket,
+  faSkull,
+  faFire
 } from "@fortawesome/free-solid-svg-icons";
 import localFont from "next/font/local";
-import { motion, useInView } from "framer-motion";
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
@@ -27,182 +29,155 @@ const bogue = localFont({
 })
 
 export default function Pricing() {
-  const [activeCard, setActiveCard] = useState<number | null>(null);
-  
-  // Refs for scroll animations
-  const headerRef = useRef(null);
-  const cardsRef = useRef(null);
-  const ctaRef = useRef(null);
-  
-  // InView hooks
-  const headerInView = useInView(headerRef, { once: false });
-  const cardsInView = useInView(cardsRef, { once: false });
-  const ctaInView = useInView(ctaRef, { once: false });
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
 
-  // Animation variants - FASTER!
-  const headerVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        duration: 0.4,
-        ease: "easeOut" as const
-      }
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
     }
-  };
 
-  const cardsContainerVariants = {
+    return () => observer.disconnect();
+  }, []);
+
+  // Creative pricing animation variants
+  const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
+    visible: { 
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.05
+        staggerChildren: 0.2,
+        delayChildren: 0.1
       }
     }
   };
 
   const cardVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    hidden: { 
+      opacity: 0, 
+      y: 100, 
+      scale: 0.8,
+      rotateX: 15
+    },
     visible: { 
       opacity: 1, 
       y: 0, 
       scale: 1,
-      transition: { 
-        duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94] as const
-      }
-    }
-  };
-
-  const ctaVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        duration: 0.3,
-        delay: 0.1,
-        ease: "easeOut" as const
+      rotateX: 0,
+      transition: {
+        type: "spring" as const,
+        damping: 20,
+        stiffness: 300
       }
     }
   };
 
   const plans = [
     {
-      name: "Scene Partner",
-      price: "$9",
-      period: "/month",
-      description: "Perfect for getting started with AI scene practice",
+      name: "Starter Pack",
+      price: "Free",
+      period: "",
+      description: "Perfect for trying out our app",
       icon: faMicrophone,
       color: "#72a4f2",
       bgGradient: "from-[#72a4f2] to-[#5b8ce8]",
       features: [
-        "50 AI-generated lines per month",
-        "Basic voice selection (10 voices)",
-        "Standard audio quality",
-        "Scene creation & editing",
-        "Basic practice mode",
-        "Email support"
+        "3 pages per month",
+        "Choose from our selection of lifelike AI voices",
+        "Auto import scripts from PDF",
+        "Unlimited takes"
       ],
       popular: false
     },
     {
-      name: "Leading Role",
-      price: "$19",
+      name: "Pro",
+      price: "$10",
       period: "/month",
       description: "Most popular for serious actors and performers",
       icon: faStar,
-      color: "#ffa05a",
-      bgGradient: "from-[#ffa05a] to-[#ff8a3a]",
+      color: "#FFD96E",
+      bgGradient: "from-[#FFD96E] to-[#ffc947]",
       features: [
-        "500 AI-generated lines per month",
-        "Premium voice library (50+ voices)",
-        "Voice cloning (3 custom voices)",
-        "HD audio quality",
-        "Advanced practice analytics",
-        "Speed & delay controls",
-        "Priority support",
-        "Export audio files"
+        "25 pages per month",
+        "Everything in Starter Pack",
+        "Voice cloning & recording",
+        "Teleprompter access"
       ],
       popular: true
     },
     {
-      name: "Director's Cut",
-      price: "$39",
+      name: "Master",
+      price: "$28",
       period: "/month",
       description: "For professionals and drama schools",
       icon: faCrown,
-      color: "#FFD96E",
-      bgGradient: "from-[#FFD96E] to-[#ffc947]",
+      color: "#dc2626",
+      bgGradient: "from-[#dc2626] to-[#991b1b]",
       features: [
-        "Unlimited AI-generated lines",
-        "Full voice library access",
-        "Unlimited voice cloning",
-        "Studio-quality audio",
-        "Team collaboration tools",
-        "Advanced scene analysis",
-        "Custom voice training",
-        "White-label options",
-        "Dedicated account manager"
+        "Unlimited pages",
+        "Everything in Pro",
+        "Priority support",
+        "Early access to new features"
       ],
       popular: false
     }
   ];
 
   return (
-    <section className="py-20 px-4 relative overflow-hidden">
+    <section ref={sectionRef} className="py-20 px-4 relative overflow-hidden">
       {/* Floating background elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute w-32 h-32 bg-[#72a4f2] rounded-full opacity-5 -top-16 -left-16 animate-pulse"></div>
+        <div className="absolute w-32 h-32 bg-[#72a4f2] rounded-full opacity-5 top-10 -left-16 animate-pulse"></div>
         <div className="absolute w-24 h-24 bg-[#ffa05a] rounded-full opacity-5 top-1/4 right-10 animate-pulse" style={{animationDelay: '1s'}}></div>
-        <div className="absolute w-20 h-20 bg-[#FFD96E] rounded-full opacity-5 bottom-20 left-1/4 animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute w-20 h-20 bg-[#72a4f2] rounded-full opacity-5 bottom-20 left-1/4 animate-pulse" style={{animationDelay: '2s'}}></div>
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <motion.div 
-          ref={headerRef}
-          variants={headerVariants}
-          initial="hidden"
-          animate={headerInView ? "visible" : "hidden"}
-          className="text-center mb-16"
-        >
+        <div className={`text-center mb-16 transition-all duration-1000 ease-out ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}>
           <h2 className={`text-6xl font-bold mb-6 ${bogue.className}`}>
             Choose Your <span className="text-[#72a4f2]">Stage</span>
           </h2>
-          <p className={`text-2xl text-gray-600 max-w-3xl mx-auto ${nunito.className}`}>
-            From first audition to Broadway dreams, we've got the perfect plan for every performer
-          </p>
-        </motion.div>
+          <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-500">
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faCheck} className="text-green-500" />
+              <span>Cancel anytime</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faCheck} className="text-green-500" />
+              <span>No setup fees</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faCheck} className="text-green-500" />
+              <span>24/7 support</span>
+            </div>
+          </div>
+        </div>
 
         {/* Pricing Cards */}
-        <motion.div 
-          ref={cardsRef}
-          variants={cardsContainerVariants}
-          initial="hidden"
-          animate={cardsInView ? "visible" : "hidden"}
-          className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto"
-        >
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {plans.map((plan, index) => (
-            <motion.div
+            <div
               key={index}
-              variants={cardVariants}
-              className="relative group"
-              onMouseEnter={() => setActiveCard(index)}
-              onMouseLeave={() => setActiveCard(null)}
-              whileHover={{ 
-                scale: 1.05, 
-                y: -8,
-                transition: { duration: 0.3 }
-              }}
+              className={`relative transition-all duration-700 ease-out ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+              }`}
+              style={{ transitionDelay: `${index * 200}ms` }}
             >
-              {/* Popular badge */}
+              {/* Popular badge - attached to top */}
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
-                  <div className={`px-6 py-2 rounded-full text-white text-sm font-bold ${sunsetSerialMediumFont.className} shadow-lg`}
-                       style={{ backgroundColor: plan.color }}>
+                <div className="absolute -top-[11px] left-0 right-0 z-20">
+                  <div className={`mx-auto w-fit px-6 py-2 rounded-xl text-white text-sm font-bold ${sunsetSerialMediumFont.className} shadow-lg`}
+                       style={{ backgroundColor: plan.color, borderRadius: "10px"}}>
                     <FontAwesomeIcon icon={faRocket} className="mr-2" />
                     Most Popular
                   </div>
@@ -212,9 +187,9 @@ export default function Pricing() {
               {/* Card */}
               <div className={`
                 relative bg-white rounded-3xl p-8 border-4 border-black shadow-xl
-                transition-all duration-500 ease-out transform
-                ${activeCard === index ? 'scale-105 shadow-2xl -translate-y-2' : 'hover:scale-102 hover:shadow-xl'}
-                ${plan.popular ? 'ring-4 ring-[#ffa05a] ring-opacity-30' : ''}
+                ${plan.popular ? 'mt-8' : ''}
+                ${plan.name === 'Pro' ? 'ring-4 ring-yellow-200' : ''}
+                ${plan.name === 'Master' ? 'ring-4 ring-red-200' : ''}
               `}>
                 {/* Header with icon */}
                 <div className="text-center mb-8">
@@ -269,45 +244,23 @@ export default function Pricing() {
                     w-full py-4 px-6 rounded-2xl font-bold text-lg border-3 border-black
                     transition-all duration-300 ease-out transform
                     ${sunsetSerialMediumFont.className}
-                    ${plan.popular 
-                      ? `bg-gradient-to-r ${plan.bgGradient} text-white shadow-lg hover:shadow-xl hover:-translate-y-1` 
-                      : 'bg-white text-gray-800 hover:bg-gray-50 shadow-md hover:shadow-lg hover:-translate-y-1'
-                    }
+                    bg-gradient-to-r ${plan.bgGradient} text-white shadow-lg 
+                    hover:shadow-xl hover:-translate-y-1 hover:scale-105
                   `}
                 >
-                  {plan.popular ? 'Start Free Trial' : 'Get Started'}
+                  {plan.name === 'Starter Pack' ? 'Start Free' : 
+                   plan.name === 'Master' ? 'Go Master' : 'Upgrade to Pro'}
                 </button>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
 
         {/* Bottom CTA */}
-        <motion.div 
-          ref={ctaRef}
-          variants={ctaVariants}
-          initial="hidden"
-          animate={ctaInView ? "visible" : "hidden"}
-          className="text-center mt-16"
-        >
-          <p className={`text-lg text-gray-600 mb-6 ${nunito.className}`}>
-            All plans include a 14-day free trial. No credit card required.
-          </p>
-          <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-500">
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faCheck} className="text-green-500" />
-              <span>Cancel anytime</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faCheck} className="text-green-500" />
-              <span>No setup fees</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faCheck} className="text-green-500" />
-              <span>24/7 support</span>
-            </div>
-          </div>
-        </motion.div>
+        <div className={`text-center mt-16 transition-all duration-1000 ease-out ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`} style={{ transitionDelay: '800ms' }}>
+        </div>
       </div>
     </section>
   );

@@ -73,7 +73,7 @@ const EditorWrapperOuter = ({scene, lineItems, sceneIsPlaying, setLines, setScen
             <Navbar />
         
             {/* Content area - uses natural page scroll */}
-            <div ref={scrollRef}>
+            <div ref={scrollRef} className='mt-[125px]'>
          <EditorWrapper>
                 {/* Back to scenes button */}
                 <button onClick={handleBack} className="fixed top-20 left-[calc(50%-24rem)] max-[1200px]:left-[calc(50%-20rem)] max-[1000px]:left-[calc(50%-16rem)] max-[800px]:left-[calc(50%-12rem)] transition-all duration-200 ease-in-out inline-flex items-center gap-3 text-gray-700 hover:text-gray-900 group">

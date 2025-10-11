@@ -196,7 +196,6 @@ const ScenesDashboardClient = ({sceneData}: Props) => {
                 <div className="text-4xl">🎭</div>
               </div>
               <div className="text-2xl font-bold text-gray-800 mb-2">No scenes found</div>
-              <div className="text-gray-600 text-lg">Create your first scene to get started</div>
             </div>
           )}
         </div>

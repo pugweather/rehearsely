@@ -1,5 +1,5 @@
 "use client"
-import React, {use, useEffect, useState} from "react";
+import React, {use, useEffect, useState, useRef} from "react";
 import ButtonLink from "../ui/ButtonLink";
 import Link from "next/link";
 import { createClient } from '@supabase/supabase-js'
@@ -7,8 +7,7 @@ import Image from "next/image";
 import localFont from "next/font/local";
 import { useUserStore } from "@/app/stores/useUserStores";
 import { useRouter, usePathname } from "next/navigation";
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { motion } from "framer-motion";
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
@@ -27,20 +26,9 @@ export default function Hero() {
     const user = useUserStore((s) => s.user)
     const router = useRouter()
     const pathname = usePathname()
-    const [isLoaded, setIsLoaded] = useState(false)
+    const [isVisible, setIsVisible] = useState(false)
     const [isButtonLoading, setIsButtonLoading] = useState(false)
-    
-    // Refs for scroll animations
-    const titleRef = useRef(null)
-    const subtitleRef = useRef(null)
-    const buttonRef = useRef(null)
-    const imageRef = useRef(null)
-    
-    // InView hooks for each element
-    const titleInView = useInView(titleRef, { once: false })
-    const subtitleInView = useInView(subtitleRef, { once: false })
-    const buttonInView = useInView(buttonRef, { once: false })
-    const imageInView = useInView(imageRef, { once: false })
+    const sectionRef = useRef<HTMLElement>(null)
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -68,64 +56,104 @@ export default function Hero() {
         return () => authListener.subscription.unsubscribe()
     }, [pathname])
 
-    // Animation variants - FASTER!
+    // Intersection Observer for scroll animations
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setIsVisible(entry.isIntersecting);
+            },
+            { threshold: 0.2 }
+        );
+
+        if (sectionRef.current) {
+            observer.observe(sectionRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, []);
+
+    // Creative animation variants
     const titleVariants = {
-        hidden: { opacity: 0, y: 30, scale: 0.95 },
+        hidden: { 
+            opacity: 0, 
+            y: 50, 
+            scale: 0.8,
+            rotateX: -15
+        },
         visible: { 
             opacity: 1, 
             y: 0, 
             scale: 1,
-            transition: { 
-                duration: 0.4, 
-                ease: [0.25, 0.46, 0.45, 0.94] as const,
+            rotateX: 0,
+            transition: {
                 type: "spring" as const,
-                stiffness: 200
+                damping: 20,
+                stiffness: 300,
+                delay: 0.1
             }
         }
-    }
+    };
 
     const subtitleVariants = {
-        hidden: { opacity: 0, y: 20, x: -15 },
+        hidden: { 
+            opacity: 0, 
+            x: -100, 
+            rotate: -5
+        },
         visible: { 
             opacity: 1, 
-            y: 0, 
-            x: 0,
-            transition: { 
-                duration: 0.3, 
-                delay: 0.1,
-                ease: "easeOut" as const
+            x: 0, 
+            rotate: 0,
+            transition: {
+                type: "spring" as const,
+                damping: 25,
+                stiffness: 400,
+                delay: 0.3
             }
         }
-    }
+    };
 
     const buttonVariants = {
-        hidden: { opacity: 0, scale: 0.9, rotateX: -10 },
+        hidden: { 
+            opacity: 0, 
+            scale: 0.3, 
+            y: 100,
+            rotate: 180
+        },
         visible: { 
             opacity: 1, 
             scale: 1, 
-            rotateX: 0,
-            transition: { 
-                duration: 0.3, 
-                delay: 0.2,
+            y: 0,
+            rotate: 0,
+            transition: {
                 type: "spring" as const,
-                stiffness: 200
+                damping: 15,
+                stiffness: 200,
+                delay: 0.5
             }
         }
-    }
+    };
 
     const imageVariants = {
-        hidden: { opacity: 0, scale: 0.9, rotate: -3 },
+        hidden: { 
+            opacity: 0, 
+            scale: 0.5, 
+            y: 150,
+            rotateY: 45
+        },
         visible: { 
             opacity: 1, 
             scale: 1, 
-            rotate: 0,
-            transition: { 
-                duration: 0.4, 
-                delay: 0.3,
-                ease: [0.25, 0.46, 0.45, 0.94] as const
+            y: 0,
+            rotateY: 0,
+            transition: {
+                type: "spring" as const,
+                damping: 20,
+                stiffness: 150,
+                delay: 0.7
             }
         }
-    }
+    };
 
     // Handle button click with loading animation
     const handleGoToScenes = () => {
@@ -137,14 +165,13 @@ export default function Hero() {
     }
 
     return (
-        <section className="flex flex-grow flex-col items-center justify-center h-screen w-full text-center">
+        <section ref={sectionRef} className="flex flex-col items-center justify-center h-full w-full text-center mt-[125px] py-12 px-4">
 
             <motion.h1 
-                ref={titleRef}
+                className={`text-7xl font-bold ${bogue.className}`}
                 variants={titleVariants}
                 initial="hidden"
-                animate={titleInView ? "visible" : "hidden"}
-                className={`text-7xl font-bold ${bogue.className}`}
+                animate={isVisible ? "visible" : "hidden"}
             >
                 Your Digital Scene Partner.
                 <br></br>
@@ -152,22 +179,20 @@ export default function Hero() {
             </motion.h1>
             
             <motion.p 
-                ref={subtitleRef}
+                className={`mt-12 text-3xl font-semibold ${user ? "mb-10" : "mb-5"} ${nunito.className}`}
                 variants={subtitleVariants}
                 initial="hidden"
-                animate={subtitleInView ? "visible" : "hidden"}
-                className={`mt-12 text-3xl font-semibold ${user ? "mb-10" : "mb-5"} ${nunito.className}`}
+                animate={isVisible ? "visible" : "hidden"}
             >
                 Less stress, more callbacks. Self-taping made easy.
             </motion.p>
 
             {
                 user &&
-                <motion.div 
-                    ref={buttonRef}
+                <motion.div
                     variants={buttonVariants}
                     initial="hidden"
-                    animate={buttonInView ? "visible" : "hidden"}
+                    animate={isVisible ? "visible" : "hidden"}
                 >
                     <button
                     onClick={handleGoToScenes}
@@ -215,11 +240,10 @@ export default function Hero() {
             }
 
             <motion.div 
-                ref={imageRef}
+                className="relative min-w-[600px] min-h-[300px]"
                 variants={imageVariants}
                 initial="hidden"
-                animate={imageInView ? "visible" : "hidden"}
-                className="relative min-w-[600px] min-h-[300px]"
+                animate={isVisible ? "visible" : "hidden"}
             >
                 <Image
                     src="/hero-image.png"

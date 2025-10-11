@@ -241,7 +241,7 @@ const SceneUploadProcessing = ({ sceneName, fileName }: SceneUploadProcessingPro
   }
 
   return (
-    <div className="flex flex-col flex-1 relative">
+    <div className="flex flex-col flex-1 relative mt-[125px]">
       {/* Subtle background accents */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-[#72a4f2]/8 to-transparent rounded-full blur-3xl"></div>
