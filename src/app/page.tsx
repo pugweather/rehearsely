@@ -1,6 +1,7 @@
 import db from "./database";
 import Navbar from "./components/layout/Navbar";
 import Hero from "./components/home/Hero";
+import Pricing from "./components/home/Pricing";
 
 export default async function Home() {
 
@@ -9,6 +10,7 @@ export default async function Home() {
       <Navbar />
       <main className="flex flex-col flex-grow">
         <Hero />
+        <Pricing />
       </main>
       <footer></footer>
     </div>
