@@ -848,9 +848,43 @@ return (
 
     {/* Voice Cloning Mode - Reorganized Layout */}
     {lineMode === "voice" && recordedAudioBlob && (
-      <div className="p-3 rounded-xl border-2 animate-in slide-in-from-top-2 fade-in duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-2 data-[state=closed]:fade-out overflow-hidden transition-all duration-300 ease-in-out" style={{backgroundColor: '#FFF4E6', borderColor: '#FFA05A'}}>
-        {/* Waveform with all controls on same line */}
-        <div className="space-y-2">
+      <div className="bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-2xl p-4 space-y-3 shadow-lg relative overflow-hidden animate-in slide-in-from-top-2 fade-in duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-2 data-[state=closed]:fade-out transition-all duration-300 ease-in-out">
+        {/* Floating orange circles like snow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute w-2 h-2 bg-[#ffa05a] rounded-full opacity-5" 
+               style={{
+                 top: '25%', 
+                 left: '10%',
+                 animation: 'float 9s ease-in-out infinite, fadeInOut 7s ease-in-out infinite'
+               }}></div>
+          <div className="absolute w-1.5 h-1.5 bg-[#ffa05a] rounded-full opacity-6" 
+               style={{
+                 top: '50%', 
+                 right: '20%',
+                 animation: 'float 13s ease-in-out infinite reverse, fadeInOut 9s ease-in-out infinite 1.5s'
+               }}></div>
+          <div className="absolute w-1 h-1 bg-[#ffa05a] rounded-full opacity-8" 
+               style={{
+                 top: '70%', 
+                 left: '30%',
+                 animation: 'float 11s ease-in-out infinite, fadeInOut 6s ease-in-out infinite 2.5s'
+               }}></div>
+          <div className="absolute w-2.5 h-2.5 bg-[#ffa05a] rounded-full opacity-4" 
+               style={{
+                 bottom: '25%', 
+                 right: '15%',
+                 animation: 'float 16s ease-in-out infinite reverse, fadeInOut 8s ease-in-out infinite 3.5s'
+               }}></div>
+          <div className="absolute w-1.5 h-1.5 bg-[#ffa05a] rounded-full opacity-7" 
+               style={{
+                 bottom: '10%', 
+                 left: '25%',
+                 animation: 'float 12s ease-in-out infinite, fadeInOut 5s ease-in-out infinite 4.5s'
+               }}></div>
+        </div>
+        
+        {/* Waveform with all controls */}
+        <div className="space-y-3">
           {/* Waveform component */}
           <RecordedAudioWaveform
             ref={waveformRef}
@@ -859,23 +893,24 @@ return (
           />
 
           {/* All buttons on same line: Play on left, others on right */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between bg-white/50 backdrop-blur-sm rounded-lg p-3 shadow-sm">
             {/* Play button on left */}
             <button
               onClick={() => {
                 waveformRef.current?.togglePlayback();
               }}
-              className="flex items-center gap-2 px-3 py-1 rounded text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
               style={{
                 backgroundColor: '#FFA05A',
-                color: '#FFFFFF',
-                border: '1px solid #FF8A3A'
+                color: '#FFFFFF'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#FF8A3A';
+                e.currentTarget.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = '#FFA05A';
+                e.currentTarget.style.transform = 'translateY(0px)';
               }}
             >
               <FontAwesomeIcon icon={isWaveformPlaying ? faStop : faPlay} className="text-xs" />
@@ -883,23 +918,23 @@ return (
             </button>
 
             {/* Action buttons on right */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {/* Rerecord Button */}
               <button
                 onClick={handleRerecord}
                 disabled={isLoading}
-                className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50"
                 style={{backgroundColor: '#72A5F2', color: '#ffffff'}}
                 onMouseEnter={(e) => {
                   if (!isLoading) {
                     e.currentTarget.style.backgroundColor = '#5B94E8'
-                    e.currentTarget.style.transform = 'scale(1.05)'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isLoading) {
                     e.currentTarget.style.backgroundColor = '#72A5F2'
-                    e.currentTarget.style.transform = 'scale(1)'
+                    e.currentTarget.style.transform = 'translateY(0px)'
                   }
                 }}
               >
@@ -910,18 +945,18 @@ return (
               <button
                 onClick={handleSaveVoiceCloning}
                 disabled={isVoiceCloningSaving}
-                className="w-10 h-10 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
+                className="w-8 h-8 rounded-lg text-white flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50"
                 style={{backgroundColor: '#FFA05A'}}
                 onMouseEnter={(e) => {
                   if (!isVoiceCloningSaving) {
                     e.currentTarget.style.backgroundColor = '#FF8A3A'
-                    e.currentTarget.style.transform = 'scale(1.05)'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isVoiceCloningSaving) {
                     e.currentTarget.style.backgroundColor = '#FFA05A'
-                    e.currentTarget.style.transform = 'scale(1)'
+                    e.currentTarget.style.transform = 'translateY(0px)'
                   }
                 }}
               >
@@ -1062,20 +1097,48 @@ return (
 
         {/* Recording in Progress */}
         {lineMode === "recording" && isRecording && (
-          <div className="w-full px-4 py-3 rounded-lg border-2 border-red-500 bg-red-50 shadow-lg">
-            <div className="flex items-center justify-between">
+          <div className="w-full bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-xl p-4 shadow-lg relative overflow-hidden">
+            {/* Floating orange circles like snow */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute w-1.5 h-1.5 bg-[#ffa05a] rounded-full opacity-6" 
+                   style={{
+                     top: '30%', 
+                     left: '20%',
+                     animation: 'float 10s ease-in-out infinite, fadeInOut 8s ease-in-out infinite'
+                   }}></div>
+              <div className="absolute w-1 h-1 bg-[#ffa05a] rounded-full opacity-8" 
+                   style={{
+                     top: '60%', 
+                     right: '30%',
+                     animation: 'float 14s ease-in-out infinite reverse, fadeInOut 6s ease-in-out infinite 2s'
+                   }}></div>
+              <div className="absolute w-2 h-2 bg-[#ffa05a] rounded-full opacity-4" 
+                   style={{
+                     bottom: '40%', 
+                     left: '15%',
+                     animation: 'float 12s ease-in-out infinite, fadeInOut 7s ease-in-out infinite 3s'
+                   }}></div>
+            </div>
+            
+            <div className="flex items-center justify-between bg-white/50 backdrop-blur-sm rounded-lg p-3 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-sm"></div>
                 <span className="font-semibold text-red-700 text-sm font-quicksand">Recording...</span>
-                <span className="font-mono text-sm font-bold text-red-700 bg-white px-2 py-1 rounded border border-red-500">
+                <span className="font-mono text-xs font-bold text-red-700 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-lg shadow-sm">
                   {formatTime(recordingTime)}
                 </span>
               </div>
               <button
                 onClick={stopRecording}
-                className="px-3 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg border border-red-700 font-medium text-sm font-quicksand"
+                className="px-3 py-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md font-medium text-sm font-quicksand"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0px)';
+                }}
               >
-                <FontAwesomeIcon icon={faStop} className="text-sm" />
+                <FontAwesomeIcon icon={faStop} className="text-xs" />
                 <span>Stop</span>
               </button>
             </div>

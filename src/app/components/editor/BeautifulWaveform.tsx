@@ -467,17 +467,51 @@ const BeautifulWaveform = ({ line, setLineMode, onAudioTrimmed, speed = 1.0 }: P
   }
 
   return (
-    <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 space-y-3">
+    <div className="bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-2xl p-4 space-y-3 shadow-lg relative overflow-hidden">
+      {/* Floating orange circles like snow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute w-2 h-2 bg-[#ffa05a] rounded-full opacity-5 animate-pulse" 
+             style={{
+               top: '20%', 
+               left: '15%',
+               animation: 'float 8s ease-in-out infinite, fadeInOut 6s ease-in-out infinite'
+             }}></div>
+        <div className="absolute w-1.5 h-1.5 bg-[#ffa05a] rounded-full opacity-8" 
+             style={{
+               top: '60%', 
+               right: '25%',
+               animation: 'float 12s ease-in-out infinite reverse, fadeInOut 8s ease-in-out infinite 2s'
+             }}></div>
+        <div className="absolute w-1 h-1 bg-[#ffa05a] rounded-full opacity-6" 
+             style={{
+               top: '35%', 
+               right: '15%',
+               animation: 'float 10s ease-in-out infinite, fadeInOut 7s ease-in-out infinite 1s'
+             }}></div>
+        <div className="absolute w-2.5 h-2.5 bg-[#ffa05a] rounded-full opacity-4" 
+             style={{
+               bottom: '30%', 
+               left: '20%',
+               animation: 'float 15s ease-in-out infinite reverse, fadeInOut 9s ease-in-out infinite 3s'
+             }}></div>
+        <div className="absolute w-1.5 h-1.5 bg-[#ffa05a] rounded-full opacity-7" 
+             style={{
+               bottom: '15%', 
+               right: '35%',
+               animation: 'float 11s ease-in-out infinite, fadeInOut 5s ease-in-out infinite 4s'
+             }}></div>
+      </div>
+      
       {/* Hidden audio element */}
       <audio ref={audioRef} src={line.audio_url} preload="metadata" />
       
       {/* Waveform Canvas */}
-      <div className="relative">
+      <div className="relative bg-white/70 backdrop-blur-sm rounded-lg p-3 shadow-sm">
         <canvas
           ref={canvasRef}
           width={600}
-          height={60}
-          className="w-full h-15 rounded"
+          height={50}
+          className="w-full h-12 rounded"
           style={{ cursor: 'pointer' }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
@@ -486,30 +520,27 @@ const BeautifulWaveform = ({ line, setLineMode, onAudioTrimmed, speed = 1.0 }: P
         />
       </div>
 
-      {/* Controls - Styled like delay/speed popups */}
-      <div className="flex items-center justify-between">
+      {/* Controls - Compact styling */}
+      <div className="flex items-center justify-between bg-white/50 backdrop-blur-sm rounded-lg p-3 shadow-sm">
         <button
           onClick={togglePlayback}
-          className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+          className="px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
           style={{ 
             backgroundColor: '#FFA05A', 
-            color: '#FFFFFF',
-            border: '1px solid #FF8A3A'
+            color: '#FFFFFF'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = '#FF8A3A';
-            e.currentTarget.style.borderColor = '#FF7A2A';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = '#FFA05A';
-            e.currentTarget.style.borderColor = '#FF8A3A';
           }}
         >
           <FontAwesomeIcon icon={isPlaying ? faPause : faPlay} className="text-xs" />
           {isPlaying ? 'Pause' : 'Play'}
         </button>
 
-        <div className="text-sm font-medium" style={{ color: '#CC7A00' }}>
+        <div className="px-3 py-1.5 bg-white/80 backdrop-blur-sm rounded-xl text-xs font-bold shadow-sm" style={{ color: '#CC7A00' }}>
           {trimRange.start.toFixed(1)}s - {trimRange.end.toFixed(1)}s
         </div>
 
@@ -517,18 +548,16 @@ const BeautifulWaveform = ({ line, setLineMode, onAudioTrimmed, speed = 1.0 }: P
           <button
             onClick={saveTrimmedAudio}
             disabled={isSaving}
-            className="w-10 h-10 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
+            className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md"
             style={{backgroundColor: isSaving ? '#D1D5DB' : '#FFA05A'}}
             onMouseEnter={(e) => {
               if (!isSaving) {
                 e.currentTarget.style.backgroundColor = '#FF8A3A'
-                e.currentTarget.style.transform = 'scale(1.05)'
               }
             }}
             onMouseLeave={(e) => {
               if (!isSaving) {
                 e.currentTarget.style.backgroundColor = '#FFA05A'
-                e.currentTarget.style.transform = 'scale(1)'
               }
             }}
           >
@@ -537,15 +566,15 @@ const BeautifulWaveform = ({ line, setLineMode, onAudioTrimmed, speed = 1.0 }: P
 
           <button
             onClick={() => setLineMode('default')}
-            className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg"
-            style={{backgroundColor: '#F4F3F0', color: '#FFA05A'}}
+            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
+            style={{backgroundColor: '#f8f9fa', color: '#dc3545'}}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#E8E6E1'
-              e.currentTarget.style.transform = 'scale(1.05)'
+              e.currentTarget.style.backgroundColor = '#e9ecef'
+              e.currentTarget.style.borderColor = '#dc3545'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#F4F3F0'
-              e.currentTarget.style.transform = 'scale(1)'
+              e.currentTarget.style.backgroundColor = '#f8f9fa'
+              e.currentTarget.style.borderColor = '#dee2e6'
             }}
           >
             <FontAwesomeIcon icon={faXmark} className="text-sm" />
