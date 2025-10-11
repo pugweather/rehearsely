@@ -376,7 +376,8 @@ const EditLine = ({
         // Stop the stream immediately since we just needed permission
         stream.getTracks().forEach(track => track.stop());
         setMicPermissionGranted(true);
-        // Don't auto-start recording - user must click record again
+        // Auto-start recording now that permission is granted
+        // Fall through to the recording logic below
       } catch (error) {
         console.error('Failed to access microphone:', error);
         // Check the specific error to determine if it's a permission issue or no device
@@ -385,8 +386,9 @@ const EditLine = ({
         } else {
           onMicError?.('permission')
         }
+        return; // Only return on error
       }
-      return;
+      // Don't return here - continue to start recording
     }
 
     // Permission already granted, start actual recording
