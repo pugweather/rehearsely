@@ -58,7 +58,7 @@ const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, s
 
   return (
     <Modal width={560} height={260} isOpen={isOpen} onClose={handleClose}>
-        <div className='flex flex-col h-full rounded-2xl bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] border-4 border-black shadow-xl'>
+        <div className='flex flex-col h-full rounded-2xl bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] shadow-xl border-4 border-red-600'>
           <div className='relative px-6 py-5'>
             <div className='text-2xl font-bold text-gray-800'>Confirm Deletion</div>
             <button 

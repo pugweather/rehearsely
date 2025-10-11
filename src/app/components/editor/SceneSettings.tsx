@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClock, faScroll, faMapMarkerAlt, faChevronDown, faX } from '@fortawesome/free-solid-svg-icons'
 import { useSceneDelay } from '@/app/context/countdownContext'
@@ -21,6 +21,19 @@ const SceneSettings = ({ onRangeSelectionToggle, onClose }: Props) => {
   const { isTeleprompterActive, setIsTeleprompterActive } = useTeleprompter()
   const { isRangeSelectionMode, setIsRangeSelectionMode, isRangeSet, clearRange, setClickedLineId } = usePracticeRange()
   const [showDelayOptions, setShowDelayOptions] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDelayOptions(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const delayOptions = [
     { value: 3, label: '3 seconds' },
@@ -69,7 +82,7 @@ const SceneSettings = ({ onRangeSelectionToggle, onClose }: Props) => {
             </p>
           </div>
           
-          <div className="relative">
+          <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setShowDelayOptions(!showDelayOptions)}
               className={`w-full px-3 py-2 rounded-lg border-2 border-black font-semibold text-sm transition-all duration-200 bg-white text-gray-800 hover:bg-gray-50 ${sunsetSerialMediumFont.className}`}
@@ -86,7 +99,7 @@ const SceneSettings = ({ onRangeSelectionToggle, onClose }: Props) => {
                       setCountdown(option.value)
                       setShowDelayOptions(false)
                     }}
-                    className={`w-full px-3 py-2 text-sm font-semibold transition-all duration-300 ease-in-out first:rounded-t-md last:rounded-b-md transform hover:scale-[1.02] ${
+                    className={`w-full px-3 py-2 text-sm font-semibold transition-colors duration-200 ${
                       countdown === option.value
                         ? 'bg-[#72a4f2] text-white'
                         : 'text-gray-800 hover:bg-gray-50'

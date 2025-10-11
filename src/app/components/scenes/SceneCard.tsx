@@ -97,14 +97,14 @@ const SceneCard = ({id, name, modified_at, dropdownData, setOpenedDropdownId, op
 
               <ul
                 tabIndex={0}
-                className="dropdown-content menu bg-white rounded-xl z-50 w-52 p-2 shadow-xl border border-black overflow-hidden mt-2"
+                className="dropdown-content menu bg-white rounded-xl z-50 w-52 p-0 shadow-xl border border-black overflow-hidden mt-2"
               >
                 {
                   dropdownData.map((item, index) => {
                     return (
-                      <li key={index}>
+                      <li key={index} className="list-none">
                         <a 
-                          className={`${item.className} hover:bg-[#72a4f2]/10 rounded-lg transition-all duration-200 px-3 py-2`} 
+                          className={`${item.className} hover:bg-gray-50 transition-colors duration-200 px-4 py-3 block w-full text-left`} 
                           onClick={(e) => {
                             e.preventDefault();
                             item.onClick();
