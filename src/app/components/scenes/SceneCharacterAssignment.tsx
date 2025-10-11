@@ -187,7 +187,7 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
       }`}>
         
         {/* Header */}
-        <div className="flex items-center justify-between p-8">
+        <div className="flex items-center justify-between py-8 px-16 mt-15">
           <button
             onClick={handleBack}
             disabled={isBackLoading}

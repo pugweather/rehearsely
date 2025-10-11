@@ -93,7 +93,7 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
   }
 
   return (
-    <div className="flex flex-col flex-1 relative">
+    <div className="flex flex-col flex-1 relative mt-12">
       {/* Subtle background accents */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-[#72a4f2]/8 to-transparent rounded-full blur-3xl"></div>
@@ -108,6 +108,11 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
         
         {/* Header */}
         <div className="flex items-center justify-between p-8">
+          <div className="w-32"></div> {/* Spacer for centering */}
+        </div>
+
+        {/* Back Button - Positioned lower and more to the right */}
+        <div className="px-16 pb-4">
           <button
             onClick={handleBack}
             disabled={isBackLoading}
@@ -128,8 +133,6 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
               {isBackLoading ? 'Loading...' : 'Back'}
             </span>
           </button>
-
-          <div className="w-32"></div> {/* Spacer for centering */}
         </div>
 
         {/* Main content */}

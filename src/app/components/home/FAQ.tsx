@@ -20,6 +20,7 @@ const bogue = localFont({
 export default function FAQ() {
   const [isVisible, setIsVisible] = useState(false);
   const [openItems, setOpenItems] = useState<number[]>([]);
+  const [isContactLoading, setIsContactLoading] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -81,6 +82,13 @@ export default function FAQ() {
         ? prev.filter(i => i !== index)
         : [...prev, index]
     );
+  };
+
+  const handleContactClick = () => {
+    setIsContactLoading(true);
+    setTimeout(() => {
+      window.location.href = '/contact';
+    }, 300);
   };
 
   const faqItems = [
@@ -205,17 +213,38 @@ export default function FAQ() {
             Still have questions? We're here to help!
           </p>
           <button 
-            onClick={() => window.location.href = '/contact'}
-            className={`
-              px-8 py-4 rounded-2xl font-bold text-lg border-3 border-black
-              bg-gradient-to-r from-[#72a4f2] to-[#5b8ce8] text-white
-              transition-all duration-300 ease-out transform
-              hover:-translate-y-1 hover:scale-105 hover:shadow-xl
-              active:translate-y-0 active:scale-100
-              shadow-lg ${sunsetSerialMediumFont.className}
+            onClick={handleContactClick}
+            disabled={isContactLoading}
+            className={`group relative inline-flex items-center justify-center
+              px-8 py-4 rounded-2xl font-bold text-lg border-4 border-black
+              bg-gradient-to-br from-[#72a4f2] to-[#5b8ce8] text-white
+              transition-all duration-300 ease-out transform min-w-[200px]
+              shadow-xl hover:shadow-2xl ${sunsetSerialMediumFont.className} ${
+                isContactLoading 
+                  ? 'cursor-not-allowed opacity-80 scale-95' 
+                  : 'hover:-translate-y-2 hover:scale-105 active:translate-y-0 active:scale-100'
+              }
             `}
           >
-            Contact Support
+            {/* Subtle inner glow effect */}
+            <div className="absolute inset-1 rounded-xl bg-gradient-to-br from-white/20 to-transparent pointer-events-none opacity-60"></div>
+            
+            {/* Button content */}
+            <div className="relative z-10">
+              {isContactLoading ? (
+                <div className="flex items-center gap-3">
+                  {/* Elegant pulsing dots */}
+                  <div className="flex gap-1.5">
+                    <div className="w-2.5 h-2.5 bg-white rounded-full animate-pulse" style={{animationDelay: '0ms'}}></div>
+                    <div className="w-2.5 h-2.5 bg-white rounded-full animate-pulse" style={{animationDelay: '200ms'}}></div>
+                    <div className="w-2.5 h-2.5 bg-white rounded-full animate-pulse" style={{animationDelay: '400ms'}}></div>
+                  </div>
+                  <span>Loading</span>
+                </div>
+              ) : (
+                'Contact Support'
+              )}
+            </div>
           </button>
         </div>
       </motion.div>

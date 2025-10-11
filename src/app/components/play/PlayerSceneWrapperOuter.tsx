@@ -85,7 +85,7 @@ const PlaySceneWrapperOuter = ({ scene, lineItems, sceneIsPlaying, setSceneIsPla
         {/* Content Area - uses natural page scroll */}
         <div ref={scrollRef}>
           {/* Compact wrapper for player - less padding than EditorWrapper */}
-          <div className="flex-grow max-w-4xl w-full mx-auto px-6 py-4">
+          <div className="flex-grow max-w-4xl w-full mx-auto px-6 py-4 mt-[125px]">
             <div className="p-4">
               <div className="max-w-md mx-auto">
                 <PlayerLineList
