@@ -99,7 +99,7 @@ export default function Pricing() {
   ];
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] relative overflow-hidden">
+    <section className="py-20 px-4 relative overflow-hidden">
       {/* Floating background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute w-32 h-32 bg-[#72a4f2] rounded-full opacity-5 -top-16 -left-16 animate-pulse"></div>

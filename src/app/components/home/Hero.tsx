@@ -86,7 +86,7 @@ export default function Hero() {
     }
 
     return (
-        <section className="flex flex-grow flex-col items-center justify-center h-full w-full text-center">
+        <section className="flex flex-grow flex-col items-center justify-center h-screen w-full text-center">
 
             <h1 className={`text-7xl font-bold transition-all duration-700 ease-out ${bogue.className} ${
                 showElements.title 

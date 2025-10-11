@@ -47,7 +47,7 @@ const SceneNamePage = () => {
   return (
     <>
       <Navbar />
-      <div className="h-[calc(100vh_-_125px)] flex flex-col relative flex-1 overflow-hidden">
+      <div className="h-full flex flex-col relative flex-1 overflow-hidden">
         {/* Subtle background accents */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-br from-[#72a4f2]/8 to-transparent rounded-full blur-3xl"></div>

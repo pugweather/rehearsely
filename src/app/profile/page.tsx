@@ -54,7 +54,7 @@ const ProfilePage = () => {
   ]
 
   return (
-    <div className="min-h-screen pt-[75px] -mt-[125px] bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc]">
+    <div className="min-h-screen pt-[75px] bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc]">
       <Navbar />
       <div className="pt-20 p-6">
         {/* Header */}
