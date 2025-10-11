@@ -8,6 +8,7 @@ import EditLine from './EditLine'
 import Dropdown from '../ui/Dropdown'
 import Overlay from '../ui/Overlay';
 import ModalCreateCharacterNew from './ModalCreateCharacterNew';
+import MicErrorModal from '../ui/MicErrorModal';
 import PlaySceneButtonsWrapper from './PlaySceneButtonsWrapper';
 import { Line, DraftLine, LineBeingEditedData, Character, DropdownData } from '@/app/types';
 import Image from 'next/image';
@@ -53,6 +54,8 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   const [originalCharForOpenedLine, setOriginalCharForOpenedLine] = useState<Character | null>(null) // When a line is opened, we track the original
   const [isCreateCharModalOpen, setIsCreateCharModalOpen] = useState<boolean>(false)
   const [shouldScroll, setShouldScroll] = useState<boolean>(false)
+  const [showMicErrorModal, setShowMicErrorModal] = useState(false)
+  const [micErrorType, setMicErrorType] = useState<'permission' | 'no_device'>('permission')
   const { isRangeSelectionMode } = usePracticeRange()
 
   const TEMP_LINE_ID = -999
@@ -263,14 +266,16 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   const closeEditLine = () => {
     // Remove temp line from lines array. Line isn't in db so no need to hit delete endpoint
     if (lineItems?.find(l => Number(l.id) == TEMP_LINE_ID)) {
-      setLines(prev => {
-        if (!prev) return null
-        return prev.filter(l => l.id != TEMP_LINE_ID)
-      })
+      setLines(prev => prev?.filter(l => Number(l.id) !== TEMP_LINE_ID) || null)
     }
-    // Also reset data for line being edited
+    setLineBeingEdited(null)
     setLineBeingEditedData(LINE_BEING_EDITED_EMPTY)
-    setLineBeingEdited(null) // TODO: we'll keep this for now. Maybe we can put all data into lineBeingEditedData....
+    setOriginalCharForOpenedLine(null)
+  }
+
+  const handleMicError = (errorType: 'permission' | 'no_device') => {
+    setMicErrorType(errorType)
+    setShowMicErrorModal(true)
   }
 
   const handleCascadeDelete = async (characterId: number) => {
@@ -439,6 +444,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
                     charsDropdownData={charsDropdownData}
                     closeEditLine={closeEditLine}
                     onCascadeDelete={handleCascadeDelete}
+                    onMicError={handleMicError}
                   />
                 )
               }
@@ -492,6 +498,12 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
       )}
 
       {isCreateCharModalOpen && <ModalCreateCharacterNew originalCharForOpenedLine={originalCharForOpenedLine} setIsCreateCharModalOpen={setIsCreateCharModalOpen} sceneId={sceneId} setLineBeingEditedData={setLineBeingEditedData} lineBeingEditedData={lineBeingEditedData} />}
+      
+      <MicErrorModal
+        isOpen={showMicErrorModal}
+        errorType={micErrorType}
+        onClose={() => setShowMicErrorModal(false)}
+      />
     </>
   )
 }

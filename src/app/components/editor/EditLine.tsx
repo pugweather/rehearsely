@@ -30,7 +30,6 @@ import { lines } from "@/database/drizzle/schema";
 import { useCharacters } from '@/app/context/charactersContext';
 import { useVoicesStore } from '@/app/stores/useVoicesStores';
 import Dropdown from '../ui/Dropdown';
-import MicErrorModal from '../ui/MicErrorModal';
 import ModalDeleteCharacter from './ModalDeleteCharacter';
 import { Poppins } from "next/font/google";
 
@@ -44,6 +43,7 @@ type Props = {
   charsDropdownData: DropdownData[] | undefined;
   setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>;
   onCascadeDelete?: (characterId: number) => Promise<void>;
+  onMicError?: (errorType: 'permission' | 'no_device') => void;
 };
 
 const certaSansMedium = localFont({
@@ -77,6 +77,7 @@ const EditLine = ({
   charsDropdownData,
   setLineBeingEditedData,
   onCascadeDelete,
+  onMicError,
 }: Props) => {
   const TEMP_LINE_ID = -999;
   const isNewLine = line?.id === TEMP_LINE_ID;
@@ -112,9 +113,7 @@ const EditLine = ({
   const [recordingTime, setRecordingTime] = useState(0);
   const [recordedAudioBlob, setRecordedAudioBlob] = useState<Blob | null>(null);
   const [isWaveformPlaying, setIsWaveformPlaying] = useState(false);
-  const [showMicErrorModal, setShowMicErrorModal] = useState(false);
   const [micPermissionGranted, setMicPermissionGranted] = useState(false);
-  const [micErrorType, setMicErrorType] = useState<'permission' | 'no_device'>('permission');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   
   // Delete character modal state
@@ -358,8 +357,7 @@ const EditLine = ({
       // First check if microphones are available
       const hasMicrophone = await checkMicrophoneAvailability()
       if (!hasMicrophone) {
-        setMicErrorType('no_device')
-        setShowMicErrorModal(true)
+        onMicError?.('no_device')
         return
       }
 
@@ -383,11 +381,10 @@ const EditLine = ({
         console.error('Failed to access microphone:', error);
         // Check the specific error to determine if it's a permission issue or no device
         if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-          setMicErrorType('no_device')
+          onMicError?.('no_device')
         } else {
-          setMicErrorType('permission')
+          onMicError?.('permission')
         }
-        setShowMicErrorModal(true);
       }
       return;
     }
@@ -452,7 +449,7 @@ const EditLine = ({
 
     } catch (error) {
       console.error('Error starting recording:', error);
-      setShowMicErrorModal(true);
+      onMicError?.('permission');
     }
   };
 
@@ -821,7 +818,7 @@ return (
             <input 
               type="range" 
               min={0} 
-              max={2} 
+              max={10} 
               step={0.1} 
               value={lineDelay} 
               className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer" 
@@ -1085,35 +1082,6 @@ return (
       </div>
     )}
 
-    <MicErrorModal
-      isOpen={showMicErrorModal}
-      errorType={micErrorType}
-      onClose={async () => {
-        setShowMicErrorModal(false)
-        // Only request permission when modal is closed if it's a permission issue, not a device issue
-        if (!micPermissionGranted && micErrorType === 'permission') {
-          try {
-            console.log('Requesting microphone access after modal close...');
-            const stream = await navigator.mediaDevices.getUserMedia({
-              audio: {
-                echoCancellation: true,
-                noiseSuppression: true,
-                autoGainControl: true,
-                sampleRate: 16000,
-                channelCount: 1
-              }
-            });
-            console.log('Microphone access granted');
-            // Stop the stream immediately since we just needed permission
-            stream.getTracks().forEach(track => track.stop());
-            setMicPermissionGranted(true);
-          } catch (error) {
-            console.error('Failed to access microphone after modal close:', error);
-            // Don't show modal again to avoid infinite loop
-          }
-        }
-      }}
-    />
 
     {/* Delete Character Modal */}
     {isDeleteCharModalOpen && characterToDelete && sceneId && (

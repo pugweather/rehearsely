@@ -295,8 +295,9 @@ const ModalCreateCharacterNew = ({
               setCharacterName(e.target.value)
               setErrorText(null)
             }}
-            className={`w-full px-4 py-3 rounded-xl text-base border-2 focus:outline-none transition-all duration-200 bg-white text-gray-800 shadow-md focus:shadow-lg focus:border-[#72a4f2] ${sunsetSerialMediumFont.className}`}
+            className="w-full px-4 py-3 rounded-xl border-3 border-black bg-white text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#72a4f2] focus:border-[#72a4f2] transition-all duration-200 font-medium text-lg"
             style={{
+              fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
               borderColor: errorText ? '#dc2626' : '#000000'
             }}
           />
@@ -316,7 +317,7 @@ const ModalCreateCharacterNew = ({
             <h3 className={`text-lg font-bold text-gray-800 ${sunsetSerialMediumFont.className}`}>
               Select Voice
             </h3>
-            <span className="text-sm text-gray-600 font-medium ml-2">Click play to preview</span>
+            <span className="text-sm text-gray-600 font-medium ml-2 mt-2">Click play to preview</span>
           </div>
         </div>
 

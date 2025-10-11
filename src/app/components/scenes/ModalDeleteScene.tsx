@@ -75,7 +75,7 @@ const ModalDeleteScene = ({closeDeleteSceneModal, setSceneDeleting, setScenes, s
               <FontAwesomeIcon icon={faTriangleExclamation} className='text-xl text-red-600' />
             </div>
             <div className='text-lg text-gray-800 leading-relaxed'>
-              Are you sure you want to delete <span className="font-bold text-red-600">{scene.name}</span>? This action cannot be undone.
+              Are you sure you want to delete <span className="font-bold text-red-600">{scene.name}</span>?
             </div>
           </div>
 
