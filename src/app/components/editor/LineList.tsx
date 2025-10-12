@@ -344,17 +344,17 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
     setHasMadeSwap(false);
   };
 
-  // Handle drag over for smart swapping when items overlap significantly
+  // Handle drag over - update array order during drag so no state change needed on drop
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
-    
+
     if (!over || !lineItems || active.id === over.id) return;
 
     const activeIndex = lineItems.findIndex(item => item.id === active.id);
     const overIndex = lineItems.findIndex(item => item.id === over.id);
 
     if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
-      // Swap immediately when dragged item overlaps with another
+      // Update the array order immediately so it matches visual order
       const newLines = arrayMove(lineItems, activeIndex, overIndex);
       setLines(newLines);
       setHasMadeSwap(true);
@@ -363,15 +363,12 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
 
   // Handle drag end for backend update
   const handleDragEnd = async (event: DragEndEvent) => {
-    console.log('Drag ended, hasMadeSwap:', hasMadeSwap);
-    
-    // Only update backend if we actually made a swap
+    // Array has already been reordered in handleDragOver, so just update backend
     if (!hasMadeSwap || !lineItems) {
-      console.log('No swap made or no line items, skipping backend update');
+      console.log('No swap made');
       return;
     }
 
-    // Use current lineItems state (which has already been updated by handleDragOver)
     const currentLines = lineItems;
     
     // Update backend with current order

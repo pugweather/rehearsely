@@ -253,7 +253,9 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: isDragging ? 'none' : transition, // No transition during drag for instant response
+    // While actively dragging: no transition for instant mouse tracking
+    // Otherwise: use dnd-kit's transition (for drop animation) or our fallback
+    transition: (isDragging && transform) ? 'none' : (transition || 'transform 0.25s ease-out'),
   };
 
   // Determine if this line is the start or end point
@@ -307,13 +309,13 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
       data-line-id={line?.id}
       {...(isRangeSelectionMode ? {} : attributes)}
       {...(isRangeSelectionMode ? {} : listeners)}
-      className={`w-full text-center mb-8 px-8 py-6 rounded-xl transition-all duration-300 ease-out font-medium border border-transparent relative ${courierPrimeRegular.className} ${
-        isDragging ? 'shadow-lg scale-105' : 'shadow-none scale-100'
+      className={`w-full text-center mb-8 px-8 py-6 rounded-xl transition-all font-medium border relative ${courierPrimeRegular.className} ${
+        isDragging ? 'shadow-2xl scale-[1.03] z-50 cursor-grabbing' : 'shadow-none scale-100'
       } ${
         line?.isDeleting ? 'cursor-not-allowed opacity-60' :
         isCharactersLoading ? 'cursor-not-allowed opacity-60' :
         isRangeSelectionMode ? 'cursor-pointer' :
-        isDragDisabled ? 'cursor-pointer' : 'cursor-grab'
+        isDragDisabled ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing'
       } ${
         isOutsideRange ? 'opacity-50' : ''
       } ${
@@ -321,20 +323,20 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
       }`}
       style={{
         ...style,
-        border: '1px solid transparent',
-        transition: 'all 0.3s ease-out',
         // Different backgrounds for different states
         backgroundColor: line?.isDeleting ? 'rgba(200,200,200,0.3)' :
-                        isDragging ? 'rgba(255,160,90,0.15)' :
+                        isDragging ? 'rgba(255,160,90,0.12)' :
                         (isRangeSelectionMode && isClickedLine) ? 'rgba(59,130,246,0.1)' :
                         'transparent',
         borderColor: line?.isDeleting ? 'rgba(150,150,150,0.4)' :
-                    isDragging ? 'rgba(255,160,90,0.3)' :
+                    isDragging ? 'rgba(255,160,90,0.35)' :
                     (isRangeSelectionMode && isStartPoint) ? '#86efac' :
                     (isRangeSelectionMode && isEndPoint) ? '#fca5a5' :
                     'transparent',
-        borderWidth: (isRangeSelectionMode && (isStartPoint || isEndPoint)) ? '3px' : '1px',
-        boxShadow: (isRangeSelectionMode && isStartPoint) ? '0 0 0 3px rgba(134, 239, 172, 0.3)' :
+        borderWidth: isDragging ? '2px' :
+                    (isRangeSelectionMode && (isStartPoint || isEndPoint)) ? '3px' : '1px',
+        boxShadow: isDragging ? '0 8px 24px rgba(255, 160, 90, 0.25), 0 2px 8px rgba(0, 0, 0, 0.1)' :
+                   (isRangeSelectionMode && isStartPoint) ? '0 0 0 3px rgba(134, 239, 172, 0.3)' :
                    (isRangeSelectionMode && isEndPoint) ? '0 0 0 3px rgba(252, 165, 165, 0.3)' :
                    'none'
       }}
@@ -342,21 +344,21 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
         if (!isDragging && !isCharactersLoading && !line?.isDeleting && !isRangeSelectionMode && !isDragDisabled) {
           e.currentTarget.style.backgroundColor = 'rgba(255,160,90,0.08)'
           e.currentTarget.style.borderColor = 'rgba(255,160,90,0.2)'
-          e.currentTarget.style.borderRadius = '12px'
           setIsHovered(true)
         }
       }}
       onMouseLeave={(e) => {
         // Reset hover state and styles on mouse leave, but preserve clicked state in range selection mode
-        if (isRangeSelectionMode && isClickedLine) {
-          // Keep the clicked line background
-          e.currentTarget.style.backgroundColor = 'rgba(59,130,246,0.1)'
-          e.currentTarget.style.borderColor = 'transparent'
-        } else {
-          e.currentTarget.style.backgroundColor = 'transparent'
-          e.currentTarget.style.borderColor = 'transparent'
+        if (!isDragging) {
+          if (isRangeSelectionMode && isClickedLine) {
+            // Keep the clicked line background
+            e.currentTarget.style.backgroundColor = 'rgba(59,130,246,0.1)'
+            e.currentTarget.style.borderColor = 'transparent'
+          } else {
+            e.currentTarget.style.backgroundColor = 'transparent'
+            e.currentTarget.style.borderColor = 'transparent'
+          }
         }
-        e.currentTarget.style.borderRadius = '12px'
         setIsHovered(false)
       }}
       onMouseDown={isRangeSelectionMode ? undefined : handleMouseDown}
