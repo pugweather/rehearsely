@@ -25,16 +25,18 @@ export async function PATCH(
     let updates: any = {};
     let uploadedAudioFile: File | null = null;
     let isVoiceCloning = false;
+    let preserveVoiceClonedAudio = false;
     
     if (contentType.includes('multipart/form-data')) {
         // Handle audio file upload (trimmed audio or voice cloning)
         const formData = await req.formData();
         uploadedAudioFile = formData.get('audio') as File;
         isVoiceCloning = formData.get('isVoiceCloning') === 'true';
+        preserveVoiceClonedAudio = formData.get('preserveVoiceClonedAudio') === 'true';
         
         // Get any other form fields
         for (const [key, value] of formData.entries()) {
-            if (key !== 'audio' && key !== 'isVoiceCloning') {
+            if (key !== 'audio' && key !== 'isVoiceCloning' && key !== 'preserveVoiceClonedAudio') {
                 updates[key] = value;
             }
         }
@@ -127,8 +129,8 @@ export async function PATCH(
         
         publicUrl = publicUrlData.publicUrl;
     } 
-    // Handle text-to-speech generation
-    else if (updates.text && updates.voiceId) {
+    // Handle text-to-speech generation (but not if we're preserving voice-cloned audio)
+    else if (updates.text && updates.voiceId && !preserveVoiceClonedAudio) {
         const text = updates.text;
         const voiceId = updates.voiceId;
         
@@ -166,7 +168,11 @@ export async function PATCH(
         .where(eq(lines.id, Number(lineId)))
         .returning()
 
-    return NextResponse.json({id: lineId, updates: {...updates, ...(publicUrl ? {audio_url: publicUrl} : {}), ...(clonedVoiceId ? {voice_id: clonedVoiceId} : {})}}, {status: 200})
+    // Get the current audio_url from the updated line to return in response
+    const updatedLine = res[0];
+    const currentAudioUrl = publicUrl || updatedLine?.audio_url;
+
+    return NextResponse.json({id: lineId, updates: {...updates, ...(currentAudioUrl ? {audio_url: currentAudioUrl} : {}), ...(clonedVoiceId ? {voice_id: clonedVoiceId} : {})}}, {status: 200})
 
 }
 

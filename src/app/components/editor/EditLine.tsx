@@ -169,13 +169,13 @@ const EditLine = ({
     const hasAudioTrimmed = trimmedAudioBlob !== null;
     const hasAudioRecorded = recordedAudioBlob !== null;
 
-    // If text has changed after voice cloning, reset the voice cloning flag
-    // This handles the edge case where changing text reverts back to TTS
-    if (hasTextChanged && savedWithVoiceCloning) {
+    // Keep voice-cloned audio even if text changes - voice should take priority over TTS
+    // Only reset voice cloning if user explicitly records a new voice or trims audio
+    if ((hasAudioRecorded || hasAudioTrimmed) && savedWithVoiceCloning) {
       setSavedWithVoiceCloning(false);
     }
 
-    setHasChanges(hasTextChanged || hasCharacterChanged || hasSpeedChanged || hasDelayChanged || hasAudioTrimmed || hasAudioRecorded);
+    setHasChanges(hasTextChanged || hasCharacterChanged || hasSpeedChanged || hasDelayChanged || hasAudioTrimmed || hasAudioRecorded || savedWithVoiceCloning);
   }, [lineBeingEditedData.text, lineBeingEditedData.character?.id, lineBeingEditedData.speed, lineBeingEditedData.delay, trimmedAudioBlob, recordedAudioBlob, savedWithVoiceCloning]);
 
   const handleSave = async () => {
@@ -186,7 +186,8 @@ const EditLine = ({
     let res;
 
     // If we have recorded audio (for voice cloning) or trimmed audio, send it as FormData
-    if ((recordedAudioBlob || trimmedAudioBlob) && !isNewLine) {
+    // Also check if we've saved with voice cloning but don't have the blob anymore
+    if ((recordedAudioBlob || trimmedAudioBlob || (savedWithVoiceCloning && !isNewLine)) && !isNewLine) {
       // Send recorded/trimmed audio as FormData
       const formData = new FormData();
       
@@ -196,6 +197,9 @@ const EditLine = ({
         formData.append('isVoiceCloning', 'true'); // Flag to indicate this is for voice cloning
       } else if (trimmedAudioBlob) {
         formData.append('audio', trimmedAudioBlob, 'trimmed_audio.wav');
+      } else if (savedWithVoiceCloning) {
+        // We have voice-cloned audio but no blob - preserve existing audio
+        formData.append('preserveVoiceClonedAudio', 'true');
       }
       
       formData.append('text', trimmed);
@@ -255,6 +259,12 @@ const EditLine = ({
       } else {
         const { id, updates } = result;
         console.log('API Response updates:', updates);
+        
+        // Update local audio URL if we got a new one from the API
+        if (updates.audio_url) {
+          setLocalAudioUrl(updates.audio_url);
+        }
+        
         setLines((lines) =>
           lines?.map((line) => {
             if (line.id === lineId) {
@@ -772,7 +782,11 @@ return (
     {lineMode === "default" && line && (localAudioUrl || line.audio_url) && (
       <>
         {console.log('Speed being passed to Waveform:', lineBeingEditedData.speed)}
-        <Waveform src={localAudioUrl || line.audio_url!} speed={lineBeingEditedData.speed || 1.0} />
+        <Waveform 
+          key={localAudioUrl || line.audio_url} 
+          src={localAudioUrl || line.audio_url!} 
+          speed={lineBeingEditedData.speed || 1.0} 
+        />
       </>
     )}
 
@@ -781,6 +795,7 @@ return (
       <>
         {console.log('Speed being passed to BeautifulWaveform:', lineBeingEditedData.speed)}
         <BeautifulWaveform
+          key={localAudioUrl || line.audio_url}
           line={{...line, audio_url: localAudioUrl || line.audio_url}}
           setLineMode={setLineMode}
           onAudioTrimmed={handleAudioTrimmed}
@@ -1113,9 +1128,9 @@ return (
 
       <button
         onClick={handleSave}
-        disabled={isLoading || !hasChanges || !lineBeingEditedData.character || !text?.trim()}
+        disabled={isLoading || !hasChanges || !lineBeingEditedData.character || !text?.trim() || lineMode === "voice"}
         className={`px-4 py-2 rounded-lg border border-black font-semibold transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl text-white text-sm font-quicksand ${
-          (isLoading || !hasChanges || !lineBeingEditedData.character || !text?.trim()) ? "opacity-50 cursor-not-allowed" : ""
+          (isLoading || !hasChanges || !lineBeingEditedData.character || !text?.trim() || lineMode === "voice") ? "opacity-50 cursor-not-allowed" : ""
         }`}
         style={{
           backgroundColor: '#72a4f2'
