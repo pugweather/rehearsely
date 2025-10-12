@@ -789,7 +789,7 @@ return (
     )}
 
     {lineMode === "speed" && 
-      <div className="p-3 rounded-lg border-2 border-black bg-white shadow-md animate-in slide-in-from-top-2 fade-in duration-300">
+      <div className="bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-2xl p-4 shadow-lg animate-in slide-in-from-top-2 fade-in duration-300">
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 rounded-full bg-[#72a4f2] border border-black flex items-center justify-center">
             <FontAwesomeIcon icon={faPersonRunning} className="text-white text-xs" />
@@ -805,27 +805,43 @@ return (
               onChange={(e) => setLineSpeed(Number(e.target.value))}
             />
           </div>
-          <div className="px-3 py-1 rounded-lg text-xs font-bold w-14 text-center bg-[#72a4f2] border border-black text-white shadow-md">
+          <div className="px-3 py-1 rounded-xl text-xs font-bold w-14 text-center bg-[#72a4f2] text-white shadow-sm">
             {lineSpeed}x
           </div>
           <button
             onClick={handleSaveLineSpeed}
-            className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg bg-[#72a4f2] border border-black group"
+            className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md"
+            style={{backgroundColor: '#FFA05A'}}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#FF8A3A'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#FFA05A'
+            }}
           >
-            <FontAwesomeIcon icon={faCheck} className="text-xs group-hover:scale-110 transition-transform duration-200" />
+            <FontAwesomeIcon icon={faCheck} className="text-sm" />
           </button>
           <button
             onClick={() => setLineMode("default")}
-            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg bg-white border border-black text-gray-700 group"
+            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
+            style={{backgroundColor: '#f8f9fa', color: '#000000'}}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#e9ecef'
+              e.currentTarget.style.borderColor = '#000000'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f8f9fa'
+              e.currentTarget.style.borderColor = '#dee2e6'
+            }}
           >
-            <FontAwesomeIcon icon={faXmark} className="text-xs group-hover:scale-110 transition-transform duration-200" />
+            <FontAwesomeIcon icon={faXmark} className="text-sm" />
           </button>
         </div>
       </div>
     }
 
     {lineMode === "delay" && 
-      <div className="p-3 rounded-lg border-2 border-black bg-white shadow-md animate-in slide-in-from-top-2 fade-in duration-300">
+      <div className="bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-2xl p-4 shadow-lg animate-in slide-in-from-top-2 fade-in duration-300">
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 rounded-full bg-[#ffa05a] border border-black flex items-center justify-center">
             <FontAwesomeIcon icon={faHand} className="text-white text-xs" />
@@ -841,20 +857,36 @@ return (
               onChange={(e) => setLineDelay(Number(e.target.value))}
             />
           </div>
-          <div className="px-3 py-1 rounded-lg text-xs font-bold w-14 text-center bg-[#ffa05a] border border-black text-white shadow-md">
+          <div className="px-3 py-1 rounded-xl text-xs font-bold w-14 text-center bg-[#ffa05a] text-white shadow-sm">
             {lineDelay}s
           </div>
           <button
             onClick={handleSaveLineDelay}
-            className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg bg-[#ffa05a] border border-black group"
+            className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md"
+            style={{backgroundColor: '#FFA05A'}}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#FF8A3A'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#FFA05A'
+            }}
           >
-            <FontAwesomeIcon icon={faCheck} className="text-xs group-hover:scale-110 transition-transform duration-200" />
+            <FontAwesomeIcon icon={faCheck} className="text-sm" />
           </button>
           <button
             onClick={() => setLineMode("default")}
-            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg bg-white border border-black text-gray-700 group"
+            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
+            style={{backgroundColor: '#f8f9fa', color: '#000000'}}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#e9ecef'
+              e.currentTarget.style.borderColor = '#000000'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f8f9fa'
+              e.currentTarget.style.borderColor = '#dee2e6'
+            }}
           >
-            <FontAwesomeIcon icon={faXmark} className="text-xs group-hover:scale-110 transition-transform duration-200" />
+            <FontAwesomeIcon icon={faXmark} className="text-sm" />
           </button>
         </div>
       </div>

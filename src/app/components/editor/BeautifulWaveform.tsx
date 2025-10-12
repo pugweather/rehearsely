@@ -567,10 +567,10 @@ const BeautifulWaveform = ({ line, setLineMode, onAudioTrimmed, speed = 1.0 }: P
           <button
             onClick={() => setLineMode('default')}
             className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
-            style={{backgroundColor: '#f8f9fa', color: '#dc3545'}}
+            style={{backgroundColor: '#f8f9fa', color: '#000000'}}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#e9ecef'
-              e.currentTarget.style.borderColor = '#dc3545'
+              e.currentTarget.style.borderColor = '#000000'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = '#f8f9fa'
