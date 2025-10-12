@@ -164,6 +164,9 @@ export async function PATCH(
             ...(clonedVoiceId ? {voice_id: clonedVoiceId} : {})
         })
         .where(eq(lines.id, Number(lineId)))
+        .returning()
+
+    return NextResponse.json({id: lineId, updates: {...updates, ...(publicUrl ? {audio_url: publicUrl} : {}), ...(clonedVoiceId ? {voice_id: clonedVoiceId} : {})}}, {status: 200})
 
 }
 
