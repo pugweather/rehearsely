@@ -38,6 +38,7 @@ type Props = {
   characters: Character[] | null;
   lineBeingEditedData: LineBeingEditedData;
   newLineOrder: number;
+  sceneId: number;
   setLines: React.Dispatch<React.SetStateAction<DraftLine[] | null>>;
   closeEditLine: () => void;
   charsDropdownData: DropdownData[] | undefined;
@@ -72,6 +73,7 @@ const EditLine = ({
   characters,
   lineBeingEditedData,
   newLineOrder,
+  sceneId,
   setLines,
   closeEditLine,
   charsDropdownData,
@@ -81,7 +83,6 @@ const EditLine = ({
 }: Props) => {
   const TEMP_LINE_ID = -999;
   const isNewLine = line?.id === TEMP_LINE_ID;
-  const sceneId = line?.scene_id;
   const lineId = line?.id;
   const { character, text } = lineBeingEditedData;
 
@@ -288,28 +289,41 @@ const EditLine = ({
   const handleDelete = async () => {
     if (lineId === TEMP_LINE_ID) return closeEditLine();
 
+    if (!lineId || !sceneId) {
+      console.error('Missing lineId or sceneId for delete operation');
+      return;
+    }
+
     // Immediately set the line to deleting state and close EditLine
-    setLines((prev) => 
-      prev?.map((line) => 
+    setLines((prev) =>
+      prev?.map((line) =>
         line.id === lineId ? { ...line, isDeleting: true } : line
       ) || null
     );
     closeEditLine();
 
-    // Perform the actual deletion
-    const res = await fetch(`/api/private/scenes/${sceneId}/lines/${lineId}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: lineId }),
-    });
+    try {
+      const res = await fetch(`/api/private/scenes/${sceneId}/lines/${lineId}`, {
+        method: "DELETE",
+      });
 
-    if (res.ok) {
-      // Remove the line from the list after successful deletion
-      setLines((prev) => prev?.filter((line) => line.id !== lineId) || null);
-    } else {
+      if (res.ok) {
+        // Remove the line from the list after successful deletion
+        setLines((prev) => prev?.filter((line) => line.id !== lineId) || null);
+      } else {
+        console.error('Failed to delete line');
+        // If deletion failed, remove the deleting state
+        setLines((prev) =>
+          prev?.map((line) =>
+            line.id === lineId ? { ...line, isDeleting: false } : line
+          ) || null
+        );
+      }
+    } catch (error) {
+      console.error('Error during delete:', error);
       // If deletion failed, remove the deleting state
-      setLines((prev) => 
-        prev?.map((line) => 
+      setLines((prev) =>
+        prev?.map((line) =>
           line.id === lineId ? { ...line, isDeleting: false } : line
         ) || null
       );
@@ -677,7 +691,7 @@ return (
               
               return (
                 <div key={index} className="w-full">
-                  <button
+                  <div
                     className={`${item.className} flex items-center w-full px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors duration-200 font-quicksand text-left ${
                       index === 0 ? 'rounded-t-xl' : ''
                     } ${
@@ -731,7 +745,7 @@ return (
                         </button>
                       )}
                     </div>
-                  </button>
+                  </div>
                 </div>
               );
             })}

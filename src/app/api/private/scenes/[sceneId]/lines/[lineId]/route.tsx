@@ -164,17 +164,13 @@ export async function PATCH(
             ...(clonedVoiceId ? {voice_id: clonedVoiceId} : {})
         })
         .where(eq(lines.id, Number(lineId)))
-        .returning()
-
-    return NextResponse.json({id: lineId, updates: {...updates, ...(publicUrl ? {audio_url: publicUrl} : {}), ...(clonedVoiceId ? {voice_id: clonedVoiceId} : {})}}, {status: 200})
 
 }
 
 export async function DELETE(
     req: Request,
-    {params}:{params: {sceneId: string}}
+    {params}:{params: {sceneId: string, lineId: string}}
 ) {
-
     const supabase = await createClient();
     const { data: { user }, error } = await supabase.auth.getUser();
 
@@ -182,13 +178,16 @@ export async function DELETE(
         return NextResponse.json({error: "Unauthorized"}, {status: 401})
     }
 
-    const body = await req.json()
-    const {id} = body
+    const {lineId} = params
 
-    const res = await db
-        .delete(lines)
-        .where(eq(lines.id, id))
+    try {
+        const res = await db
+            .delete(lines)
+            .where(eq(lines.id, Number(lineId)))
 
-    return NextResponse.json({success: 201})
-
+        return NextResponse.json({success: true}, {status: 200})
+    } catch (err) {
+        console.error('Error deleting line:', err);
+        return NextResponse.json({error: "Failed to delete line", details: err}, {status: 500})
+    }
 }

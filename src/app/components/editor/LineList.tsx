@@ -439,6 +439,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
                     characters={characters}
                     lineBeingEditedData={lineBeingEditedData}
                     newLineOrder={newLineOrder}
+                    sceneId={sceneId}
                     setLines={setLines}
                     setLineBeingEditedData={setLineBeingEditedData}
                     charsDropdownData={charsDropdownData}
