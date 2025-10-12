@@ -810,13 +810,15 @@ return (
           </div>
           <button
             onClick={handleSaveLineSpeed}
-            className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md"
-            style={{backgroundColor: '#FFA05A'}}
+            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
+            style={{backgroundColor: '#f8f9fa', color: '#000000'}}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#FF8A3A'
+              e.currentTarget.style.backgroundColor = '#e9ecef'
+              e.currentTarget.style.borderColor = '#000000'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#FFA05A'
+              e.currentTarget.style.backgroundColor = '#f8f9fa'
+              e.currentTarget.style.borderColor = '#dee2e6'
             }}
           >
             <FontAwesomeIcon icon={faCheck} className="text-sm" />
@@ -862,13 +864,15 @@ return (
           </div>
           <button
             onClick={handleSaveLineDelay}
-            className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md"
-            style={{backgroundColor: '#FFA05A'}}
+            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
+            style={{backgroundColor: '#f8f9fa', color: '#000000'}}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#FF8A3A'
+              e.currentTarget.style.backgroundColor = '#e9ecef'
+              e.currentTarget.style.borderColor = '#000000'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#FFA05A'
+              e.currentTarget.style.backgroundColor = '#f8f9fa'
+              e.currentTarget.style.borderColor = '#dee2e6'
             }}
           >
             <FontAwesomeIcon icon={faCheck} className="text-sm" />
@@ -938,35 +942,39 @@ return (
             onPlayingChange={setIsWaveformPlaying}
           />
 
-          {/* All buttons on same line: Play on left, others on right */}
+          {/* All buttons on same line: Play and Redo on left, others on right */}
           <div className="flex items-center justify-between bg-white/50 backdrop-blur-sm rounded-lg p-3 shadow-sm">
-            {/* Play button on left */}
-            <button
-              onClick={() => {
-                waveformRef.current?.togglePlayback();
-              }}
-              className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md"
-              style={{
-                backgroundColor: '#FFA05A'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#FF8A3A';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#FFA05A';
-              }}
-            >
-              <FontAwesomeIcon icon={isWaveformPlaying ? faStop : faPlay} className="text-sm" />
-            </button>
-
-            {/* Action buttons on right */}
+            {/* Play and Redo buttons on left */}
             <div className="flex items-center gap-2">
-              {/* Rerecord Button */}
+              <button
+                onClick={() => {
+                  waveformRef.current?.togglePlayback();
+                }}
+                className="px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+                style={{
+                  backgroundColor: '#FFA05A',
+                  color: '#FFFFFF'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#FF8A3A';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#FFA05A';
+                }}
+              >
+                <FontAwesomeIcon icon={isWaveformPlaying ? faStop : faPlay} className="text-xs" />
+                {isWaveformPlaying ? 'Pause' : 'Play'}
+              </button>
+
+              {/* Redo Button with text */}
               <button
                 onClick={handleRerecord}
                 disabled={isLoading}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50"
-                style={{backgroundColor: '#72A5F2', color: '#ffffff'}}
+                className="px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50"
+                style={{
+                  backgroundColor: '#72A5F2',
+                  color: '#FFFFFF'
+                }}
                 onMouseEnter={(e) => {
                   if (!isLoading) {
                     e.currentTarget.style.backgroundColor = '#5B94E8'
@@ -978,28 +986,34 @@ return (
                   }
                 }}
               >
-                <FontAwesomeIcon icon={faRedo} className="text-sm" />
+                <FontAwesomeIcon icon={faRedo} className="text-xs" />
+                Redo
               </button>
+            </div>
 
+            {/* Action buttons on right */}
+            <div className="flex items-center gap-2">
               {/* Save Voice Button */}
               <button
                 onClick={handleSaveVoiceCloning}
                 disabled={isVoiceCloningSaving}
-                className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50"
-                style={{backgroundColor: '#FFA05A'}}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 border border-gray-300"
+                style={{backgroundColor: '#f8f9fa', color: '#000000'}}
                 onMouseEnter={(e) => {
                   if (!isVoiceCloningSaving) {
-                    e.currentTarget.style.backgroundColor = '#FF8A3A'
+                    e.currentTarget.style.backgroundColor = '#e9ecef'
+                    e.currentTarget.style.borderColor = '#000000'
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isVoiceCloningSaving) {
-                    e.currentTarget.style.backgroundColor = '#FFA05A'
+                    e.currentTarget.style.backgroundColor = '#f8f9fa'
+                    e.currentTarget.style.borderColor = '#dee2e6'
                   }
                 }}
               >
                 {isVoiceCloningSaving ? (
-                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <FontAwesomeIcon icon={faCheck} className="text-sm" />
                 )}

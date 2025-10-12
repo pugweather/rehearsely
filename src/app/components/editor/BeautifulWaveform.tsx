@@ -548,17 +548,15 @@ const BeautifulWaveform = ({ line, setLineMode, onAudioTrimmed, speed = 1.0 }: P
           <button
             onClick={saveTrimmedAudio}
             disabled={isSaving}
-            className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md"
-            style={{backgroundColor: isSaving ? '#D1D5DB' : '#FFA05A'}}
+            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
+            style={{backgroundColor: '#f8f9fa', color: '#000000'}}
             onMouseEnter={(e) => {
-              if (!isSaving) {
-                e.currentTarget.style.backgroundColor = '#FF8A3A'
-              }
+              e.currentTarget.style.backgroundColor = '#e9ecef'
+              e.currentTarget.style.borderColor = '#000000'
             }}
             onMouseLeave={(e) => {
-              if (!isSaving) {
-                e.currentTarget.style.backgroundColor = '#FFA05A'
-              }
+              e.currentTarget.style.backgroundColor = '#f8f9fa'
+              e.currentTarget.style.borderColor = '#dee2e6'
             }}
           >
             <FontAwesomeIcon icon={faCheck} className="text-sm" />
