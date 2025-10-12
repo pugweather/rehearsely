@@ -1135,7 +1135,7 @@ return (
 
         {/* Recording in Progress */}
         {lineMode === "recording" && isRecording && (
-          <div className="w-full bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-xl p-4 shadow-lg relative overflow-hidden">
+          <div className="w-full bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-2xl p-4 shadow-lg relative overflow-hidden animate-in slide-in-from-top-2 fade-in duration-300">
             {/* Floating orange circles like snow */}
             <div className="absolute inset-0 pointer-events-none">
               <div className="absolute w-1.5 h-1.5 bg-[#ffa05a] rounded-full opacity-6" 
