@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import { Character, DraftLine, Line} from '@/app/types';
 import { useVoicesStore } from '@/app/stores/useVoicesStores'
 import clsx from 'clsx';
@@ -20,6 +20,30 @@ type Props = {
 }
 
 const PlayerLine = ({line, characters, isCurrentLine, lineIndex, currentLineIndex, matchedWordIndices = []}: Props) => {
+  const lineRef = useRef<HTMLDivElement>(null)
+
+  // Scroll current line to 30% from top of viewport
+  useEffect(() => {
+    if (isCurrentLine && lineRef.current) {
+      const scrollContainer = document.getElementById('main-scroll-container')
+      if (!scrollContainer) return
+
+      const lineRect = lineRef.current.getBoundingClientRect()
+      const containerRect = scrollContainer.getBoundingClientRect()
+
+      // Calculate where the line is relative to the scroll container
+      const lineTopRelativeToContainer = lineRect.top - containerRect.top + scrollContainer.scrollTop
+
+      // Calculate target scroll position (30% from top of viewport)
+      const targetScroll = lineTopRelativeToContainer - (scrollContainer.clientHeight * 0.3)
+
+      console.log('📍 Scrolling current line into view at 30%')
+      scrollContainer.scrollTo({
+        top: targetScroll,
+        behavior: 'smooth'
+      })
+    }
+  }, [isCurrentLine])
 
   const lineAlreadySpoken = currentLineIndex != null && lineIndex < currentLineIndex
   const currCharacter = characters?.find(char => char.id === line?.character_id)
@@ -92,6 +116,7 @@ const PlayerLine = ({line, characters, isCurrentLine, lineIndex, currentLineInde
 
   return (
     <div
+      ref={lineRef}
       className={clsx(
         `w-full text-center mb-10 rounded-2xl pl-10 pr-10 py-3 border border-transparent ${courierPrimeRegular.className}`,
         lineAlreadySpoken ? "opacity-30" : ""

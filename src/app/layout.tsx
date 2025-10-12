@@ -58,7 +58,7 @@ export default function RootLayout({
       <body className={`${yeseva.variable} ${quicksand.variable} ${marlonProBold.className} antialiased h-full overflow-hidden`}>
         <InitUser />
         <InitVoices />
-        <div className="h-full pt-[125px] -mt-[125px]">
+        <div id="main-scroll-container" className="h-full pt-[125px] -mt-[125px] overflow-y-scroll">
           {children}
         </div>
       </body>

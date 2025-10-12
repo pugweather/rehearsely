@@ -817,13 +817,13 @@ return (
             <FontAwesomeIcon icon={faHand} className="text-white text-xs" />
           </div>
           <div className="flex-1">
-            <input 
-              type="range" 
-              min={0} 
-              max={10} 
-              step={0.1} 
-              value={lineDelay} 
-              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer" 
+            <input
+              type="range"
+              min={0}
+              max={10}
+              step={1}
+              value={lineDelay}
+              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
               onChange={(e) => setLineDelay(Number(e.target.value))}
             />
           </div>

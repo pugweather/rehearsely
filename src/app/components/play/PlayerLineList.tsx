@@ -111,10 +111,14 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying, 
     // Scroll to top when countdown starts (scene begins playing)
     useEffect(() => {
       if (sceneIsPlaying) {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        })
+        const scrollContainer = document.getElementById('main-scroll-container')
+        if (scrollContainer) {
+          console.log('🚀 Scrolling container to top')
+          scrollContainer.scrollTo({
+            top: 0,
+            behavior: 'instant' // Instant for immediate effect
+          })
+        }
       }
     }, [sceneIsPlaying])
 
