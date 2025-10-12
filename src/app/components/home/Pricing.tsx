@@ -99,7 +99,7 @@ export default function Pricing() {
     {
       name: "Pro",
       price: "$10",
-      period: "/month",
+      period: "/ month",
       description: "Most popular for serious actors and performers",
       icon: faStar,
       color: "#FFD96E",
@@ -115,7 +115,7 @@ export default function Pricing() {
     {
       name: "Master",
       price: "$28",
-      period: "/month",
+      period: "/ month",
       description: "For professionals and drama schools",
       icon: faCrown,
       color: "#dc2626",

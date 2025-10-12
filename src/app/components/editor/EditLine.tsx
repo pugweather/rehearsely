@@ -945,22 +945,18 @@ return (
               onClick={() => {
                 waveformRef.current?.togglePlayback();
               }}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+              className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md"
               style={{
-                backgroundColor: '#FFA05A',
-                color: '#FFFFFF'
+                backgroundColor: '#FFA05A'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#FF8A3A';
-                e.currentTarget.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = '#FFA05A';
-                e.currentTarget.style.transform = 'translateY(0px)';
               }}
             >
-              <FontAwesomeIcon icon={isWaveformPlaying ? faStop : faPlay} className="text-xs" />
-              {isWaveformPlaying ? 'Stop' : 'Play'}
+              <FontAwesomeIcon icon={isWaveformPlaying ? faStop : faPlay} className="text-sm" />
             </button>
 
             {/* Action buttons on right */}
@@ -969,18 +965,16 @@ return (
               <button
                 onClick={handleRerecord}
                 disabled={isLoading}
-                className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50"
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50"
                 style={{backgroundColor: '#72A5F2', color: '#ffffff'}}
                 onMouseEnter={(e) => {
                   if (!isLoading) {
                     e.currentTarget.style.backgroundColor = '#5B94E8'
-                    e.currentTarget.style.transform = 'translateY(-1px)'
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isLoading) {
                     e.currentTarget.style.backgroundColor = '#72A5F2'
-                    e.currentTarget.style.transform = 'translateY(0px)'
                   }
                 }}
               >
@@ -991,18 +985,16 @@ return (
               <button
                 onClick={handleSaveVoiceCloning}
                 disabled={isVoiceCloningSaving}
-                className="w-8 h-8 rounded-lg text-white flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50"
+                className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50"
                 style={{backgroundColor: '#FFA05A'}}
                 onMouseEnter={(e) => {
                   if (!isVoiceCloningSaving) {
                     e.currentTarget.style.backgroundColor = '#FF8A3A'
-                    e.currentTarget.style.transform = 'translateY(-1px)'
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isVoiceCloningSaving) {
                     e.currentTarget.style.backgroundColor = '#FFA05A'
-                    e.currentTarget.style.transform = 'translateY(0px)'
                   }
                 }}
               >
@@ -1022,18 +1014,18 @@ return (
                   setHasChanges(false);
                 }}
                 disabled={isVoiceCloningSaving}
-                className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
-                style={{backgroundColor: '#F4F3F0', color: '#FFA05A'}}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 border border-gray-300"
+                style={{backgroundColor: '#f8f9fa', color: '#000000'}}
                 onMouseEnter={(e) => {
                   if (!isVoiceCloningSaving) {
-                    e.currentTarget.style.backgroundColor = '#E8E6E1'
-                    e.currentTarget.style.transform = 'scale(1.05)'
+                    e.currentTarget.style.backgroundColor = '#e9ecef'
+                    e.currentTarget.style.borderColor = '#000000'
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isVoiceCloningSaving) {
-                    e.currentTarget.style.backgroundColor = '#F4F3F0'
-                    e.currentTarget.style.transform = 'scale(1)'
+                    e.currentTarget.style.backgroundColor = '#f8f9fa'
+                    e.currentTarget.style.borderColor = '#dee2e6'
                   }
                 }}
               >
