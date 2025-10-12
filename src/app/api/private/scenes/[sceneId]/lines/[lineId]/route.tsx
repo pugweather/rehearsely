@@ -60,9 +60,14 @@ export async function PATCH(
             const characterName = updates.characterId ? `Character_${updates.characterId}` : 'Cloned_Voice';
             console.log('Creating voice clone with name:', characterName);
             
-            // Get a suitable voice for the character
-            const targetVoiceId = await getCharacterVoiceId(characterName);
-            console.log('Target voice ID:', targetVoiceId);
+            // Use the character's actual voice ID from the request
+            const targetVoiceId = updates.voiceId;
+            console.log('Target voice ID from character:', targetVoiceId);
+            
+            if (!targetVoiceId) {
+                console.error('No voice ID provided for character');
+                return NextResponse.json({error: "Character voice ID is required for voice cloning"}, {status: 400});
+            }
             
             // Convert your recorded voice to the character's voice (preserves emotion)
             console.log('Converting your voice to character voice using Voice Changer...');

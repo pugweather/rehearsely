@@ -528,6 +528,7 @@ const EditLine = ({
       formData.append('isVoiceCloning', 'true');
       formData.append('text', text.trim());
       formData.append('characterId', character.id.toString());
+      formData.append('voiceId', lineBeingEditedData.voice?.voice_id || '');
       formData.append('order', (lineBeingEditedData.order || 0).toString());
       formData.append('delay', lineBeingEditedData.delay.toString());
       formData.append('speed', lineBeingEditedData.speed.toString());
