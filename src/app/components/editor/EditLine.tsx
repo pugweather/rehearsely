@@ -13,6 +13,7 @@ import {
   faStop,
   faRedo,
   faPlay,
+  faPause,
   faPlusCircle,
   faPlus
 } from "@fortawesome/free-solid-svg-icons";
@@ -962,7 +963,7 @@ return (
                   e.currentTarget.style.backgroundColor = '#FFA05A';
                 }}
               >
-                <FontAwesomeIcon icon={isWaveformPlaying ? faStop : faPlay} className="text-xs" />
+                <FontAwesomeIcon icon={isWaveformPlaying ? faPause : faPlay} className="text-xs" />
                 {isWaveformPlaying ? 'Pause' : 'Play'}
               </button>
 

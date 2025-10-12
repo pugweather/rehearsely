@@ -190,9 +190,13 @@ const RecordedAudioWaveform = React.forwardRef<RecordedAudioWaveformRef, Props>(
 
     if (isPlaying) {
       audioRef.current.pause();
+      setIsPlaying(false);
+      onPlayingChange?.(false);
     } else {
       // Don't reset time when playing - maintain current position
       audioRef.current.play();
+      setIsPlaying(true);
+      onPlayingChange?.(true);
     }
   };
 
