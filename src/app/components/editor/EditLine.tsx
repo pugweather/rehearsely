@@ -96,6 +96,8 @@ const EditLine = ({
   const [lineSpeed, setLineSpeed] = useState<number>(lineBeingEditedData.speed); // 1.0x is the default
   const [lineDelay, setLineDelay] = useState<number>(lineBeingEditedData.delay); // 1 second is the default
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  console.log(lineBeingEditedData)
   
   // Animation state for smooth open/close
   const [isVisible, setIsVisible] = useState(false);
@@ -142,6 +144,10 @@ const EditLine = ({
 
   // Separate loading state for voice cloning save
   const [isVoiceCloningSaving, setIsVoiceCloningSaving] = useState<boolean>(false);
+
+  // Transcription state
+  const [shouldTranscribe, setShouldTranscribe] = useState<boolean>(true);
+  const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
 
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const waveformRef = useRef<RecordedAudioWaveformRef>(null);
@@ -577,6 +583,33 @@ const EditLine = ({
     }, 100); // Small delay to ensure state is updated
   };
 
+  // Transcribe audio using Deepgram
+  const transcribeAudio = async (audioBlob: Blob): Promise<string | null> => {
+    try {
+      setIsTranscribing(true);
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recorded_voice.webm');
+
+      const res = await fetch('/api/private/transcribe', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        return data.transcript;
+      } else {
+        console.error('Transcription failed:', await res.text());
+        return null;
+      }
+    } catch (error) {
+      console.error('Transcription error:', error);
+      return null;
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
   // Save voice cloning (similar to handleSaveLineDelay/Speed)
   const handleSaveVoiceCloning = async () => {
     if (!recordedAudioBlob || !character?.id || !text?.trim()) return;
@@ -587,16 +620,30 @@ const EditLine = ({
     console.log('text:', text.trim());
     console.log('sceneId:', sceneId);
     console.log('line?.id:', line?.id);
+    console.log('shouldTranscribe:', shouldTranscribe);
 
     // Use separate loading state for voice cloning to avoid affecting main save button
     setIsVoiceCloningSaving(true);
 
     try {
+      // Transcribe audio if checkbox is checked
+      let transcribedText: string | null = null;
+      if (shouldTranscribe) {
+        transcribedText = await transcribeAudio(recordedAudioBlob);
+        if (transcribedText) {
+          console.log('Transcribed text:', transcribedText);
+          // Update the line text with transcribed text
+          setLineBeingEditedData(prev => ({ ...prev, text: transcribedText || prev.text }));
+        } else {
+          console.warn('Transcription returned empty, using existing text');
+        }
+      }
+
       // Create FormData for voice cloning
       const formData = new FormData();
       formData.append('audio', recordedAudioBlob, 'recorded_voice.webm');
       formData.append('isVoiceCloning', 'true');
-      formData.append('text', text.trim());
+      formData.append('text', transcribedText || text.trim());
       formData.append('characterId', character.id.toString());
       formData.append('voiceId', lineBeingEditedData.voice?.voice_id || '');
       formData.append('order', (lineBeingEditedData.order || 0).toString());
@@ -618,7 +665,7 @@ const EditLine = ({
 
       console.log('API Response status:', res.status);
       console.log('API Response ok:', res.ok);
-      
+
       if (res.ok) {
         const data = await res.json();
         console.log('API Response data:', data);
@@ -633,6 +680,7 @@ const EditLine = ({
         setLineMode("default");
         setRecordedAudioBlob(null);
         setRecordingTime(0);
+        setShouldTranscribe(false); // Reset checkbox
 
         // Enable the main save button after voice cloning
         setHasChanges(true);
@@ -1066,6 +1114,32 @@ return (
         
         {/* Waveform with all controls */}
         <div className="space-y-3">
+          {/* Transcription checkbox */}
+          <label className="flex items-center gap-3 cursor-pointer select-none">
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={shouldTranscribe}
+                onChange={(e) => setShouldTranscribe(e.target.checked)}
+                className="sr-only"
+              />
+              <div className={`w-7 h-7 rounded-lg border-2 transition-all duration-200 flex items-center justify-center ${
+                shouldTranscribe 
+                  ? 'bg-[#ffa05a] border-[#ffa05a] shadow-md' 
+                  : 'bg-white border-gray-400 hover:border-[#ffa05a]'
+              }`}>
+                {shouldTranscribe && (
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20" strokeWidth="3">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </div>
+            </div>
+            <span className="text-base font-medium text-gray-700" style={{fontFamily: 'Comic Sans MS, cursive, sans-serif'}}>
+              Auto-transcribe voice to text?
+            </span>
+          </label>
+
           {/* Waveform component */}
           <RecordedAudioWaveform
             ref={waveformRef}
@@ -1127,23 +1201,23 @@ return (
               {/* Save Voice Button */}
               <button
                 onClick={handleSaveVoiceCloning}
-                disabled={isVoiceCloningSaving}
+                disabled={isVoiceCloningSaving || isTranscribing}
                 className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 border border-gray-300"
                 style={{backgroundColor: '#f8f9fa', color: '#000000'}}
                 onMouseEnter={(e) => {
-                  if (!isVoiceCloningSaving) {
+                  if (!isVoiceCloningSaving && !isTranscribing) {
                     e.currentTarget.style.backgroundColor = '#e9ecef'
                     e.currentTarget.style.borderColor = '#000000'
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (!isVoiceCloningSaving) {
+                  if (!isVoiceCloningSaving && !isTranscribing) {
                     e.currentTarget.style.backgroundColor = '#f8f9fa'
                     e.currentTarget.style.borderColor = '#dee2e6'
                   }
                 }}
               >
-                {isVoiceCloningSaving ? (
+                {(isVoiceCloningSaving || isTranscribing) ? (
                   <div className="w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <FontAwesomeIcon icon={faCheck} className="text-sm" />

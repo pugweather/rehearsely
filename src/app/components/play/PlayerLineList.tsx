@@ -40,6 +40,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying, 
 
     var audio = useRef<HTMLAudioElement | null>(null)
     const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null) // Track pending speech timeout
+    const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null) // Track silence timeout for auto-advance
     const lastLineIndex = lineItems ? lineItems.length - 1 : -1 // -1 = invalid index. Easier than using null
     const currentLine = lineItems && (-1 != currentLineIndex) ? lineItems[currentLineIndex] : null
     const currentCharacter = currentLine && (-1 != currentLineIndex) ? characters?.find(char => char.id === currentLine.character_id) : null
@@ -51,6 +52,15 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying, 
 
     // Algorithm toggle - set to false to use old system
     const [useAdvancedAlgorithm, setUseAdvancedAlgorithm] = useState<boolean>(true)
+    
+    // Get silence timeout from localStorage
+    const [silenceTimeout, setSilenceTimeout] = useState<number>(() => {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('rehearsely_silence_timeout')
+        return saved ? parseInt(saved, 10) : 0
+      }
+      return 0
+    })
 
     // Playing scene
     useEffect(() => {
@@ -68,8 +78,32 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying, 
   
       // Handle my character speaking
       if (currentCharacter.is_me) {
+        // Clear any existing silence timeout when line changes
+        if (silenceTimeoutRef.current) {
+          clearTimeout(silenceTimeoutRef.current)
+          silenceTimeoutRef.current = null
+        }
+        
+        // Start silence timeout if enabled (silenceTimeout > 0)
+        if (silenceTimeout > 0) {
+          silenceTimeoutRef.current = setTimeout(() => {
+            console.log(`⏰ Silence timeout (${silenceTimeout}s) - auto-advancing to next line`)
+            if (isLastLine) {
+              setSceneIsPlaying(false)
+            } else {
+              setCurrentLineIndex(prev => prev + 1)
+            }
+          }, silenceTimeout * 1000) // Convert seconds to milliseconds
+        }
+        
         // Use old simple algorithm if advanced is disabled
         if (!useAdvancedAlgorithm && isLineCloseEnough(currentLine.text, spokenText)) {
+          // Clear silence timeout since user spoke the line
+          if (silenceTimeoutRef.current) {
+            clearTimeout(silenceTimeoutRef.current)
+            silenceTimeoutRef.current = null
+          }
+          
           if (isLastLine) {
             setSceneIsPlaying(false)
           } else {
@@ -183,6 +217,11 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying, 
           clearTimeout(speechTimeoutRef.current)
           speechTimeoutRef.current = null
         }
+        // Clear any pending silence timeout
+        if (silenceTimeoutRef.current) {
+          clearTimeout(silenceTimeoutRef.current)
+          silenceTimeoutRef.current = null
+        }
         // Stop any playing audio
         if (audio.current) {
           audio.current.pause()
@@ -195,9 +234,12 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying, 
     // Cleanup on unmount
     useEffect(() => {
       return () => {
-        // Clear timeout on unmount
+        // Clear timeouts on unmount
         if (speechTimeoutRef.current) {
           clearTimeout(speechTimeoutRef.current)
+        }
+        if (silenceTimeoutRef.current) {
+          clearTimeout(silenceTimeoutRef.current)
         }
         // Stop audio on unmount
         if (audio.current) {
@@ -214,6 +256,13 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying, 
 
     const handleLineFullySpoken = useCallback(() => {
       console.log(`✅ Line fully spoken - advancing to next line`)
+      
+      // Clear silence timeout since user completed the line
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current)
+        silenceTimeoutRef.current = null
+      }
+      
       setMatchedWordIndices([]) // Clear highlighting
       const isLastLine = lastLineIndex === currentLineIndex
       if (isLastLine) {
@@ -222,6 +271,7 @@ const PlayerLineList = ({lineItems, sceneId, sceneIsPlaying, setSceneIsPlaying, 
         setCurrentLineIndex(prev => prev + 1)
       }
     }, [lastLineIndex, currentLineIndex, setSceneIsPlaying])
+    
     return (
         <>
           {
