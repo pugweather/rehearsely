@@ -1305,7 +1305,7 @@ return (
 
             {/* Countdown Overlay */}
             {countdown !== null && (
-              <div className="absolute inset-0 bg-black/30 rounded-2xl flex items-center justify-center z-10">
+              <div className="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center z-10">
                 <div className="text-6xl font-bold text-white drop-shadow-2xl"
                      style={{
                        textShadow: '0 0 30px rgba(255,255,255,0.5)'
