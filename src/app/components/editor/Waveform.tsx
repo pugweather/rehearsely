@@ -250,15 +250,17 @@ const Waveform = ({ src, speed = 1.0 }: Props) => {
       {/* Play/Pause button */}
       <button
         onClick={togglePlayback}
-        className="w-8 h-8 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg flex-shrink-0"
+        className="w-10 h-10 rounded-full text-white flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl flex-shrink-0 border-2 border-white/20"
         style={{backgroundColor: '#FFA05A'}}
         onMouseEnter={(e) => {
           e.currentTarget.style.backgroundColor = '#FF8A3A'
-          e.currentTarget.style.transform = 'scale(1.05)'
+          e.currentTarget.style.transform = 'translateY(-2px) scale(1.1)'
+          e.currentTarget.style.boxShadow = '0 8px 25px rgba(255, 160, 90, 0.4)'
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.backgroundColor = '#FFA05A'
-          e.currentTarget.style.transform = 'scale(1)'
+          e.currentTarget.style.transform = 'translateY(0px) scale(1)'
+          e.currentTarget.style.boxShadow = ''
         }}
       >
         <FontAwesomeIcon icon={isPlaying ? faPause : faPlay} className="text-sm" />
