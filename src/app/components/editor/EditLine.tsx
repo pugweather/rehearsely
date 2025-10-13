@@ -116,7 +116,10 @@ const EditLine = ({
   const [recordedAudioBlob, setRecordedAudioBlob] = useState<Blob | null>(null);
   const [isWaveformPlaying, setIsWaveformPlaying] = useState(false);
   const [micPermissionGranted, setMicPermissionGranted] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
   
   // Delete character modal state
   const [isDeleteCharModalOpen, setIsDeleteCharModalOpen] = useState(false);
@@ -152,6 +155,35 @@ const EditLine = ({
   });
 
   console.log(lineBeingEditedData)
+
+  // Stop recording and cleanup when lineMode changes away from "recording"
+  React.useEffect(() => {
+    if (lineMode !== "recording") {
+      // Clear countdown if it's running
+      if (countdownTimerRef.current) {
+        clearInterval(countdownTimerRef.current);
+        countdownTimerRef.current = null;
+      }
+      setCountdown(null);
+
+      // Stop recording if it's active
+      if (isRecording && mediaRecorderRef.current) {
+        mediaRecorderRef.current.stop();
+        setIsRecording(false);
+
+        if (recordingTimerRef.current) {
+          clearInterval(recordingTimerRef.current);
+          recordingTimerRef.current = null;
+        }
+      }
+
+      // Always stop any active media streams to release microphone
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach(track => track.stop());
+        mediaStreamRef.current = null;
+      }
+    }
+  }, [lineMode, isRecording]);
 
   // Check for changes whenever relevant values change
   React.useEffect(() => {
@@ -375,7 +407,7 @@ const EditLine = ({
     return !!(line?.audio_url || recordedAudioBlob || localAudioUrl);
   };
 
-  // Start recording
+  // Start recording with countdown
   const startRecording = async () => {
     // If permission not yet granted, request it
     if (!micPermissionGranted) {
@@ -401,8 +433,7 @@ const EditLine = ({
         // Stop the stream immediately since we just needed permission
         stream.getTracks().forEach(track => track.stop());
         setMicPermissionGranted(true);
-        // Auto-start recording now that permission is granted
-        // Fall through to the recording logic below
+        // Continue to countdown below
       } catch (error) {
         console.error('Failed to access microphone:', error);
         // Check the specific error to determine if it's a permission issue or no device
@@ -413,10 +444,35 @@ const EditLine = ({
         }
         return; // Only return on error
       }
-      // Don't return here - continue to start recording
     }
 
-    // Permission already granted, start actual recording
+    // Show recording mode immediately
+    setLineMode("recording");
+
+    // Start countdown from 2
+    setCountdown(2);
+
+    // Countdown timer
+    let currentCount = 2;
+    countdownTimerRef.current = setInterval(() => {
+      currentCount -= 1;
+      if (currentCount > 0) {
+        setCountdown(currentCount);
+      } else {
+        // Countdown finished, clear it and start actual recording
+        setCountdown(null);
+        if (countdownTimerRef.current) {
+          clearInterval(countdownTimerRef.current);
+          countdownTimerRef.current = null;
+        }
+        // Start actual recording
+        startActualRecording();
+      }
+    }, 1000);
+  };
+
+  // Actual recording logic
+  const startActualRecording = async () => {
     try {
       console.log('Starting recording with granted permission...');
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -430,6 +486,9 @@ const EditLine = ({
       });
 
       console.log('Microphone access granted, starting recording...');
+
+      // Store the stream reference for cleanup
+      mediaStreamRef.current = stream;
 
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: 'audio/webm;codecs=opus',
@@ -452,16 +511,16 @@ const EditLine = ({
         setLineMode("voice"); // Switch to voice mode to show waveform + buttons
 
         // Stop all tracks to release microphone
-        stream.getTracks().forEach(track => track.stop());
+        if (mediaStreamRef.current) {
+          mediaStreamRef.current.getTracks().forEach(track => track.stop());
+          mediaStreamRef.current = null;
+        }
       };
 
       mediaRecorderRef.current = mediaRecorder;
       mediaRecorder.start();
       setIsRecording(true);
       setRecordingTime(0);
-
-      // Close any other popups - recording mode is now active
-      setLineMode("recording");
 
       console.log('MediaRecorder started, setting up timer...');
       // Start timer
@@ -476,6 +535,11 @@ const EditLine = ({
 
     } catch (error) {
       console.error('Error starting recording:', error);
+      // Clean up stream on error
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach(track => track.stop());
+        mediaStreamRef.current = null;
+      }
       onMicError?.('permission');
     }
   };
@@ -485,11 +549,17 @@ const EditLine = ({
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      
+
       if (recordingTimerRef.current) {
         clearInterval(recordingTimerRef.current);
         recordingTimerRef.current = null;
       }
+    }
+
+    // Ensure microphone is released even if mediaRecorder is not active
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach(track => track.stop());
+      mediaStreamRef.current = null;
     }
   };
 
@@ -583,14 +653,35 @@ const EditLine = ({
   // Cleanup local URL and recording timer when component unmounts
   React.useEffect(() => {
     return () => {
+      // Revoke local audio URL
       if (localAudioUrl) {
         URL.revokeObjectURL(localAudioUrl);
       }
+
+      // Clear all timers
       if (recordingTimerRef.current) {
         clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = null;
       }
+      if (countdownTimerRef.current) {
+        clearInterval(countdownTimerRef.current);
+        countdownTimerRef.current = null;
+      }
+
+      // Stop media recorder
       if (mediaRecorderRef.current && isRecording) {
         mediaRecorderRef.current.stop();
+        mediaRecorderRef.current = null;
+      }
+
+      // CRITICAL: Always release microphone on unmount
+      if (mediaStreamRef.current) {
+        console.log('Cleanup: Releasing microphone on unmount');
+        mediaStreamRef.current.getTracks().forEach(track => {
+          track.stop();
+          console.log('Cleanup: Stopped track:', track.kind, track.label);
+        });
+        mediaStreamRef.current = null;
       }
     };
   }, []); // Empty dependency array - only run on unmount
@@ -605,6 +696,29 @@ const EditLine = ({
 
   // Animated close function
   const handleAnimatedClose = () => {
+    // Stop recording and release microphone immediately when closing
+    if (isRecording && mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+
+    // Clear all timers
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+    if (countdownTimerRef.current) {
+      clearInterval(countdownTimerRef.current);
+      countdownTimerRef.current = null;
+    }
+
+    // Release microphone immediately
+    if (mediaStreamRef.current) {
+      console.log('Closing: Releasing microphone');
+      mediaStreamRef.current.getTracks().forEach(track => track.stop());
+      mediaStreamRef.current = null;
+    }
+
     setIsClosing(true);
     setIsVisible(false);
     // Wait for animation to complete before actually closing
@@ -1164,52 +1278,70 @@ return (
           </button>
         )}
 
-        {/* Recording in Progress */}
-        {lineMode === "recording" && isRecording && (
+        {/* Recording in Progress or Countdown */}
+        {lineMode === "recording" && (
           <div className="w-full bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-2xl p-4 shadow-lg relative overflow-hidden animate-in slide-in-from-top-2 fade-in duration-300">
             {/* Floating orange circles like snow */}
             <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute w-1.5 h-1.5 bg-[#ffa05a] rounded-full opacity-6" 
+              <div className="absolute w-1.5 h-1.5 bg-[#ffa05a] rounded-full opacity-6"
                    style={{
-                     top: '30%', 
+                     top: '30%',
                      left: '20%',
                      animation: 'float 10s ease-in-out infinite, fadeInOut 8s ease-in-out infinite'
                    }}></div>
-              <div className="absolute w-1 h-1 bg-[#ffa05a] rounded-full opacity-8" 
+              <div className="absolute w-1 h-1 bg-[#ffa05a] rounded-full opacity-8"
                    style={{
-                     top: '60%', 
+                     top: '60%',
                      right: '30%',
                      animation: 'float 14s ease-in-out infinite reverse, fadeInOut 6s ease-in-out infinite 2s'
                    }}></div>
-              <div className="absolute w-2 h-2 bg-[#ffa05a] rounded-full opacity-4" 
+              <div className="absolute w-2 h-2 bg-[#ffa05a] rounded-full opacity-4"
                    style={{
-                     bottom: '40%', 
+                     bottom: '40%',
                      left: '15%',
                      animation: 'float 12s ease-in-out infinite, fadeInOut 7s ease-in-out infinite 3s'
                    }}></div>
             </div>
-            
+
+            {/* Countdown Overlay */}
+            {countdown !== null && (
+              <div className="absolute inset-0 bg-black/30 rounded-2xl flex items-center justify-center z-10">
+                <div className="text-6xl font-bold text-white drop-shadow-2xl"
+                     style={{
+                       textShadow: '0 0 30px rgba(255,255,255,0.5)'
+                     }}>
+                  {countdown}
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center justify-between bg-white/50 backdrop-blur-sm rounded-lg p-3 shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-sm"></div>
-                <span className="font-semibold text-red-700 text-sm font-quicksand">Recording...</span>
-                <span className="font-mono text-xs font-bold text-red-700 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-lg shadow-sm">
-                  {formatTime(recordingTime)}
+                <span className="font-semibold text-red-700 text-sm font-quicksand">
+                  {countdown !== null ? 'Get ready...' : 'Recording...'}
                 </span>
+                {isRecording && (
+                  <span className="font-mono text-xs font-bold text-red-700 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-lg shadow-sm">
+                    {formatTime(recordingTime)}
+                  </span>
+                )}
               </div>
-              <button
-                onClick={stopRecording}
-                className="px-3 py-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md font-medium text-sm font-quicksand"
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0px)';
-                }}
-              >
-                <FontAwesomeIcon icon={faStop} className="text-xs" />
-                <span>Stop</span>
-              </button>
+              {isRecording && (
+                <button
+                  onClick={stopRecording}
+                  className="px-3 py-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md font-medium text-sm font-quicksand"
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0px)';
+                  }}
+                >
+                  <FontAwesomeIcon icon={faStop} className="text-xs" />
+                  <span>Stop</span>
+                </button>
+              )}
             </div>
           </div>
         )}
