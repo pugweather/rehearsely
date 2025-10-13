@@ -179,8 +179,8 @@ const SceneSettings = ({ onRangeSelectionToggle, onClose }: Props) => {
             <h3 className={`text-sm font-bold text-gray-800 text-center whitespace-nowrap ${sunsetSerialMediumFont.className}`}>
               Set Scene Range
             </h3>
-            <p className="text-xs text-gray-500 text-center whitespace-nowrap">
-              Focus on specific lines
+            <p className="text-xs text-gray-500 text-center">
+              Focus on<br />specific lines
             </p>
           </div>
           
@@ -212,8 +212,8 @@ const SceneSettings = ({ onRangeSelectionToggle, onClose }: Props) => {
             <h3 className={`text-sm font-bold text-gray-800 text-center whitespace-nowrap ${sunsetSerialMediumFont.className}`}>
               Auto-Advance
             </h3>
-            <p className="text-xs text-gray-500 text-center whitespace-nowrap">
-              Skip after silence
+            <p className="text-xs text-gray-500 text-center">
+              Skip after silence<br />while speaking
             </p>
           </div>
           
