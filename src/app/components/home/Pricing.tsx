@@ -131,7 +131,7 @@ export default function Pricing() {
   ];
 
   return (
-    <section ref={sectionRef} className="py-20 px-4 relative overflow-hidden">
+    <section id="pricing" ref={sectionRef} className="py-20 px-4 relative overflow-hidden">
       {/* Floating background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute w-32 h-32 bg-[#72a4f2] rounded-full opacity-5 top-10 -left-16 animate-pulse"></div>

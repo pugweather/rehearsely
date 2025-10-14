@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 // import Link from "next/link";
 import Image from "next/image";
 import localFont from 'next/font/local';
@@ -17,12 +17,17 @@ const marlonProBold = localFont({
   src: "../../../../public/fonts/marlonProBold.ttf",
 })
 
+const certaSansMedium = localFont({
+  src: "../../../../public/fonts/certaSansMedium.otf",
+})
+
 export default function Navbar() {
 
   const user = useUserStore((s) => s.user);
-  const isLoading = useUserStore((s) => s.isLoading); 
+  const isLoading = useUserStore((s) => s.isLoading);
 
   const router = useRouter()
+  const pathname = usePathname()
 
 {/* <Link
         href="/"
@@ -54,9 +59,49 @@ const AcmeLogo = () => {
   return (
     <div className="navbar fixed top-0 left-0 right-0 max-w-[1440px] mx-auto h-[75px] pb-50px backdrop-blur-lg z-50">
       <div className="navbar-start">
-        <Link href="/" className="text-2xl font-bold">Rehearsely</Link>
+        <Link href="/" className={`text-2xl font-bold ${marlonProBold.className}`}>Rehearsely</Link>
       </div>
-      <div className="navbar-end">
+      <div className="navbar-end flex items-center gap-20">
+        {user && (
+          <>
+            <Link
+              href="/scenes"
+              className={`text-lg font-semibold text-gray-800 hover:text-[#72a4f2] transition-all duration-200 tracking-wide ${sunsetSerialMediumFont.className}`}
+            >
+              My Scenes
+            </Link>
+            <Link
+              href="/#pricing"
+              className={`text-lg font-semibold text-gray-800 hover:text-[#72a4f2] transition-all duration-200 tracking-wide ${sunsetSerialMediumFont.className}`}
+              onClick={(e) => {
+                if (pathname === '/') {
+                  e.preventDefault();
+                  document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/#faq"
+              className={`text-lg font-semibold text-gray-800 hover:text-[#72a4f2] transition-all duration-200 tracking-wide ${sunsetSerialMediumFont.className}`}
+              onClick={(e) => {
+                if (pathname === '/') {
+                  e.preventDefault();
+                  document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            >
+              FAQ
+            </Link>
+            <Link
+              href="/contact"
+              className={`text-lg font-semibold text-gray-800 hover:text-[#72a4f2] transition-all duration-200 tracking-wide ${sunsetSerialMediumFont.className}`}
+            >
+              Contact
+            </Link>
+          </>
+        )}
          {isLoading ? (
            <div className="btn btn-lg default-btn black relative z-0 opacity-50 cursor-not-allowed">Loading...</div>
          ) : user ? (

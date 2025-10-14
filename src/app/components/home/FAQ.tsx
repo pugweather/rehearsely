@@ -123,7 +123,7 @@ export default function FAQ() {
   ];
 
   return (
-    <section ref={sectionRef} className="relative mx-auto flex w-full justify-center px-5 py-16 md:px-24 md:py-24 overflow-hidden">
+    <section id="faq" ref={sectionRef} className="relative mx-auto flex w-full justify-center px-5 py-16 md:px-24 md:py-24 overflow-hidden">
       {/* 3D Background decorative elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute w-40 h-40 bg-gradient-to-br from-blue-100 to-blue-200 rounded-3xl opacity-30 -top-20 -left-20 transform rotate-12 shadow-2xl"></div>
@@ -143,7 +143,7 @@ export default function FAQ() {
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className={`text-5xl md:text-6xl font-bold mb-4 ${bogue.className}`}>
-            Frequently Asked <span className="text-[#72a4f2]">Questions</span>
+            Frequently Asked <span className="text-[#FFA05A]">Questions</span>
           </h2>
           <p className={`text-xl text-gray-600 ${nunito.className}`}>
             Everything you need to know about your AI scene partner
