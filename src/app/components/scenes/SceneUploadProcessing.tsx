@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFileText, faUsers, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import Tesseract from 'tesseract.js'
 import localFont from 'next/font/local'
+import SceneUploadError from './SceneUploadError'
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
@@ -27,6 +28,8 @@ const SceneUploadProcessing = ({ sceneName, fileName }: SceneUploadProcessingPro
   const [progress, setProgress] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
   const [currentWord, setCurrentWord] = useState('')
+  const [hasError, setHasError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string>('')
   const router = useRouter()
 
   const funWords = [
@@ -207,11 +210,16 @@ const SceneUploadProcessing = ({ sceneName, fileName }: SceneUploadProcessingPro
       clearInterval(progressTimer)
       setProgress(100)
 
-      if (!analysisResponse.ok) {
-        throw new Error('Failed to analyze script')
+      const analysisData = await analysisResponse.json()
+
+      // Check if the response indicates an unparseable PDF
+      if (!analysisResponse.ok || analysisData.error === 'unparseable') {
+        setHasError(true)
+        setErrorMessage(analysisData.message || 'Failed to analyze script')
+        return
       }
 
-      const { analysis } = await analysisResponse.json()
+      const { analysis } = analysisData
 
       console.log('SCRIPT ANALYSIS:')
       console.log('Characters:', analysis.characters)
@@ -236,8 +244,14 @@ const SceneUploadProcessing = ({ sceneName, fileName }: SceneUploadProcessingPro
 
     } catch (error) {
       console.error('❌ Error extracting text from PDF:', error)
-      setCurrentWord('Error processing PDF')
+      setHasError(true)
+      setErrorMessage('An unexpected error occurred while processing your PDF')
     }
+  }
+
+  // If there's an error, show the error component instead
+  if (hasError) {
+    return <SceneUploadError sceneName={sceneName} errorMessage={errorMessage} />
   }
 
   return (

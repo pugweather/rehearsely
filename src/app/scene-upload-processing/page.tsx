@@ -26,7 +26,11 @@ const SceneUploadProcessingPage = () => {
   return (
     <div className="overflow-hidden">
       <Navbar />
-      <SceneUploadProcessing sceneName={sceneName} fileName={fileName} />
+      <SceneUploadProcessing
+        key={`${fileName}-${Date.now()}`}
+        sceneName={sceneName}
+        fileName={fileName}
+      />
     </div>
   )
 }

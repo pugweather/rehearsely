@@ -85,6 +85,20 @@ Remember: Actors read this in the teleprompter. They never say stage directions 
     console.log('Characters found:', analysis.characters)
     console.log('Dialogue lines:', analysis.dialogue?.length || 0)
 
+    // Check if the parsed result looks like a valid scene script
+    // A valid script should have at least one character and one line of dialogue
+    const hasCharacters = analysis.characters && Array.isArray(analysis.characters) && analysis.characters.length > 0
+    const hasDialogue = analysis.dialogue && Array.isArray(analysis.dialogue) && analysis.dialogue.length > 0
+
+    if (!hasCharacters || !hasDialogue) {
+      console.log('Script does not appear to be a valid scene (no characters or dialogue found)')
+      return NextResponse.json({
+        success: false,
+        error: 'unparseable',
+        message: 'This PDF doesn\'t appear to be a scene script. We couldn\'t find any characters or dialogue!'
+      }, { status: 422 })
+    }
+
     return NextResponse.json({
       success: true,
       analysis
