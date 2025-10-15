@@ -66,11 +66,11 @@ const SceneSettings = ({ onRangeSelectionToggle, onClose }: Props) => {
 
   const silenceOptions = [
     { value: 0, label: 'Disabled' },
-    { value: 1, label: '1 second' },
-    { value: 4, label: '4 seconds' },
-    { value: 7, label: '7 seconds' },
-    { value: 10, label: '10 seconds' },
-    { value: 13, label: '13 seconds' }
+    { value: 3, label: '3 second' },
+    { value: 6, label: '6 seconds' },
+    { value: 9, label: '9 seconds' },
+    { value: 12, label: '12 seconds' },
+    { value: 15, label: '15 seconds' }
   ]
 
   return (
