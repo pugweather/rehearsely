@@ -1,8 +1,14 @@
 import { create } from "zustand"
 import { User, UserStore } from "../types"
 
+// Create store with initial loading state
+let initialLoadingState = true
+
 export const useUserStore = create<UserStore>((set) => ({
     user: null,
-    isLoading: true,
-    setUser: (user) => set({user, isLoading: false})
+    isLoading: initialLoadingState,
+    setUser: (user) => {
+        initialLoadingState = false
+        set({user, isLoading: false})
+    }
 }))

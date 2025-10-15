@@ -5,6 +5,7 @@ import '@fortawesome/fontawesome-svg-core/styles.css'
 import "./globals.css";
 import InitUser from "./components/init/InitUser";
 import InitVoices from "./components/init/InitVoices";
+import Navbar from "./components/layout/Navbar";
 import localFont from "next/font/local";
 
 const yeseva = Yeseva_One({
@@ -58,6 +59,7 @@ export default function RootLayout({
       <body className={`${yeseva.variable} ${quicksand.variable} ${marlonProBold.className} antialiased h-full overflow-hidden`}>
         <InitUser />
         <InitVoices />
+        <Navbar />
         <div id="main-scroll-container" className="h-full pt-[125px] -mt-[125px]">
           {children}
         </div>

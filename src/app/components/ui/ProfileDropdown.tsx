@@ -5,6 +5,11 @@ import { faUser, faChevronDown, faSignOut, faCog } from '@fortawesome/free-solid
 import { useUserStore } from '@/app/stores/useUserStores'
 import { createClient } from '../../../../utils/supabase/client'
 import { useRouter } from 'next/navigation'
+import localFont from 'next/font/local'
+
+const sunsetSerialMediumFont = localFont({
+  src: "../../../../public/fonts/sunsetSerialMedium.ttf",
+})
 
 const ProfileDropdown = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -46,7 +51,8 @@ const ProfileDropdown = () => {
       onClick: () => {
         setIsOpen(false)
         router.push('/profile')
-      }
+      },
+      gradient: 'from-[#72a4f2] to-[#5a8de8]'
     },
     {
       label: 'Log Out',
@@ -55,7 +61,8 @@ const ProfileDropdown = () => {
         setIsOpen(false)
         handleLogout()
       },
-      danger: true
+      danger: true,
+      gradient: 'from-[#ef4444] to-[#dc2626]'
     }
   ]
 
@@ -64,30 +71,30 @@ const ProfileDropdown = () => {
       {/* Profile Button - Simple circular icon */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full border-2 border-black bg-white hover:bg-gray-50 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
+        className="w-10 h-10 rounded-full border-2 border-black bg-white hover:bg-black transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center group"
       >
-        <FontAwesomeIcon icon={faUser} className="text-gray-700 text-lg" />
+        <FontAwesomeIcon icon={faUser} className="text-gray-700 group-hover:text-white transition-colors duration-300 text-lg" />
       </button>
 
-      {/* Dropdown Menu - Very high z-index */}
+      {/* Dropdown Menu - Matching hamburger style with tan gradient */}
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl border-2 border-black shadow-xl z-[999999]">
-          {dropdownItems.map((item, index) => (
-            <button
-              key={item.label}
-              onClick={item.onClick}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 ${
-                index === 0 ? 'rounded-t-xl' : ''
-              } ${
-                index === dropdownItems.length - 1 ? 'rounded-b-xl' : 'border-b border-gray-100'
-              } ${
-                item.danger ? 'text-red-600 hover:bg-red-50' : 'text-gray-700'
-              }`}
-            >
-              <FontAwesomeIcon icon={item.icon} className="text-sm" />
-              <span className="font-medium">{item.label}</span>
-            </button>
-          ))}
+        <div className="absolute top-full right-0 mt-3 w-56 bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-2xl border-4 border-black shadow-2xl z-[999999] overflow-hidden animate-in slide-in-from-top-2 fade-in zoom-in-95 duration-300">
+          <div className="p-2">
+            {dropdownItems.map((item, index) => (
+              <button
+                key={item.label}
+                onClick={item.onClick}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/60 transition-all duration-200 text-left group ${sunsetSerialMediumFont.className}`}
+              >
+                <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${item.gradient} flex items-center justify-center`}>
+                  <FontAwesomeIcon icon={item.icon} className="text-white text-sm" />
+                </div>
+                <span className={`font-semibold ${item.danger ? 'text-red-700 group-hover:text-red-800' : 'text-gray-800 group-hover:text-[#2c5aa0]'} transition-colors`}>
+                  {item.label}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

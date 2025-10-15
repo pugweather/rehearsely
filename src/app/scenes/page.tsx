@@ -1,5 +1,4 @@
 import React from 'react';
-import Navbar from '../components/layout/Navbar';
 import SceneCard from '../components/scenes/SceneCard';
 import db from '../database';
 import { scenes } from '@/database/drizzle/schema';
@@ -24,10 +23,7 @@ const ScenesDashboardPage = async () => {
     .orderBy(desc(scenes.modified_at))
 
   return (
-    <>
-      <Navbar />
-      <ScenesDashboardClient sceneData={sceneData}/>
-    </>
+    <ScenesDashboardClient sceneData={sceneData}/>
   )
 }
 

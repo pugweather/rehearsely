@@ -1,13 +1,15 @@
 "use client"
-import React from "react";
+import React, { memo, useState, useRef, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-// import Link from "next/link";
+import Link from "next/link";
 import Image from "next/image";
 import localFont from 'next/font/local';
 import ButtonLink from "../ui/ButtonLink";
 import { useUserStore } from "@/app/stores/useUserStores";
-import {NavbarBrand, NavbarContent, NavbarItem, Link, Button} from "@heroui/react";
+import {NavbarBrand, NavbarContent, NavbarItem, Button} from "@heroui/react";
 import ProfileDropdown from "../ui/ProfileDropdown";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBars, faHome, faFilm, faDollarSign, faQuestionCircle, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
@@ -21,48 +23,132 @@ const certaSansMedium = localFont({
   src: "../../../../public/fonts/certaSansMedium.otf",
 })
 
-export default function Navbar() {
-
+function Navbar() {
   const user = useUserStore((s) => s.user);
   const isLoading = useUserStore((s) => s.isLoading);
 
   const router = useRouter()
   const pathname = usePathname()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
 
-{/* <Link
-        href="/"
-        className="relative mr-auto"
-        style={{ width: "200px", height: "60px" }}
-      >
-        <Image
-          src="/logo-2.png"
-          alt="Rehearsely logo"
-          fill
-          style={{ objectFit: "contain" }}
-          sizes="(max-width: 768px) 150px, 200px"
-        />
-      </Link> */}
+  // Hide nav links in editor/player for distraction-free experience
+  const isEditorOrPlayer = pathname.startsWith('/editor') || pathname.startsWith('/play')
 
-const AcmeLogo = () => {
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleMenuItemClick = (path: string) => {
+    setIsMenuOpen(false)
+    if (path.startsWith('/#')) {
+      // Handle hash links
+      if (pathname === '/') {
+        const id = path.substring(2)
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+      } else {
+        router.push(path)
+      }
+    } else {
+      router.push(path)
+    }
+  }
+
   return (
-    <svg fill="none" height="36" viewBox="0 0 32 32" width="36">
-      <path
-        clipRule="evenodd"
-        d="M17.6482 10.1305L15.8785 7.02583L7.02979 22.5499H10.5278L17.6482 10.1305ZM19.8798 14.0457L18.11 17.1983L19.394 19.4511H16.8453L15.1056 22.5499H24.7272L19.8798 14.0457Z"
-        fill="currentColor"
-        fillRule="evenodd"
-      />
-    </svg>
-  );
-};
+    <div className="fixed top-0 left-0 right-0 h-[75px] pb-50px backdrop-blur-lg z-50">
+      <div className="navbar px-8">
+        <div className="navbar-start">
+          {isEditorOrPlayer ? (
+            <div className="relative" ref={menuRef}>
+              {/* Animated Hamburger/X Button */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="w-12 h-12 rounded-full border-2 border-black bg-white hover:bg-black transition-all duration-300 flex items-center justify-center shadow-md group"
+              >
+                <div className="relative w-5 h-5">
+                  {/* Top bar */}
+                  <span className={`absolute left-0 h-0.5 w-5 bg-black group-hover:bg-white transition-all duration-300 ${
+                    isMenuOpen ? 'top-2 rotate-45' : 'top-0 rotate-0'
+                  }`}></span>
+                  {/* Middle bar */}
+                  <span className={`absolute left-0 top-2 h-0.5 bg-black group-hover:bg-white transition-all duration-300 ${
+                    isMenuOpen ? 'w-0 opacity-0' : 'w-5 opacity-100'
+                  }`}></span>
+                  {/* Bottom bar */}
+                  <span className={`absolute left-0 h-0.5 w-5 bg-black group-hover:bg-white transition-all duration-300 ${
+                    isMenuOpen ? 'top-2 -rotate-45' : 'top-4 rotate-0'
+                  }`}></span>
+                </div>
+              </button>
 
-  return (
-    <div className="navbar fixed top-0 left-0 right-0 max-w-[1440px] mx-auto h-[75px] pb-50px backdrop-blur-lg z-50">
-      <div className="navbar-start">
-        <Link href="/" className={`text-2xl font-bold ${marlonProBold.className}`}>Rehearsely</Link>
-      </div>
+              {/* Dropdown Menu */}
+              {isMenuOpen && (
+                  /* Menu - matching scene heading dropdown with tan gradient */
+                  <div className="absolute left-0 top-[60px] w-72 bg-gradient-to-br from-[#e9dfd2] to-[#f2e9dc] rounded-2xl border-4 border-black shadow-2xl z-50 overflow-hidden mt-3 animate-in slide-in-from-top-2 fade-in zoom-in-95 duration-300">
+                    <div className="p-2">
+                      <button
+                        onClick={() => handleMenuItemClick('/')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/60 transition-all duration-200 text-left group ${sunsetSerialMediumFont.className}`}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#72a4f2] to-[#5a8de8] flex items-center justify-center">
+                          <FontAwesomeIcon icon={faHome} className="text-white text-sm" />
+                        </div>
+                        <span className="font-semibold text-gray-800 group-hover:text-[#2c5aa0] transition-colors">Home</span>
+                      </button>
+                      <button
+                        onClick={() => handleMenuItemClick('/scenes')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/60 transition-all duration-200 text-left group ${sunsetSerialMediumFont.className}`}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ffa05a] to-[#ff8c3a] flex items-center justify-center">
+                          <FontAwesomeIcon icon={faFilm} className="text-white text-sm" />
+                        </div>
+                        <span className="font-semibold text-gray-800 group-hover:text-[#2c5aa0] transition-colors">My Scenes</span>
+                      </button>
+                      <button
+                        onClick={() => handleMenuItemClick('/#pricing')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/60 transition-all duration-200 text-left group ${sunsetSerialMediumFont.className}`}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFD96E] to-[#FFC94E] flex items-center justify-center">
+                          <FontAwesomeIcon icon={faDollarSign} className="text-gray-800 text-sm" />
+                        </div>
+                        <span className="font-semibold text-gray-800 group-hover:text-[#2c5aa0] transition-colors">Pricing</span>
+                      </button>
+                      <button
+                        onClick={() => handleMenuItemClick('/#faq')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/60 transition-all duration-200 text-left group ${sunsetSerialMediumFont.className}`}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#a78bfa] to-[#8b5cf6] flex items-center justify-center">
+                          <FontAwesomeIcon icon={faQuestionCircle} className="text-white text-sm" />
+                        </div>
+                        <span className="font-semibold text-gray-800 group-hover:text-[#2c5aa0] transition-colors">FAQ</span>
+                      </button>
+                      <button
+                        onClick={() => handleMenuItemClick('/contact')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/60 transition-all duration-200 text-left group ${sunsetSerialMediumFont.className}`}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ec4899] to-[#db2777] flex items-center justify-center">
+                          <FontAwesomeIcon icon={faEnvelope} className="text-white text-sm" />
+                        </div>
+                        <span className="font-semibold text-gray-800 group-hover:text-[#2c5aa0] transition-colors">Contact</span>
+                      </button>
+                    </div>
+                  </div>
+              )}
+            </div>
+          ) : (
+            <Link href="/" className={`text-2xl font-bold ${marlonProBold.className}`}>Rehearsely</Link>
+          )}
+        </div>
       <div className="navbar-end flex items-center gap-20">
-        {user && (
+        {user && !isEditorOrPlayer && (
           <>
             <Link
               href="/scenes"
@@ -109,10 +195,13 @@ const AcmeLogo = () => {
          ) : (
            <Link href="/login" className="btn btn-lg default-btn black relative z-0">Log in</Link>
          )}
+        </div>
       </div>
     </div>
   );
 }
+
+export default memo(Navbar);
 
 // export const AcmeLogo = () => {
 //   return (

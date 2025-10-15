@@ -1,7 +1,6 @@
 'use client'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Navbar from '../components/layout/Navbar'
 import Link from 'next/link'
 import { faArrowLeftLong, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -46,7 +45,6 @@ const SceneNamePage = () => {
 
   return (
     <>
-      <Navbar />
       <div className="h-full flex flex-col relative flex-1 overflow-hidden">
         {/* Subtle background accents */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">

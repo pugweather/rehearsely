@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from "next/navigation";
 import {signInWithGoogle} from './actions'
-import Navbar from '../components/layout/Navbar'
 import { createClient } from '@supabase/supabase-js'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUserStore } from "@/app/stores/useUserStores";
@@ -51,8 +50,6 @@ export default function LoginPage() {
       </div>
 
       <div className="relative z-10 w-full">
-        <Navbar />
-
         <div className="flex flex-col items-center justify-center flex-grow min-h-[calc(100vh-120px)] px-6 -mt-12">
           {/* Main sign-in card with offset shadow technique */}
           <motion.div

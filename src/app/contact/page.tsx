@@ -3,7 +3,6 @@ import React, { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft, faEnvelope, faPaperPlane } from '@fortawesome/free-solid-svg-icons'
 import { useRouter } from 'next/navigation'
-import Navbar from '../components/layout/Navbar'
 import localFont from 'next/font/local'
 
 const sunsetSerialMediumFont = localFont({
@@ -57,7 +56,6 @@ const ContactPage = () => {
 
   return (
     <div className="min-h-screen pt-[75px] bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc]">
-      <Navbar />
       <div className="pt-12 p-4 pb-8">
         {/* Main Content */}
         <div className="max-w-4xl mx-auto">
