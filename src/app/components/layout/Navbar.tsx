@@ -152,13 +152,13 @@ function Navbar() {
           <>
             <Link
               href="/scenes"
-              className={`text-lg font-semibold text-gray-800 hover:text-[#72a4f2] transition-all duration-200 tracking-wide ${sunsetSerialMediumFont.className}`}
+              className={`text-lg font-semibold text-gray-800 hover:text-[#72a4f2] active:scale-95 active:text-[#5a8de8] transition-all duration-200 tracking-wide ${sunsetSerialMediumFont.className}`}
             >
               My Scenes
             </Link>
             <Link
               href="/#pricing"
-              className={`text-lg font-semibold text-gray-800 hover:text-[#72a4f2] transition-all duration-200 tracking-wide ${sunsetSerialMediumFont.className}`}
+              className={`text-lg font-semibold text-gray-800 hover:text-[#72a4f2] active:scale-95 active:text-[#5a8de8] transition-all duration-200 tracking-wide ${sunsetSerialMediumFont.className}`}
               onClick={(e) => {
                 if (pathname === '/') {
                   e.preventDefault();
@@ -170,7 +170,7 @@ function Navbar() {
             </Link>
             <Link
               href="/#faq"
-              className={`text-lg font-semibold text-gray-800 hover:text-[#72a4f2] transition-all duration-200 tracking-wide ${sunsetSerialMediumFont.className}`}
+              className={`text-lg font-semibold text-gray-800 hover:text-[#72a4f2] active:scale-95 active:text-[#5a8de8] transition-all duration-200 tracking-wide ${sunsetSerialMediumFont.className}`}
               onClick={(e) => {
                 if (pathname === '/') {
                   e.preventDefault();
@@ -182,7 +182,7 @@ function Navbar() {
             </Link>
             <Link
               href="/contact"
-              className={`text-lg font-semibold text-gray-800 hover:text-[#72a4f2] transition-all duration-200 tracking-wide ${sunsetSerialMediumFont.className}`}
+              className={`text-lg font-semibold text-gray-800 hover:text-[#72a4f2] active:scale-95 active:text-[#5a8de8] transition-all duration-200 tracking-wide ${sunsetSerialMediumFont.className}`}
             >
               Contact
             </Link>
@@ -193,7 +193,7 @@ function Navbar() {
          ) : user ? (
            <ProfileDropdown />
          ) : (
-           <Link href="/login" className="btn btn-lg default-btn black relative z-0">Log in</Link>
+           <Link href="/login" className="btn btn-lg default-btn black relative z-0 active:scale-95 transition-transform duration-200">Log in</Link>
          )}
         </div>
       </div>
