@@ -147,20 +147,6 @@ export default function Pricing() {
           <h2 className={`text-6xl font-bold mb-6 ${bogue.className}`}>
             Choose Your <span className="text-[#72a4f2]">Stage</span>
           </h2>
-          <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-500">
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faCheck} className="text-green-500" />
-              <span>Cancel anytime</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faCheck} className="text-green-500" />
-              <span>No setup fees</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faCheck} className="text-green-500" />
-              <span>24/7 support</span>
-            </div>
-          </div>
         </div>
 
         {/* Pricing Cards */}

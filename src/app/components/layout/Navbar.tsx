@@ -98,7 +98,7 @@ function Navbar() {
                         onClick={() => handleMenuItemClick('/')}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/60 transition-all duration-200 text-left group ${sunsetSerialMediumFont.className}`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#72a4f2] to-[#5a8de8] flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-[#b8a082] group-hover:bg-[#ffa05a] flex items-center justify-center transition-all duration-200">
                           <FontAwesomeIcon icon={faHome} className="text-white text-sm" />
                         </div>
                         <span className="font-semibold text-gray-800 group-hover:text-[#2c5aa0] transition-colors">Home</span>
@@ -107,7 +107,7 @@ function Navbar() {
                         onClick={() => handleMenuItemClick('/scenes')}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/60 transition-all duration-200 text-left group ${sunsetSerialMediumFont.className}`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ffa05a] to-[#ff8c3a] flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-[#b8a082] group-hover:bg-[#72a4f2] flex items-center justify-center transition-all duration-200">
                           <FontAwesomeIcon icon={faFilm} className="text-white text-sm" />
                         </div>
                         <span className="font-semibold text-gray-800 group-hover:text-[#2c5aa0] transition-colors">My Scenes</span>
@@ -116,8 +116,8 @@ function Navbar() {
                         onClick={() => handleMenuItemClick('/#pricing')}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/60 transition-all duration-200 text-left group ${sunsetSerialMediumFont.className}`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFD96E] to-[#FFC94E] flex items-center justify-center">
-                          <FontAwesomeIcon icon={faDollarSign} className="text-gray-800 text-sm" />
+                        <div className="w-8 h-8 rounded-full bg-[#b8a082] group-hover:bg-[#ffa05a] flex items-center justify-center transition-all duration-200">
+                          <FontAwesomeIcon icon={faDollarSign} className="text-white text-sm" />
                         </div>
                         <span className="font-semibold text-gray-800 group-hover:text-[#2c5aa0] transition-colors">Pricing</span>
                       </button>
@@ -125,7 +125,7 @@ function Navbar() {
                         onClick={() => handleMenuItemClick('/#faq')}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/60 transition-all duration-200 text-left group ${sunsetSerialMediumFont.className}`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#a78bfa] to-[#8b5cf6] flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-[#b8a082] group-hover:bg-[#72a4f2] flex items-center justify-center transition-all duration-200">
                           <FontAwesomeIcon icon={faQuestionCircle} className="text-white text-sm" />
                         </div>
                         <span className="font-semibold text-gray-800 group-hover:text-[#2c5aa0] transition-colors">FAQ</span>
@@ -134,7 +134,7 @@ function Navbar() {
                         onClick={() => handleMenuItemClick('/contact')}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/60 transition-all duration-200 text-left group ${sunsetSerialMediumFont.className}`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ec4899] to-[#db2777] flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-[#b8a082] group-hover:bg-[#ffa05a] flex items-center justify-center transition-all duration-200">
                           <FontAwesomeIcon icon={faEnvelope} className="text-white text-sm" />
                         </div>
                         <span className="font-semibold text-gray-800 group-hover:text-[#2c5aa0] transition-colors">Contact</span>
