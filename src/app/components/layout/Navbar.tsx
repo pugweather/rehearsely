@@ -64,7 +64,7 @@ function Navbar() {
 
   return (
     <div className="fixed top-0 left-0 right-0 h-[75px] pb-50px backdrop-blur-lg z-50">
-      <div className="navbar px-8">
+      <div className={`navbar ${isEditorOrPlayer ? 'px-8' : 'px-8 max-w-[95rem] mx-auto'}`}>
         <div className="navbar-start">
           {isEditorOrPlayer ? (
             <div className="relative" ref={menuRef}>
