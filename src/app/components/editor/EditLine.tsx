@@ -96,6 +96,8 @@ const EditLine = ({
   const [lineSpeed, setLineSpeed] = useState<number>(lineBeingEditedData.speed); // 1.0x is the default
   const [lineDelay, setLineDelay] = useState<number>(lineBeingEditedData.delay); // 1 second is the default
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const [isModePanelClosing, setIsModePanelClosing] = useState(false);
+  const [closingMode, setClosingMode] = useState<EditLineMode | null>(null);
 
   console.log(lineBeingEditedData)
   
@@ -382,12 +384,24 @@ const EditLine = ({
   const handleSaveLineSpeed = () => {
     console.log(lineSpeed)
     setLineBeingEditedData(prev => ({...prev, speed: lineSpeed}))
-    setLineMode("default")
+    setClosingMode("speed")
+    setIsModePanelClosing(true)
+    setTimeout(() => {
+      setLineMode("default")
+      setIsModePanelClosing(false)
+      setClosingMode(null)
+    }, 200)
   }
 
   const handleSaveLineDelay = () => {
     setLineBeingEditedData(prev => ({...prev, delay: lineDelay}))
-    setLineMode("default")
+    setClosingMode("delay")
+    setIsModePanelClosing(true)
+    setTimeout(() => {
+      setLineMode("default")
+      setIsModePanelClosing(false)
+      setClosingMode(null)
+    }, 200)
   }
 
   // Handle when audio is trimmed - store the blob and mark as changed
@@ -782,7 +796,13 @@ const EditLine = ({
     }
 
     if (lineMode === btnMode) {
-      setLineMode("default")
+      setClosingMode(btnMode)
+      setIsModePanelClosing(true)
+      setTimeout(() => {
+        setLineMode("default")
+        setIsModePanelClosing(false)
+        setClosingMode(null)
+      }, 200)
     } else if (btnMode) {
       setLineMode(btnMode)
     }
@@ -941,139 +961,190 @@ return (
     />
 
 
-    {/* Default Waveform to show when not in edit mode for other characters */}
-    {lineMode === "default" && line && (localAudioUrl || line.audio_url) && (
-      <>
-        {console.log('Speed being passed to Waveform:', lineBeingEditedData.speed)}
-        <Waveform 
-          key={localAudioUrl || line.audio_url} 
-          src={localAudioUrl || line.audio_url!} 
-          speed={lineBeingEditedData.speed || 1.0} 
-        />
-      </>
-    )}
-
-    {/* Action Buttons UI */}
-    {lineMode === "trim" && line && (localAudioUrl || line.audio_url) && (
-      <>
-        {console.log('Speed being passed to BeautifulWaveform:', lineBeingEditedData.speed)}
-        <BeautifulWaveform
-          key={localAudioUrl || line.audio_url}
-          line={{...line, audio_url: localAudioUrl || line.audio_url}}
-          setLineMode={setLineMode}
-          onAudioTrimmed={handleAudioTrimmed}
-          speed={lineBeingEditedData.speed || 1.0}
-        />
-      </>
-    )}
-
-    {lineMode === "speed" && 
-      <div className="bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-2xl p-4 shadow-lg animate-in slide-in-from-top-2 fade-in duration-300">
-        <div className="flex items-center gap-3">
-          <div className="w-6 h-6 rounded-full bg-[#72a4f2] border border-black flex items-center justify-center">
-            <FontAwesomeIcon icon={faPersonRunning} className="text-white text-xs" />
-          </div>
-          <div className="flex-1">
-            <input 
-              type="range" 
-              min={0} 
-              max={2} 
-              step={0.1} 
-              value={lineSpeed} 
-              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer" 
-              onChange={(e) => setLineSpeed(Number(e.target.value))}
-            />
-          </div>
-          <div className="px-3 py-1 rounded-xl text-xs font-bold w-14 text-center bg-[#72a4f2] text-white shadow-sm">
-            {lineSpeed}x
-          </div>
-          <button
-            onClick={handleSaveLineSpeed}
-            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
-            style={{backgroundColor: '#f8f9fa', color: '#000000'}}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#e9ecef'
-              e.currentTarget.style.borderColor = '#000000'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#f8f9fa'
-              e.currentTarget.style.borderColor = '#dee2e6'
-            }}
-          >
-            <FontAwesomeIcon icon={faCheck} className="text-sm" />
-          </button>
-          <button
-            onClick={() => setLineMode("default")}
-            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
-            style={{backgroundColor: '#f8f9fa', color: '#000000'}}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#e9ecef'
-              e.currentTarget.style.borderColor = '#000000'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#f8f9fa'
-              e.currentTarget.style.borderColor = '#dee2e6'
-            }}
-          >
-            <FontAwesomeIcon icon={faXmark} className="text-sm" />
-          </button>
+    {/* Waveform and Mode Panels Container */}
+    {line && (localAudioUrl || line.audio_url) && (
+      <div className="relative min-h-[80px]">
+        {/* Default Waveform */}
+        <div className={clsx(
+          "transition-opacity duration-200 ease-in-out",
+          lineMode === "default"
+            ? "opacity-100 relative"
+            : "opacity-0 pointer-events-none absolute inset-0"
+        )}>
+          {(lineMode === "default" || isModePanelClosing) && (
+            <>
+              {console.log('Speed being passed to Waveform:', lineBeingEditedData.speed)}
+              <Waveform
+                key={localAudioUrl || line.audio_url}
+                src={localAudioUrl || line.audio_url!}
+                speed={lineBeingEditedData.speed || 1.0}
+              />
+            </>
+          )}
         </div>
-      </div>
-    }
 
-    {lineMode === "delay" && 
-      <div className="bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-2xl p-4 shadow-lg animate-in slide-in-from-top-2 fade-in duration-300">
-        <div className="flex items-center gap-3">
-          <div className="w-6 h-6 rounded-full bg-[#ffa05a] border border-black flex items-center justify-center">
-            <FontAwesomeIcon icon={faHand} className="text-white text-xs" />
+        {/* Trim Panel */}
+        {(lineMode === "trim" || (isModePanelClosing && closingMode === "trim")) && (
+          <div className={clsx(
+            "transition-opacity duration-200 ease-in-out",
+            lineMode === "trim" && !isModePanelClosing
+              ? "opacity-100 relative"
+              : "opacity-0 pointer-events-none absolute inset-0"
+          )}>
+            <>
+              {console.log('Speed being passed to BeautifulWaveform:', lineBeingEditedData.speed)}
+              <BeautifulWaveform
+                key={localAudioUrl || line.audio_url}
+                line={{...line, audio_url: localAudioUrl || line.audio_url}}
+                setLineMode={setLineMode}
+                onAudioTrimmed={handleAudioTrimmed}
+                speed={lineBeingEditedData.speed || 1.0}
+              />
+            </>
           </div>
-          <div className="flex-1">
-            <input
-              type="range"
-              min={0}
-              max={10}
-              step={1}
-              value={lineDelay}
-              className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
-              onChange={(e) => setLineDelay(Number(e.target.value))}
-            />
+        )}
+
+        {/* Speed Panel */}
+        {(lineMode === "speed" || (isModePanelClosing && closingMode === "speed")) && (
+          <div className={clsx(
+            "transition-opacity duration-200 ease-in-out",
+            lineMode === "speed" && !isModePanelClosing
+              ? "opacity-100 relative"
+              : "opacity-0 pointer-events-none absolute inset-0"
+          )}>
+            <div className="bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-2xl p-4 shadow-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded-full bg-[#72a4f2] border border-black flex items-center justify-center">
+                  <FontAwesomeIcon icon={faPersonRunning} className="text-white text-xs" />
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="range"
+                    min={0}
+                    max={2}
+                    step={0.1}
+                    value={lineSpeed}
+                    className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
+                    onChange={(e) => setLineSpeed(Number(e.target.value))}
+                  />
+                </div>
+                <div className="px-3 py-1 rounded-xl text-xs font-bold w-14 text-center bg-[#72a4f2] text-white shadow-sm">
+                  {lineSpeed}x
+                </div>
+                <button
+                  onClick={handleSaveLineSpeed}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
+                  style={{backgroundColor: '#f8f9fa', color: '#000000'}}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#e9ecef'
+                    e.currentTarget.style.borderColor = '#000000'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f8f9fa'
+                    e.currentTarget.style.borderColor = '#dee2e6'
+                  }}
+                >
+                  <FontAwesomeIcon icon={faCheck} className="text-sm" />
+                </button>
+                <button
+                  onClick={() => {
+                    setClosingMode("speed")
+                    setIsModePanelClosing(true)
+                    setTimeout(() => {
+                      setLineMode("default")
+                      setIsModePanelClosing(false)
+                      setClosingMode(null)
+                    }, 200)
+                  }}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
+                  style={{backgroundColor: '#f8f9fa', color: '#000000'}}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#e9ecef'
+                    e.currentTarget.style.borderColor = '#000000'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f8f9fa'
+                    e.currentTarget.style.borderColor = '#dee2e6'
+                  }}
+                >
+                  <FontAwesomeIcon icon={faXmark} className="text-sm" />
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="px-3 py-1 rounded-xl text-xs font-bold w-14 text-center bg-[#ffa05a] text-white shadow-sm">
-            {lineDelay}s
+        )}
+
+        {/* Delay Panel */}
+        {(lineMode === "delay" || (isModePanelClosing && closingMode === "delay")) && (
+          <div className={clsx(
+            "transition-opacity duration-200 ease-in-out",
+            lineMode === "delay" && !isModePanelClosing
+              ? "opacity-100 relative"
+              : "opacity-0 pointer-events-none absolute inset-0"
+          )}>
+            <div className="bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-2xl p-4 shadow-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded-full bg-[#ffa05a] border border-black flex items-center justify-center">
+                  <FontAwesomeIcon icon={faHand} className="text-white text-xs" />
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="range"
+                    min={0}
+                    max={10}
+                    step={1}
+                    value={lineDelay}
+                    className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
+                    onChange={(e) => setLineDelay(Number(e.target.value))}
+                  />
+                </div>
+                <div className="px-3 py-1 rounded-xl text-xs font-bold w-14 text-center bg-[#ffa05a] text-white shadow-sm">
+                  {lineDelay}s
+                </div>
+                <button
+                  onClick={handleSaveLineDelay}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
+                  style={{backgroundColor: '#f8f9fa', color: '#000000'}}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#e9ecef'
+                    e.currentTarget.style.borderColor = '#000000'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f8f9fa'
+                    e.currentTarget.style.borderColor = '#dee2e6'
+                  }}
+                >
+                  <FontAwesomeIcon icon={faCheck} className="text-sm" />
+                </button>
+                <button
+                  onClick={() => {
+                    setClosingMode("delay")
+                    setIsModePanelClosing(true)
+                    setTimeout(() => {
+                      setLineMode("default")
+                      setIsModePanelClosing(false)
+                      setClosingMode(null)
+                    }, 200)
+                  }}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
+                  style={{backgroundColor: '#f8f9fa', color: '#000000'}}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#e9ecef'
+                    e.currentTarget.style.borderColor = '#000000'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f8f9fa'
+                    e.currentTarget.style.borderColor = '#dee2e6'
+                  }}
+                >
+                  <FontAwesomeIcon icon={faXmark} className="text-sm" />
+                </button>
+              </div>
+            </div>
           </div>
-          <button
-            onClick={handleSaveLineDelay}
-            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
-            style={{backgroundColor: '#f8f9fa', color: '#000000'}}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#e9ecef'
-              e.currentTarget.style.borderColor = '#000000'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#f8f9fa'
-              e.currentTarget.style.borderColor = '#dee2e6'
-            }}
-          >
-            <FontAwesomeIcon icon={faCheck} className="text-sm" />
-          </button>
-          <button
-            onClick={() => setLineMode("default")}
-            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg border border-gray-300"
-            style={{backgroundColor: '#f8f9fa', color: '#000000'}}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#e9ecef'
-              e.currentTarget.style.borderColor = '#000000'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#f8f9fa'
-              e.currentTarget.style.borderColor = '#dee2e6'
-            }}
-          >
-            <FontAwesomeIcon icon={faXmark} className="text-sm" />
-          </button>
-        </div>
+        )}
       </div>
-    }
+    )}
 
     {/* Voice Cloning Mode - Reorganized Layout */}
     {lineMode === "voice" && recordedAudioBlob && (
