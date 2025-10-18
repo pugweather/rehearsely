@@ -58,6 +58,16 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   const [micErrorType, setMicErrorType] = useState<'permission' | 'no_device'>('permission')
   const { isRangeSelectionMode } = usePracticeRange()
 
+  // Track mouse position globally for hover detection when EditLine closes
+  const mousePositionRef = useRef({ x: 0, y: 0 })
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mousePositionRef.current = { x: e.clientX, y: e.clientY }
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
   const TEMP_LINE_ID = -999
   const voices = useVoicesStore(s => s.voices)
 
@@ -476,6 +486,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
                   index={index}
                   isDragDisabled={isDragDisabled}
                   onAddLineBelow={handleAddLineBelow}
+                  mousePositionRef={mousePositionRef}
                 />
               )
             })

@@ -30,9 +30,10 @@ type Props = {
   index: number;
   isDragDisabled: boolean;
   onAddLineBelow: (afterLineOrder: number) => void;
+  mousePositionRef: React.RefObject<{x: number, y: number}>;
 }
 
-const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLineBeingEditedData, setShouldScroll, setOriginalCharForOpenedLine, index, isDragDisabled, onAddLineBelow}: Props) => {
+const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLineBeingEditedData, setShouldScroll, setOriginalCharForOpenedLine, index, isDragDisabled, onAddLineBelow, mousePositionRef}: Props) => {
 
   const TEMP_LINE_ID = -999
   const currCharacter = characters?.find(char => Number(char.id) === Number(line?.character_id)) ||  null
@@ -62,14 +63,30 @@ const SavedLine = ({line, lines, characters, setLines, setLineBeingEdited, setLi
   // Reset hover state and styles when EditLine opens or closes
   React.useEffect(() => {
     if (isDragDisabled) {
+      // EditLine opened - reset hover state
       setIsHovered(false)
-      // Reset inline styles
       if (lineRef.current) {
         lineRef.current.style.backgroundColor = 'transparent'
         lineRef.current.style.borderColor = 'transparent'
       }
+    } else {
+      // EditLine closed - check if mouse is over this element
+      if (lineRef.current && mousePositionRef.current && !isRangeSelectionMode) {
+        const rect = lineRef.current.getBoundingClientRect()
+        const { x: mouseX, y: mouseY } = mousePositionRef.current
+
+        // Check if mouse is within element bounds
+        if (mouseX >= rect.left && mouseX <= rect.right &&
+            mouseY >= rect.top && mouseY <= rect.bottom &&
+            !line?.isDeleting && !isCharactersLoading) {
+          // Mouse is over element, apply hover state
+          lineRef.current.style.backgroundColor = 'rgba(255,160,90,0.08)'
+          lineRef.current.style.borderColor = 'rgba(255,160,90,0.2)'
+          setIsHovered(true)
+        }
+      }
     }
-  }, [isDragDisabled])
+  }, [isDragDisabled, isRangeSelectionMode, line?.isDeleting, isCharactersLoading])
 
   // Reset hover state when range selection mode changes
   React.useEffect(() => {
