@@ -47,6 +47,9 @@ type Props = {
   onCascadeDelete?: (characterId: number) => Promise<void>;
   onMicError?: (errorType: 'permission' | 'no_device') => void;
   deletingCharacterIds?: Set<number>;
+  onLineSaveStart?: (lineId: number) => void;
+  onLineSaveComplete?: (lineId: number) => void;
+  onLineSaveError?: (lineId: number) => void;
 };
 
 const certaSansMedium = localFont({
@@ -83,6 +86,9 @@ const EditLine = ({
   onCascadeDelete,
   onMicError,
   deletingCharacterIds = new Set(),
+  onLineSaveStart,
+  onLineSaveComplete,
+  onLineSaveError,
 }: Props) => {
   const TEMP_LINE_ID = -999;
   const isNewLine = line?.id === TEMP_LINE_ID;
@@ -223,6 +229,10 @@ const EditLine = ({
   const handleSave = async () => {
     const trimmed = text?.trim();
 
+    // Notify parent that saving has started
+    if (lineId && onLineSaveStart) {
+      onLineSaveStart(lineId);
+    }
 
     setIsLoading(true);
     let res;
@@ -331,10 +341,20 @@ const EditLine = ({
         setSavedWithVoiceCloning(false);
       }
 
+      // Notify parent that saving completed successfully
+      if (lineId && onLineSaveComplete) {
+        onLineSaveComplete(lineId);
+      }
+
       closeEditLine();
     } else {
       console.log("Save failed - request body:", trimmedAudioBlob ? "FormData with audio" : "JSON payload")
       console.error("Save failed");
+      
+      // Notify parent that saving failed
+      if (lineId && onLineSaveError) {
+        onLineSaveError(lineId);
+      }
     }
     setIsLoading(false);
   };

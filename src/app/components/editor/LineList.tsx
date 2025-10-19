@@ -4,6 +4,7 @@ import { faChessKing, faPlus, faEllipsis, faPlusCircle } from "@fortawesome/free
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SavedLine from './SavedLine'
 import LoadingLine from './LoadingLine'
+import SavingLine from './SavingLine'
 import EditLine from './EditLine'
 import Dropdown from '../ui/Dropdown'
 import Overlay from '../ui/Overlay';
@@ -57,6 +58,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   const [showMicErrorModal, setShowMicErrorModal] = useState(false)
   const [micErrorType, setMicErrorType] = useState<'permission' | 'no_device'>('permission')
   const [deletingCharacterIds, setDeletingCharacterIds] = useState<Set<number>>(new Set())
+  const [savingLineIds, setSavingLineIds] = useState<Set<number>>(new Set())
   const { isRangeSelectionMode } = usePracticeRange()
 
   // Track mouse position globally for hover detection when EditLine closes
@@ -289,6 +291,28 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
     setShowMicErrorModal(true)
   }
 
+  const handleLineSaveStart = (lineId: number) => {
+    setSavingLineIds(prev => new Set(prev).add(lineId))
+    // Close the EditLine when saving starts
+    closeEditLine()
+  }
+
+  const handleLineSaveComplete = (lineId: number) => {
+    setSavingLineIds(prev => {
+      const newSet = new Set(prev)
+      newSet.delete(lineId)
+      return newSet
+    })
+  }
+
+  const handleLineSaveError = (lineId: number) => {
+    setSavingLineIds(prev => {
+      const newSet = new Set(prev)
+      newSet.delete(lineId)
+      return newSet
+    })
+  }
+
   const handleCascadeDelete = async (characterId: number) => {
     // 1. Don't close EditLine - keep it open during deletion
     
@@ -454,6 +478,19 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
           <div className='w-full'>
             {
             lineItems?.map((line, index) => {
+              // Check if this line is being saved
+              if (line.id && savingLineIds.has(line.id)) {
+                const character = characters?.find(c => c.id === line.character_id);
+                return (
+                  <SavingLine
+                    key={line.id}
+                    characterName={character?.name || 'Unknown'}
+                    order={line.order || 0}
+                    text={line.text || ''}
+                  />
+                );
+              }
+
               // Check if this line is being edited
               if (line.id == lineBeingEdited?.id) {
                 return false ? (
@@ -479,6 +516,9 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
                     onCascadeDelete={handleCascadeDelete}
                     onMicError={handleMicError}
                     deletingCharacterIds={deletingCharacterIds}
+                    onLineSaveStart={handleLineSaveStart}
+                    onLineSaveComplete={handleLineSaveComplete}
+                    onLineSaveError={handleLineSaveError}
                   />
                 )
               }

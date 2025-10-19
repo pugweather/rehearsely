@@ -247,7 +247,7 @@ const ModalCreateCharacterNew = ({
       ></div>
 
       {/* Modal */}
-      <div className={`relative w-full max-w-4xl max-h-[85vh] bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-2xl border-4 border-black shadow-2xl overflow-hidden flex flex-col transition-all duration-200 ${
+      <div className={`relative w-full mt-3 max-w-4xl max-h-[85vh] bg-gradient-to-br from-[#f8f5f0] to-[#f2e9dc] rounded-2xl border-4 border-black shadow-2xl overflow-hidden flex flex-col transition-all duration-200 ${
         isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-4'
       }`}>
         
