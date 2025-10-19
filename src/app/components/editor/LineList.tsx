@@ -56,6 +56,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   const [shouldScroll, setShouldScroll] = useState<boolean>(false)
   const [showMicErrorModal, setShowMicErrorModal] = useState(false)
   const [micErrorType, setMicErrorType] = useState<'permission' | 'no_device'>('permission')
+  const [deletingCharacterIds, setDeletingCharacterIds] = useState<Set<number>>(new Set())
   const { isRangeSelectionMode } = usePracticeRange()
 
   // Track mouse position globally for hover detection when EditLine closes
@@ -289,17 +290,29 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   }
 
   const handleCascadeDelete = async (characterId: number) => {
-    // 1. Close EditLine if open
-    closeEditLine();
+    // 1. Don't close EditLine - keep it open during deletion
     
-    // 2. Immediately set all lines with this character to deleting state
+    // 2. Add character to deleting state
+    setDeletingCharacterIds(prev => new Set(prev).add(characterId));
+    
+    // 3. Check if the character being deleted is currently selected
+    if (lineBeingEditedData.character?.id === characterId) {
+      // Reset current character and voice to null
+      setLineBeingEditedData(prev => ({
+        ...prev,
+        character: null,
+        voice: null
+      }));
+    }
+    
+    // 4. Immediately set all lines with this character to deleting state
     setLines((prev) => 
       prev?.map((line) => 
         line.character_id === characterId ? { ...line, isDeleting: true } : line
       ) || null
     );
 
-    // 3. Perform the actual API deletion
+    // 5. Perform the actual API deletion
     try {
       const response = await fetch(`/api/private/scenes/${sceneId}/characters/${characterId}`, {
         method: 'DELETE',
@@ -312,7 +325,13 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
         throw new Error('Failed to delete character');
       }
 
-      // 4. Remove character and associated lines from local state
+      // 6. Remove character from deleting state and local state
+      setDeletingCharacterIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(characterId);
+        return newSet;
+      });
+      
       if (characters) {
         setCharacters(characters.filter(c => c.id !== characterId));
       }
@@ -325,7 +344,13 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
     } catch (error) {
       console.error('Error deleting character:', error);
       
-      // 5. If deletion failed, remove deleting state from affected lines
+      // 7. If deletion failed, remove character from deleting state and reset lines
+      setDeletingCharacterIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(characterId);
+        return newSet;
+      });
+      
       setLines((prev) => 
         prev?.map((line) => 
           line.character_id === characterId ? { ...line, isDeleting: false } : line
@@ -453,6 +478,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
                     closeEditLine={closeEditLine}
                     onCascadeDelete={handleCascadeDelete}
                     onMicError={handleMicError}
+                    deletingCharacterIds={deletingCharacterIds}
                   />
                 )
               }

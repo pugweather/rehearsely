@@ -46,6 +46,7 @@ type Props = {
   setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>;
   onCascadeDelete?: (characterId: number) => Promise<void>;
   onMicError?: (errorType: 'permission' | 'no_device') => void;
+  deletingCharacterIds?: Set<number>;
 };
 
 const certaSansMedium = localFont({
@@ -81,6 +82,7 @@ const EditLine = ({
   setLineBeingEditedData,
   onCascadeDelete,
   onMicError,
+  deletingCharacterIds = new Set(),
 }: Props) => {
   const TEMP_LINE_ID = -999;
   const isNewLine = line?.id === TEMP_LINE_ID;
@@ -886,13 +888,20 @@ return (
               return (
                 <div key={index} className="w-full">
                   <div
-                    className={`${item.className} flex items-center w-full px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors duration-200 font-quicksand text-left ${
+                    className={`${item.className} flex items-center w-full px-4 py-3 transition-colors duration-200 font-quicksand text-left ${
+                      character && deletingCharacterIds.has(character.id) 
+                        ? 'cursor-not-allowed opacity-60' 
+                        : 'hover:bg-gray-50 cursor-pointer'
+                    } ${
                       index === 0 ? 'rounded-t-xl' : ''
                     } ${
                       index === charsDropdownData.length - 1 ? 'rounded-b-xl' : 'border-b border-gray-100'
                     }`}
                     onClick={(e) => {
                       e.preventDefault();
+                      // Don't allow clicking if character is being deleted
+                      if (character && deletingCharacterIds.has(character.id)) return;
+                      
                       item.onClick();
                       // Close dropdown immediately for character selection
                       const activeElement = document.activeElement as HTMLElement;
@@ -917,14 +926,21 @@ return (
                             <FontAwesomeIcon icon={faUser} className="text-white text-xs" />
                           </div>
                           <span className="truncate text-left font-medium w-32">
-                            {item.label}
+                            {character && deletingCharacterIds.has(character.id) ? (
+                              <span className="text-gray-500">
+                                Deleting
+                                <span className="inline-block animate-pulse">...</span>
+                              </span>
+                            ) : (
+                              item.label
+                            )}
                           </span>
                         </>
                       )}
                     </div>
                     {/* Always reserve space for trash button to align everything */}
                     <div className="w-7 h-7 flex items-center justify-center flex-shrink-0">
-                      {isCharacterItem && character && (
+                      {isCharacterItem && character && !character.is_me && (
                         <button
                           className="w-7 h-7 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors duration-200 flex items-center justify-center border border-red-200 hover:border-red-300"
                           onClick={(e) => {
