@@ -118,7 +118,8 @@ const ModalCreateCharacterNew = ({
           voice: newCharacterVoice
         }))
 
-        handleClose()
+        // Close modal directly without resetting character
+        setIsCreateCharModalOpen(false)
       } else {
         setErrorText("Failed to create character. Please try again.")
         setIsLoading(false)
