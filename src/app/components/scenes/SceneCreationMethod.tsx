@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeftLong, faArrowRight, faFileText } from '@fortawesome/free-solid-svg-icons'
 import localFont from 'next/font/local'
+import SceneCharacterName from './SceneCharacterName'
 
 const sunsetSerialMediumFont = localFont({
     src: "../../../../public/fonts/sunsetSerialMedium.ttf",
@@ -16,6 +17,7 @@ interface SceneCreationMethodProps {
 }
 
 type CreationMethod = 'upload' | 'write' | null
+type CurrentScreen = 'method' | 'character-name'
 
 const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) => {
   const [isVisible, setIsVisible] = useState(false)
@@ -23,6 +25,7 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
   const [isCreatingScene, setIsCreatingScene] = useState(false)
   const [isBackLoading, setIsBackLoading] = useState(false)
   const [uploadedFile, setUploadedFile] = useState<{name: string, data: string} | null>(null)
+  const [currentScreen, setCurrentScreen] = useState<CurrentScreen>('method')
   const router = useRouter()
 
   // Trigger slide-in animation on mount
@@ -40,39 +43,15 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
     }, 300)
   }
 
-  const handleCreateScene = async () => {
+  const handleNext = async () => {
     if (!selectedMethod) return
 
-    setIsCreatingScene(true)
-
     if (selectedMethod === 'write') {
-      // Create the scene first, then navigate to editor
-      try {
-        const res = await fetch("/api/private/scenes", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: sceneName
-          })
-        })
-
-        if (res.ok) {
-          const result = await res.json()
-          const { sceneId: newSceneId } = result
-          
-          // Navigate to editor with the newly created scene
-          router.push(`/editor/${newSceneId}`)
-        } else {
-          console.log("Error: failed to create scene")
-          setIsCreatingScene(false)
-        }
-      } catch (error) {
-        console.error("Error creating scene:", error)
-        setIsCreatingScene(false)
-      }
+      // Go to character name screen
+      setCurrentScreen('character-name')
     } else if (selectedMethod === 'upload' && uploadedFile) {
+      // Handle upload flow (existing logic)
+      setIsCreatingScene(true)
       // Navigate to processing screen with uploaded file
       try {
         sessionStorage.setItem('uploadFile', JSON.stringify({
@@ -90,6 +69,22 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
         setIsCreatingScene(false)
       }
     }
+  }
+
+  const handleBackToMethod = () => {
+    setCurrentScreen('method')
+  }
+
+  // Show character name screen for 'write' method
+  if (currentScreen === 'character-name') {
+    return (
+      <div className="h-full flex flex-col flex-1">
+        <SceneCharacterName
+          sceneName={sceneName}
+          onBack={handleBackToMethod}
+        />
+      </div>
+    )
   }
 
   return (
@@ -305,10 +300,10 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
             </div>
           </div>
 
-          {/* Create Scene Button */}
+          {/* Next/Create Scene Button */}
           <div className="mb-8">
             <button
-              onClick={handleCreateScene}
+              onClick={handleNext}
               disabled={(!selectedMethod || (selectedMethod === 'upload' && !uploadedFile)) || isCreatingScene}
               className={`group relative px-8 py-4 rounded-xl border-4 border-black font-bold text-xl transition-all duration-300 ${
                 (selectedMethod === 'write' || (selectedMethod === 'upload' && uploadedFile)) && !isCreatingScene
@@ -328,7 +323,7 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
                   </>
                 ) : (
                   <>
-                    Create Scene
+                    {selectedMethod === 'write' ? 'Next' : 'Create Scene'}
                     {(selectedMethod === 'write' || (selectedMethod === 'upload' && uploadedFile)) && (
                       <FontAwesomeIcon icon={faArrowRight} className="text-lg group-hover:translate-x-1 transition-transform" />
                     )}
