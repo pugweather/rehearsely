@@ -190,27 +190,6 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
         
         {/* Header */}
         <div className="flex items-center justify-between py-8 px-16 mt-15">
-          <button
-            onClick={handleBack}
-            disabled={isBackLoading}
-            className="flex items-center gap-3 text-gray-700 hover:text-gray-900 transition-colors duration-200 group"
-          >
-            <div className={`w-12 h-12 rounded-full bg-white/70 border-2 border-black flex items-center justify-center transition-all duration-200 ${
-              isBackLoading 
-                ? 'cursor-not-allowed opacity-70 scale-95' 
-                : 'group-hover:bg-white group-hover:shadow-md group-hover:-translate-y-0.5'
-            }`}>
-              {isBackLoading ? (
-                <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <FontAwesomeIcon icon={faArrowLeftLong} className="text-lg" />
-              )}
-            </div>
-            <span className={`text-lg ${sunsetSerialMediumFont.className} ${isBackLoading ? 'opacity-70' : ''}`}>
-              {isBackLoading ? 'Loading...' : 'Back'}
-            </span>
-          </button>
-
           <div className="w-32"></div> {/* Spacer for centering */}
         </div>
 
@@ -292,8 +271,28 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
             </div>
           </div>
 
-          {/* Create Scene Button */}
-          <div className="mb-8">
+          {/* Back and Create Scene Buttons */}
+          <div className="mb-8 flex items-center gap-8">
+            <button
+              onClick={handleBack}
+              disabled={isBackLoading}
+              className="flex items-center gap-3 text-gray-700 hover:text-gray-900 transition-colors duration-200 group"
+            >
+              <div className={`w-16 h-16 rounded-full bg-white/70 border-2 border-black flex items-center justify-center transition-all duration-200 ${
+                isBackLoading 
+                  ? 'cursor-not-allowed opacity-70 scale-95' 
+                  : 'group-hover:bg-white group-hover:shadow-md'
+              }`}>
+                {isBackLoading ? (
+                  <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <FontAwesomeIcon icon={faArrowLeftLong} className="text-xl" />
+                )}
+              </div>
+              <span className={`text-xl font-semibold ${sunsetSerialMediumFont.className} ${isBackLoading ? 'opacity-70' : ''}`}>
+                {isBackLoading ? 'Loading...' : 'Back'}
+              </span>
+            </button>
             <button
               onClick={handleCreateScene}
               disabled={!canCreateScene() || isCreatingScene}

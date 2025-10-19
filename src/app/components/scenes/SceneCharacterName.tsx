@@ -45,9 +45,6 @@ const SceneCharacterName = ({ sceneName, onBack }: SceneCharacterNameProps) => {
 
     setIsCreatingScene(true)
 
-    // Start fade transition
-    setIsTransitioning(true)
-
     try {
       // First, create the scene
       const sceneRes = await fetch("/api/private/scenes", {
@@ -88,10 +85,8 @@ const SceneCharacterName = ({ sceneName, onBack }: SceneCharacterNameProps) => {
         return
       }
         
-      // Navigate to editor with fade delay
-      setTimeout(() => {
-        router.push(`/editor/${sceneId}`)
-      }, 200)
+      // Navigate to editor immediately
+      router.push(`/editor/${sceneId}`)
     } catch (error) {
       console.error("Error creating scene:", error)
       setIsCreatingScene(false)
@@ -109,7 +104,7 @@ const SceneCharacterName = ({ sceneName, onBack }: SceneCharacterNameProps) => {
       </div>
 
       <div className={`relative z-10 -m-11 flex-1 text-black flex flex-col items-center justify-center transition-all duration-300 ease-out ${
-        isTransitioning ? 'opacity-0' : isVisible ? 'opacity-100' : 'opacity-0'
+        isVisible ? 'opacity-100' : 'opacity-0'
       }`}>
           <div className='flex flex-col items-center'>
             {/* Scene Title */}
@@ -152,9 +147,9 @@ const SceneCharacterName = ({ sceneName, onBack }: SceneCharacterNameProps) => {
               <button
                 onClick={handleCreateScene}
                 disabled={saveDisabled || isCreatingScene}
-                className={`group relative px-8 py-4 rounded-xl border-4 border-black font-bold text-xl transition-all duration-300 ${
+                className={`group relative px-4 h-full rounded-xl border-4 border-black font-bold text-xl transition-all duration-300 ${
                   !saveDisabled && !isCreatingScene
-                    ? 'bg-black text-white hover:shadow-xl hover:-translate-y-1 cursor-pointer'
+                    ? 'bg-black text-white hover:shadow-xl cursor-pointer'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
                 } ${sunsetSerialMediumFont.className}`}
               >
@@ -171,9 +166,12 @@ const SceneCharacterName = ({ sceneName, onBack }: SceneCharacterNameProps) => {
                   ) : (
                     <>
                       Create Scene
-                      {!saveDisabled && (
-                        <FontAwesomeIcon icon={faArrowRight} className="text-lg group-hover:translate-x-1 transition-transform" />
-                      )}
+                      <FontAwesomeIcon 
+                        icon={faArrowRight} 
+                        className={`text-lg transition-transform ${
+                          !saveDisabled && !isCreatingScene ? 'group-hover:translate-x-1' : ''
+                        }`} 
+                      />
                     </>
                   )}
                 </span>

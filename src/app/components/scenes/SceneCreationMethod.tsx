@@ -108,29 +108,6 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
           <div className="w-32"></div> {/* Spacer for centering */}
         </div>
 
-        {/* Back Button - Positioned lower and more to the right */}
-        <div className="px-16 pb-4">
-          <button
-            onClick={handleBack}
-            disabled={isBackLoading}
-            className="flex items-center gap-3 text-gray-700 hover:text-gray-900 transition-colors duration-200 group"
-          >
-            <div className={`w-12 h-12 rounded-full bg-white/70 border-2 border-black flex items-center justify-center transition-all duration-200 ${
-              isBackLoading 
-                ? 'cursor-not-allowed opacity-70 scale-95' 
-                : 'group-hover:bg-white group-hover:shadow-md group-hover:-translate-y-0.5'
-            }`}>
-              {isBackLoading ? (
-                <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <FontAwesomeIcon icon={faArrowLeftLong} className="text-lg" />
-              )}
-            </div>
-            <span className={`text-lg ${sunsetSerialMediumFont.className} ${isBackLoading ? 'opacity-70' : ''}`}>
-              {isBackLoading ? 'Loading...' : 'Back'}
-            </span>
-          </button>
-        </div>
 
         {/* Main content */}
         <div className="flex-1 flex flex-col items-center justify-center px-8 -mt-5">
@@ -302,14 +279,34 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
             </div>
           </div>
 
-          {/* Next/Create Scene Button */}
-          <div className="mb-8">
+          {/* Back and Next Buttons */}
+          <div className="mb-8 flex items-center gap-8">
+            <button
+              onClick={handleBack}
+              disabled={isBackLoading}
+              className="flex items-center gap-3 text-gray-700 hover:text-gray-900 transition-colors duration-200 group"
+            >
+              <div className={`w-16 h-16 rounded-full bg-white/70 border-2 border-black flex items-center justify-center transition-all duration-200 ${
+                isBackLoading 
+                  ? 'cursor-not-allowed opacity-70 scale-95' 
+                  : 'group-hover:bg-white group-hover:shadow-md'
+              }`}>
+                {isBackLoading ? (
+                  <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <FontAwesomeIcon icon={faArrowLeftLong} className="text-xl" />
+                )}
+              </div>
+              <span className={`text-xl font-semibold ${sunsetSerialMediumFont.className} ${isBackLoading ? 'opacity-70' : ''}`}>
+                {isBackLoading ? 'Loading...' : 'Back'}
+              </span>
+            </button>
             <button
               onClick={handleNext}
               disabled={(!selectedMethod || (selectedMethod === 'upload' && !uploadedFile)) || isCreatingScene}
               className={`group relative px-8 py-4 rounded-xl border-4 border-black font-bold text-xl transition-all duration-300 ${
                 (selectedMethod === 'write' || (selectedMethod === 'upload' && uploadedFile)) && !isCreatingScene
-                  ? 'bg-black text-white hover:shadow-xl hover:-translate-y-1 cursor-pointer'
+                  ? 'bg-black text-white hover:shadow-xl cursor-pointer'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
               } ${sunsetSerialMediumFont.className}`}
             >
@@ -325,10 +322,15 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
                   </>
                 ) : (
                   <>
-                    {selectedMethod === 'write' ? 'Next' : 'Create Scene'}
-                    {(selectedMethod === 'write' || (selectedMethod === 'upload' && uploadedFile)) && (
-                      <FontAwesomeIcon icon={faArrowRight} className="text-lg group-hover:translate-x-1 transition-transform" />
-                    )}
+                    Next
+                    <FontAwesomeIcon 
+                      icon={faArrowRight} 
+                      className={`text-lg transition-transform ${
+                        (selectedMethod === 'write' || (selectedMethod === 'upload' && uploadedFile)) && !isCreatingScene 
+                          ? 'group-hover:translate-x-1' 
+                          : ''
+                      }`} 
+                    />
                   </>
                 )}
               </span>
