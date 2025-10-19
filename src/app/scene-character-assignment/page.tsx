@@ -22,7 +22,7 @@ const SceneCharacterAssignmentPage = () => {
   }
 
   return (
-    <div className="overflow-hidden">
+    <div className="h-full overflow-hidden">
       <SceneCharacterAssignment sceneName={sceneName} fileName={fileName} />
     </div>
   )

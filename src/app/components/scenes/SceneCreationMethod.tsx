@@ -17,7 +17,6 @@ interface SceneCreationMethodProps {
 }
 
 type CreationMethod = 'upload' | 'write' | null
-type CurrentScreen = 'method' | 'character-name'
 
 const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) => {
   const [isVisible, setIsVisible] = useState(false)
@@ -25,22 +24,21 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
   const [isCreatingScene, setIsCreatingScene] = useState(false)
   const [isBackLoading, setIsBackLoading] = useState(false)
   const [uploadedFile, setUploadedFile] = useState<{name: string, data: string} | null>(null)
-  const [currentScreen, setCurrentScreen] = useState<CurrentScreen>('method')
+  const [currentScreen, setCurrentScreen] = useState<'method' | 'character-name'>('method')
   const router = useRouter()
 
-  // Trigger slide-in animation on mount
+  // Trigger fade-in animation on mount
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(true)
-    }, 100)
-    return () => clearTimeout(timer)
+    setIsVisible(true)
   }, [])
 
   const handleBack = () => {
     setIsBackLoading(true)
+    // Fade out current screen
+    setIsVisible(false)
     setTimeout(() => {
-      router.push('/scenes')
-    }, 300)
+      router.push(`/scene-name?sceneName=${encodeURIComponent(sceneName)}`)
+    }, 200)
   }
 
   const handleNext = async () => {
@@ -50,9 +48,10 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
       // Go to character name screen
       setCurrentScreen('character-name')
     } else if (selectedMethod === 'upload' && uploadedFile) {
-      // Handle upload flow (existing logic)
+      // Handle upload flow
       setIsCreatingScene(true)
-      // Navigate to processing screen with uploaded file
+      // Fade out current screen
+      setIsVisible(false)
       try {
         sessionStorage.setItem('uploadFile', JSON.stringify({
           name: uploadedFile.name,
@@ -62,11 +61,14 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
         }))
         sessionStorage.setItem('uploadFormData', 'file-selected')
 
-        // Navigate to processing screen
-        router.push(`/scene-upload-processing?sceneName=${encodeURIComponent(sceneName)}&fileName=${encodeURIComponent(uploadedFile.name)}`)
+        // Navigate to processing screen with delay for fade
+        setTimeout(() => {
+          router.push(`/scene-upload-processing?sceneName=${encodeURIComponent(sceneName)}&fileName=${encodeURIComponent(uploadedFile.name)}`)
+        }, 200)
       } catch (error) {
         console.error("Error processing upload:", error)
         setIsCreatingScene(false)
+        setIsVisible(true) // Fade back in on error
       }
     }
   }
@@ -96,9 +98,9 @@ const SceneCreationMethod = ({ sceneId, sceneName }: SceneCreationMethodProps) =
         <div className="absolute -bottom-40 left-1/3 w-72 h-72 bg-gradient-to-tr from-[#FFD96E]/6 to-transparent rounded-full blur-3xl"></div>
       </div>
 
-      {/* Main content with slide animation */}
-      <div className={`relative z-10 flex flex-col h-full transition-all duration-700 ease-out ${
-        isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+      {/* Main content with fade animation */}
+      <div className={`relative z-10 flex flex-col h-full transition-all duration-300 ease-out ${
+        isVisible ? 'opacity-100' : 'opacity-0'
       }`}>
         
         {/* Header */}

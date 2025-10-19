@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { faArrowLeftLong, faArrowRight } from '@fortawesome/free-solid-svg-icons'
@@ -17,23 +17,25 @@ const SceneNamePage = () => {
   const [sceneName, setSceneName] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isBackLoading, setIsBackLoading] = useState<boolean>(false)
-  const [isTransitioning, setIsTransitioning] = useState<boolean>(false)
+  const [isVisible, setIsVisible] = useState<boolean>(false)
   const router = useRouter()
 
   const saveDisabled = sceneName.length === 0
+
+  useEffect(() => {
+    setIsVisible(true)
+  }, [])
 
   const handleSubmit = async () => {
     if (isLoading) return true
 
     setIsLoading(true)
-
-    // Start swipe transition
-    setIsTransitioning(true)
     
-    // Navigate after a short delay to show the swipe effect
+    // Fade out and navigate
+    setIsVisible(false)
     setTimeout(() => {
       router.push(`/scene-creation-method?sceneName=${encodeURIComponent(sceneName)}`)
-    }, 300)
+    }, 200)
   }
 
   const handleBack = () => {
@@ -53,8 +55,8 @@ const SceneNamePage = () => {
           <div className="absolute -bottom-40 left-1/3 w-72 h-72 bg-gradient-to-tr from-[#FFD96E]/6 to-transparent rounded-full blur-3xl"></div>
         </div>
 
-        <div className={`relative z-10 -m-11 flex-1 text-black flex flex-col items-center justify-center transition-all duration-700 ease-out ${
-          isTransitioning ? '-translate-x-full opacity-0' : 'translate-x-0 opacity-100'
+        <div className={`relative z-10 -m-11 flex-1 text-black flex flex-col items-center justify-center transition-all duration-300 ease-out ${
+          isVisible ? 'opacity-100' : 'opacity-0'
         }`}>
           <div className='flex flex-col items-center'>
               <h1 className={`text-4xl mb-8 font-semibold ${sunsetSerialMediumFont.className}`}>Enter the name for your scene</h1>

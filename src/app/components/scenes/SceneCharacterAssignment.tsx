@@ -105,9 +105,11 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
 
   const handleBack = () => {
     setIsBackLoading(true)
+    // Fade out current screen
+    setIsVisible(false)
     setTimeout(() => {
-      router.push('/scenes')
-    }, 300)
+      router.push(`/scene-creation-method?sceneName=${encodeURIComponent(sceneName)}`)
+    }, 200)
   }
 
   const handleCreateScene = async () => {
@@ -181,9 +183,9 @@ const SceneCharacterAssignment = ({ sceneName, fileName }: SceneCharacterAssignm
         <div className="absolute -bottom-40 left-1/3 w-72 h-72 bg-gradient-to-tr from-[#FFD96E]/6 to-transparent rounded-full blur-3xl"></div>
       </div>
 
-      {/* Main content with slide animation */}
-      <div className={`relative z-10 flex flex-col h-full transition-all duration-700 ease-out ${
-        isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+      {/* Main content with fade animation */}
+      <div className={`relative z-10 flex flex-col h-full transition-all duration-300 ease-out ${
+        isVisible ? 'opacity-100' : 'opacity-0'
       }`}>
         
         {/* Header */}

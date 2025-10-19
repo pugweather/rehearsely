@@ -20,15 +20,23 @@ const SceneCharacterName = ({ sceneName, onBack }: SceneCharacterNameProps) => {
   const [isCreatingScene, setIsCreatingScene] = useState(false)
   const [isBackLoading, setIsBackLoading] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
   const router = useRouter()
 
   const saveDisabled = characterName.length === 0
 
+  // Trigger fade-in animation on mount
+  useEffect(() => {
+    setIsVisible(true)
+  }, [])
+
   const handleBack = () => {
     setIsBackLoading(true)
+    // Fade out current screen
+    setIsVisible(false)
     setTimeout(() => {
       onBack()
-    }, 300)
+    }, 200)
   }
 
   const handleCreateScene = async () => {
@@ -37,7 +45,7 @@ const SceneCharacterName = ({ sceneName, onBack }: SceneCharacterNameProps) => {
 
     setIsCreatingScene(true)
 
-    // Start swipe transition
+    // Start fade transition
     setIsTransitioning(true)
 
     try {
@@ -80,10 +88,10 @@ const SceneCharacterName = ({ sceneName, onBack }: SceneCharacterNameProps) => {
         return
       }
         
-      // Navigate to editor with the newly created scene after a short delay to show the swipe effect
+      // Navigate to editor with fade delay
       setTimeout(() => {
         router.push(`/editor/${sceneId}`)
-      }, 300)
+      }, 200)
     } catch (error) {
       console.error("Error creating scene:", error)
       setIsCreatingScene(false)
@@ -100,8 +108,8 @@ const SceneCharacterName = ({ sceneName, onBack }: SceneCharacterNameProps) => {
         <div className="absolute -bottom-40 left-1/3 w-72 h-72 bg-gradient-to-tr from-[#FFD96E]/6 to-transparent rounded-full blur-3xl"></div>
       </div>
 
-      <div className={`relative z-10 -m-11 flex-1 text-black flex flex-col items-center justify-center transition-all duration-700 ease-out ${
-        isTransitioning ? '-translate-x-full opacity-0' : 'translate-x-0 opacity-100'
+      <div className={`relative z-10 -m-11 flex-1 text-black flex flex-col items-center justify-center transition-all duration-300 ease-out ${
+        isTransitioning ? 'opacity-0' : isVisible ? 'opacity-100' : 'opacity-0'
       }`}>
           <div className='flex flex-col items-center'>
             {/* Scene Title */}
@@ -143,22 +151,32 @@ const SceneCharacterName = ({ sceneName, onBack }: SceneCharacterNameProps) => {
               />
               <button
                 onClick={handleCreateScene}
-                className={clsx(
-                  'w-12 h-12 rounded-full bg-black text-white flex items-center justify-center transition-all duration-200',
-                  (saveDisabled || isCreatingScene) ? "opacity-50 cursor-not-allowed scale-95" : "hover:shadow-lg hover:-translate-y-0.5"
-                )}
                 disabled={saveDisabled || isCreatingScene}
-                title="Create Scene"
+                className={`group relative px-8 py-4 rounded-xl border-4 border-black font-bold text-xl transition-all duration-300 ${
+                  !saveDisabled && !isCreatingScene
+                    ? 'bg-black text-white hover:shadow-xl hover:-translate-y-1 cursor-pointer'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
+                } ${sunsetSerialMediumFont.className}`}
               >
-                {isCreatingScene ? (
-                  <div className="flex gap-0.5">
-                    <div className="w-1 h-1 bg-white rounded-full animate-pulse" style={{animationDelay: '0ms'}}></div>
-                    <div className="w-1 h-1 bg-white rounded-full animate-pulse" style={{animationDelay: '150ms'}}></div>
-                    <div className="w-1 h-1 bg-white rounded-full animate-pulse" style={{animationDelay: '300ms'}}></div>
-                  </div>
-                ) : (
-                  <FontAwesomeIcon icon={faArrowRight} className="text-lg" />
-                )}
+                <span className="flex items-center gap-3">
+                  {isCreatingScene ? (
+                    <>
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{animationDelay: '0ms'}}></div>
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{animationDelay: '200ms'}}></div>
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{animationDelay: '400ms'}}></div>
+                      </div>
+                      Creating Scene...
+                    </>
+                  ) : (
+                    <>
+                      Create Scene
+                      {!saveDisabled && (
+                        <FontAwesomeIcon icon={faArrowRight} className="text-lg group-hover:translate-x-1 transition-transform" />
+                      )}
+                    </>
+                  )}
+                </span>
               </button>
             </div>
 
