@@ -88,9 +88,10 @@ export type UserStore = {
 
 type VoiceLabel = {
     accent: string,
-    description: string,
+    descriptive: string,
     age: string,
     gender: string,
+    language: string,
     use_case: string
 }
 
@@ -98,7 +99,8 @@ export type Voice = {
     voice_id: string,
     name: string,
     labels: VoiceLabel,
-    preview_url: string
+    preview_url: string,
+    category?: string // Add category to identify custom vs premade voices
 }
 
 export type VoicesStore =  {

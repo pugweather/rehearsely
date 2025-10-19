@@ -15,7 +15,8 @@ export async function GET(req: NextRequest) {
               voice_id: voice.voice_id,
               name: voice.name,
               labels: voice.labels,
-              preview_url: voice.preview_url
+              preview_url: voice.preview_url,
+              category: voice.category
             }
         })
 
