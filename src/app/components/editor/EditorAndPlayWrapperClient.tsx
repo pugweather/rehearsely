@@ -27,6 +27,22 @@ const EditorAndPlayWrapperInner = ({scene, lineItems}: Props) => {
 
     const { startLineId, endLineId } = usePracticeRange()
 
+    // Clean up temp unsaved lines when switching to play mode
+    useEffect(() => {
+        if (sceneIsPlaying) {
+            // Remove any temp lines (lines with text=null which haven't been saved)
+            setLines(prev => {
+                if (!prev) return prev
+                const hasTempLine = prev.some(line => line.text === null)
+                if (hasTempLine) {
+                    console.log('🧹 Cleaning up unsaved temp lines before play mode')
+                    return prev.filter(line => line.text !== null)
+                }
+                return prev
+            })
+        }
+    }, [sceneIsPlaying])
+
     // Filter lines based on range when playing
     const filteredLines = useMemo(() => {
         if (!sceneIsPlaying || !lines) return lines
