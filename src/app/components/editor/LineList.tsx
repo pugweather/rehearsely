@@ -74,6 +74,11 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   const TEMP_LINE_ID = -999
   const voices = useVoicesStore(s => s.voices)
 
+  // Generate unique temp IDs for new lines to avoid collisions
+  const generateTempId = () => {
+    return -1 * Date.now() - Math.floor(Math.random() * 1000)
+  }
+
   const highestLineOrder = lineItems?.reduce((max, line) => {
     const lineOrder = line.order ? line.order : -1
     return lineOrder > max ? lineOrder : max
@@ -174,10 +179,11 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   // Adding lines to scene
   const handleAddLine = () => {
     const newLineOrderNumber = lineItems ? lineItems.length : 1
-    // Add temp line with negative id to avoid possibl collisions
+    // Add temp line with unique negative id to avoid collisions
+    // Only check for lines that are being edited (text == null), not saving lines
     if (lineItems && !lineItems.find(l => l.text == null)) {
       const newLine: DraftLine = {
-        id: TEMP_LINE_ID,
+        id: generateTempId(),
         character_id: null,
         order: newLineOrderNumber,
         scene_id: sceneId,
@@ -201,7 +207,7 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
     console.log('handleAddLineBelow called with order:', afterLineOrder)
     console.log('lineItems:', lineItems)
     console.log('existing temp line:', lineItems?.find(l => l.text == null))
-    
+
     if (lineItems && !lineItems.find(l => l.text == null)) {
       // Update orders for all lines that come after the insertion point
       const updatedLines = lineItems.map(line => {
@@ -211,9 +217,9 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
         return line
       })
 
-      // Create new line with order right after the specified line
+      // Create new line with unique temp ID and order right after the specified line
       const newLine: DraftLine = {
-        id: TEMP_LINE_ID,
+        id: generateTempId(),
         character_id: null,
         order: afterLineOrder + 1,
         scene_id: sceneId,
@@ -279,8 +285,9 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
   const closeEditLine = (removeTempLine: boolean = true) => {
     // Remove temp line from lines array only if removeTempLine is true
     // When saving a new line, we need to keep the temp line so it can be replaced with the real line
-    if (removeTempLine && lineItems?.find(l => Number(l.id) == TEMP_LINE_ID)) {
-      setLines(prev => prev?.filter(l => Number(l.id) !== TEMP_LINE_ID) || null)
+    if (removeTempLine && lineBeingEdited && lineBeingEdited.id < 0) {
+      // Remove any temp line (negative ID) that matches the one being edited
+      setLines(prev => prev?.filter(l => l.id !== lineBeingEdited.id) || null)
     }
     setLineBeingEdited(null)
     setLineBeingEditedData(LINE_BEING_EDITED_EMPTY)

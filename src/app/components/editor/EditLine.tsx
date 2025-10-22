@@ -90,8 +90,8 @@ const EditLine = ({
   onLineSaveComplete,
   onLineSaveError,
 }: Props) => {
-  const TEMP_LINE_ID = -999;
-  const isNewLine = line?.id === TEMP_LINE_ID;
+  // Any negative ID is a temp line (not yet saved to DB)
+  const isNewLine = line?.id !== undefined && line.id < 0;
   const lineId = line?.id;
   const { character, text } = lineBeingEditedData;
 
@@ -237,16 +237,16 @@ const EditLine = ({
     // For new lines, set isSaving flag and update line data before closing EditLine
     if (isNewLine) {
       setLines((prev) =>
-        prev?.map((line) =>
-          line.id === TEMP_LINE_ID ? {
-            ...line,
+        prev?.map((l) =>
+          l.id === lineId ? {
+            ...l,
             isSaving: true,
             character_id: character?.id || null,
             text: trimmed || '',
             speed: lineBeingEditedData.speed,
             delay: lineBeingEditedData.delay,
             order: lineBeingEditedData.order
-          } : line
+          } : l
         ) || null
       );
       // Close edit state but don't remove the temp line (we need it to replace with real line)
@@ -321,17 +321,17 @@ const EditLine = ({
       if (isNewLine) {
         const insertedLine = result.insertedLine[0];
         console.log('📝 Inserted line from DB:', insertedLine);
-        console.log('🔍 TEMP_LINE_ID:', TEMP_LINE_ID);
+        console.log('🔍 Temp line ID being replaced:', lineId);
         // Replace the temporary line with the actual saved line from the database
         setLines((prev) => {
           console.log('📊 Previous state before update:', prev);
-          console.log('🔎 Looking for line with id:', TEMP_LINE_ID);
-          const foundTemp = prev?.find(line => line.id === TEMP_LINE_ID);
+          console.log('🔎 Looking for line with id:', lineId);
+          const foundTemp = prev?.find(line => line.id === lineId);
           console.log('🎯 Found temp line:', foundTemp);
 
           if (!prev) return [insertedLine];
           const updated = prev.map(line => {
-            const willReplace = line.id === TEMP_LINE_ID;
+            const willReplace = line.id === lineId;
             console.log(`  Line ${line.id}: ${willReplace ? '🔄 REPLACING' : '✓ keeping'}`);
             // Make sure isSaving is not set on the inserted line
             return willReplace ? { ...insertedLine, isSaving: false } : line;
@@ -389,7 +389,7 @@ const EditLine = ({
       if (isNewLine) {
         setLines((prev) =>
           prev?.map((line) =>
-            line.id === TEMP_LINE_ID ? { ...line, isSaving: false } : line
+            line.id === lineId ? { ...line, isSaving: false } : line
           ) || null
         );
       }
@@ -403,7 +403,8 @@ const EditLine = ({
   };
 
   const handleDelete = async () => {
-    if (lineId === TEMP_LINE_ID) return closeEditLine();
+    // If deleting a new unsaved line, just close the editor
+    if (isNewLine) return closeEditLine();
 
     if (!lineId || !sceneId) {
       console.error('Missing lineId or sceneId for delete operation');
