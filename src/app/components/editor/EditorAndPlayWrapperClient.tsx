@@ -16,14 +16,8 @@ type Props = {
 }
 
 // Inner component that has access to PracticeRangeContext
-const EditorAndPlayWrapperInner = ({scene, lineItems}: Props) => {
+const EditorAndPlayWrapperInner = ({scene, lineItems, setLines}: Props & {setLines: React.Dispatch<React.SetStateAction<DraftLine[] | null>>}) => {
     const [sceneIsPlaying, setSceneIsPlaying] = useState<boolean>(false)
-    const [lines, setLines] = useState<DraftLine[] | null>(lineItems);
-
-    // Update lines when lineItems prop changes (e.g., when audio is generated)
-    useEffect(() => {
-        setLines(lineItems)
-    }, [lineItems])
 
     const { startLineId, endLineId } = usePracticeRange()
 
@@ -41,20 +35,20 @@ const EditorAndPlayWrapperInner = ({scene, lineItems}: Props) => {
                 return prev
             })
         }
-    }, [sceneIsPlaying])
+    }, [sceneIsPlaying, setLines])
 
     // Filter lines based on range when playing
     const filteredLines = useMemo(() => {
-        if (!sceneIsPlaying || !lines) return lines
-        if (!startLineId && !endLineId) return lines
+        if (!sceneIsPlaying || !lineItems) return lineItems
+        if (!startLineId && !endLineId) return lineItems
 
-        return lines.filter(line => {
+        return lineItems.filter(line => {
             if (!line?.order) return true
 
             // Both start and end are set
             if (startLineId && endLineId) {
-                const startLine = lines.find(l => l.id === startLineId)
-                const endLine = lines.find(l => l.id === endLineId)
+                const startLine = lineItems.find(l => l.id === startLineId)
+                const endLine = lineItems.find(l => l.id === endLineId)
 
                 if (!startLine?.order || !endLine?.order) return true
 
@@ -66,21 +60,21 @@ const EditorAndPlayWrapperInner = ({scene, lineItems}: Props) => {
 
             // Only start is set - include start and everything after
             if (startLineId && !endLineId) {
-                const startLine = lines.find(l => l.id === startLineId)
+                const startLine = lineItems.find(l => l.id === startLineId)
                 if (!startLine?.order) return true
                 return line.order >= startLine.order
             }
 
             // Only end is set - include everything up to and including end
             if (!startLineId && endLineId) {
-                const endLine = lines.find(l => l.id === endLineId)
+                const endLine = lineItems.find(l => l.id === endLineId)
                 if (!endLine?.order) return true
                 return line.order <= endLine.order
             }
 
             return true
         })
-    }, [sceneIsPlaying, lines, startLineId, endLineId])
+    }, [sceneIsPlaying, lineItems, startLineId, endLineId])
 
     return (
         <>
@@ -96,7 +90,7 @@ const EditorAndPlayWrapperInner = ({scene, lineItems}: Props) => {
                 :
                 <EditorWrapperOuter
                     scene={scene}
-                    lineItems={lines}
+                    lineItems={lineItems}
                     setLines={setLines}
                     setSceneIsPlaying={setSceneIsPlaying}
                     sceneIsPlaying={sceneIsPlaying}
@@ -239,7 +233,7 @@ const EditorAndPlayWrapperClient = ({scene, lineItems}: Props) => {
                 <CharactersProvider characters={characters} setCharacters={setCharacters}>
                     <CountdownProvider>
                         <CurtainReveal isLoading={isLoading} loadingText="Loading scene">
-                            <EditorAndPlayWrapperInner scene={scene} lineItems={lines} />
+                            <EditorAndPlayWrapperInner scene={scene} lineItems={lines} setLines={setLines} />
                         </CurtainReveal>
                     </CountdownProvider>
                 </CharactersProvider>

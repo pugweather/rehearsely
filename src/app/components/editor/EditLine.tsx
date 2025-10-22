@@ -41,7 +41,7 @@ type Props = {
   newLineOrder: number;
   sceneId: number;
   setLines: React.Dispatch<React.SetStateAction<DraftLine[] | null>>;
-  closeEditLine: () => void;
+  closeEditLine: (removeTempLine?: boolean) => void;
   charsDropdownData: DropdownData[] | undefined;
   setLineBeingEditedData: React.Dispatch<React.SetStateAction<LineBeingEditedData>>;
   onCascadeDelete?: (characterId: number) => Promise<void>;
@@ -229,9 +229,28 @@ const EditLine = ({
   const handleSave = async () => {
     const trimmed = text?.trim();
 
-    // Notify parent that saving has started
-    if (lineId && onLineSaveStart) {
+    // For existing lines, use the savingLineIds set
+    if (lineId && onLineSaveStart && !isNewLine) {
       onLineSaveStart(lineId);
+    }
+
+    // For new lines, set isSaving flag and update line data before closing EditLine
+    if (isNewLine) {
+      setLines((prev) =>
+        prev?.map((line) =>
+          line.id === TEMP_LINE_ID ? {
+            ...line,
+            isSaving: true,
+            character_id: character?.id || null,
+            text: trimmed || '',
+            speed: lineBeingEditedData.speed,
+            delay: lineBeingEditedData.delay,
+            order: lineBeingEditedData.order
+          } : line
+        ) || null
+      );
+      // Close edit state but don't remove the temp line (we need it to replace with real line)
+      closeEditLine(false);
     }
 
     setIsLoading(true);
@@ -298,15 +317,27 @@ const EditLine = ({
 
     if (res.ok) {
       const result = await res.json();
-      console.log(result)
+      console.log('✅ Save result:', result)
       if (isNewLine) {
         const insertedLine = result.insertedLine[0];
+        console.log('📝 Inserted line from DB:', insertedLine);
+        console.log('🔍 TEMP_LINE_ID:', TEMP_LINE_ID);
         // Replace the temporary line with the actual saved line from the database
         setLines((prev) => {
+          console.log('📊 Previous state before update:', prev);
+          console.log('🔎 Looking for line with id:', TEMP_LINE_ID);
+          const foundTemp = prev?.find(line => line.id === TEMP_LINE_ID);
+          console.log('🎯 Found temp line:', foundTemp);
+
           if (!prev) return [insertedLine];
-          return prev.map(line => 
-            line.id === -999 ? insertedLine : line
-          ).sort((a, b) => (a.order || 0) - (b.order || 0));
+          const updated = prev.map(line => {
+            const willReplace = line.id === TEMP_LINE_ID;
+            console.log(`  Line ${line.id}: ${willReplace ? '🔄 REPLACING' : '✓ keeping'}`);
+            // Make sure isSaving is not set on the inserted line
+            return willReplace ? { ...insertedLine, isSaving: false } : line;
+          }).sort((a, b) => (a.order || 0) - (b.order || 0));
+          console.log('🎉 New state after update:', updated);
+          return updated;
         });
       } else {
         const { id, updates } = result;
@@ -341,18 +372,30 @@ const EditLine = ({
         setSavedWithVoiceCloning(false);
       }
 
-      // Notify parent that saving completed successfully
-      if (lineId && onLineSaveComplete) {
+      // Notify parent that saving completed successfully (only for existing lines)
+      if (lineId && onLineSaveComplete && !isNewLine) {
         onLineSaveComplete(lineId);
       }
 
-      closeEditLine();
+      // Only close EditLine for existing lines (new lines already closed)
+      if (!isNewLine) {
+        closeEditLine();
+      }
     } else {
       console.log("Save failed - request body:", trimmedAudioBlob ? "FormData with audio" : "JSON payload")
       console.error("Save failed");
-      
-      // Notify parent that saving failed
-      if (lineId && onLineSaveError) {
+
+      // For new lines, remove isSaving flag on error
+      if (isNewLine) {
+        setLines((prev) =>
+          prev?.map((line) =>
+            line.id === TEMP_LINE_ID ? { ...line, isSaving: false } : line
+          ) || null
+        );
+      }
+
+      // Notify parent that saving failed (only for existing lines)
+      if (lineId && onLineSaveError && !isNewLine) {
         onLineSaveError(lineId);
       }
     }

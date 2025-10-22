@@ -276,9 +276,10 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
     }
   }
 
-  const closeEditLine = () => {
-    // Remove temp line from lines array. Line isn't in db so no need to hit delete endpoint
-    if (lineItems?.find(l => Number(l.id) == TEMP_LINE_ID)) {
+  const closeEditLine = (removeTempLine: boolean = true) => {
+    // Remove temp line from lines array only if removeTempLine is true
+    // When saving a new line, we need to keep the temp line so it can be replaced with the real line
+    if (removeTempLine && lineItems?.find(l => Number(l.id) == TEMP_LINE_ID)) {
       setLines(prev => prev?.filter(l => Number(l.id) !== TEMP_LINE_ID) || null)
     }
     setLineBeingEdited(null)
@@ -478,8 +479,21 @@ const LineList = ({lineItems, scrollRef, sceneId, setLines}: Props) => {
           <div className='w-full'>
             {
             lineItems?.map((line, index) => {
-              // Check if this line is being saved
+              // Check if this line is being saved (existing lines use savingLineIds set)
               if (line.id && savingLineIds.has(line.id)) {
+                const character = characters?.find(c => c.id === line.character_id);
+                return (
+                  <SavingLine
+                    key={line.id}
+                    characterName={character?.name || 'Unknown'}
+                    order={line.order || 0}
+                    text={line.text || ''}
+                  />
+                );
+              }
+
+              // Check if this line is being saved (new lines use isSaving flag)
+              if (line.isSaving) {
                 const character = characters?.find(c => c.id === line.character_id);
                 return (
                   <SavingLine
