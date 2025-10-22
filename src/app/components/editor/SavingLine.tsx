@@ -2,8 +2,8 @@
 import React from 'react'
 import localFont from 'next/font/local'
 
-const sunsetSerialMediumFont = localFont({
-  src: "../../../../public/fonts/sunsetSerialMedium.ttf",
+const courierPrimeRegular = localFont({
+  src: "../../../../public/fonts/courierPrimeRegular.ttf",
 })
 
 interface SavingLineProps {
@@ -14,36 +14,61 @@ interface SavingLineProps {
 
 const SavingLine = ({ characterName, order, text }: SavingLineProps) => {
   return (
-    <div className="relative group">
-      <div className="flex items-start gap-4 p-4 bg-white/50 rounded-lg border-2 border-gray-300 pointer-events-none">
+    <div
+      className={`w-full text-center mb-8 px-8 py-6 rounded-xl transition-all font-medium border relative cursor-not-allowed opacity-60 ${courierPrimeRegular.className}`}
+      style={{
+        backgroundColor: 'rgba(200,200,200,0.3)',
+        borderColor: 'rgba(150,150,150,0.4)',
+        borderWidth: '1px'
+      }}
+    >
+      {/* Character Name */}
+      <div className={`text-lg uppercase mb-3 transition-opacity duration-300 ease-in-out ${courierPrimeRegular.className}`} style={{ color: '#0a0a0a', letterSpacing: '0.05em' }}>
+        {characterName}
+      </div>
 
-        {/* Order number */}
-        <div className="flex-shrink-0 w-8 text-center">
-          <span className="text-sm font-semibold text-gray-500">{order}</span>
-        </div>
+      {/* Line Text */}
+      <div className={`text-lg leading-relaxed whitespace-pre-wrap ${courierPrimeRegular.className}`} style={{ color: '#0a0a0a' }}>
+        {text}
+      </div>
 
-        {/* Content */}
-        <div className="flex-1">
-          {/* Character name */}
-          <div className={`text-lg font-bold text-gray-800 mb-2 ${sunsetSerialMediumFont.className}`}>
-            {characterName}
-          </div>
-
-          {/* Line text (truncated if too long) */}
-          <div className="text-gray-700 mb-3 text-sm leading-relaxed">
-            {text.length > 100 ? `${text.substring(0, 100)}...` : text}
-          </div>
-
-          {/* Saving message with animated dots */}
-          <div className="flex items-center gap-2 text-gray-600">
-            <span className="text-sm italic">Saving line</span>
-            <div className="flex gap-1">
-              <div className="w-2 h-2 bg-[#72a4f2] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-2 h-2 bg-[#ffa05a] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-2 h-2 bg-[#FFD96E] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-            </div>
-          </div>
-        </div>
+      {/* Saving State */}
+      <div className="mt-4 flex items-center justify-center gap-2">
+        <span className="text-sm text-gray-500 font-medium">saving</span>
+        <svg
+          width="32"
+          height="12"
+          viewBox="0 0 32 12"
+          className="ml-1"
+        >
+          <circle cx="4" cy="8" r="2" fill="#72a4f2">
+            <animate
+              attributeName="cy"
+              values="8;4;8"
+              dur="1.4s"
+              repeatCount="indefinite"
+              begin="0s"
+            />
+          </circle>
+          <circle cx="14" cy="8" r="2" fill="#ffa05a">
+            <animate
+              attributeName="cy"
+              values="8;4;8"
+              dur="1.4s"
+              repeatCount="indefinite"
+              begin="0.2s"
+            />
+          </circle>
+          <circle cx="24" cy="8" r="2" fill="#FFD96E">
+            <animate
+              attributeName="cy"
+              values="8;4;8"
+              dur="1.4s"
+              repeatCount="indefinite"
+              begin="0.4s"
+            />
+          </circle>
+        </svg>
       </div>
     </div>
   )
